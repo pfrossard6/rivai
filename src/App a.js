@@ -620,7 +620,7 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo }) {
       }, 1000);
     } else { clearInterval(ivRef.current); saveTimer(timerSec, false, null); startedAtRef.current = null; }
     return () => clearInterval(ivRef.current);
-  }, [running]);
+  }, [running, timerSec]);
 
   function handleStart() {
     if (!running && timerSec === 0) {
@@ -1071,7 +1071,6 @@ function RankTab({ T, user }) {
   useEffect(() => {
     supabase.from("users").select("name,xp,email").order("xp",{ascending:false}).then(({data})=>{ if(data) setAllUsers(data.map(dbToUser)); });
   }, []);
-  const _unused = Object.values
     .filter(u => u.name && u.xp !== undefined)
     .sort((a, b) => (b.xp || 0) - (a.xp || 0))
     .slice(0, 20);
