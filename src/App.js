@@ -374,7 +374,7 @@ function AuthScreen({ T, mode, onSubmit, onSwitch, error, setError, themeKey, to
         <div style={{ textAlign: "center", marginBottom: 26 }}>
           <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 5 }}>
             <div style={{ width: 38, height: 38, borderRadius: 11, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, animation: "float 3s ease-in-out infinite" }}>⬡</div>
-            <span style={{ fontSize: 21, fontWeight: 900, color: T.textPrimary }}>Aprenda<span style={{ color: T.accent }}>IA</span></span>
+            <span style={{ fontSize: 21, fontWeight: 900, color: T.textPrimary }}>Riv.<span style={{ color: T.accent }}>IA</span></span>
           </div>
           <p style={{ fontSize: 13, color: T.textSecondary }}>Seu tutor de IA personalizado</p>
         </div>
@@ -447,7 +447,7 @@ function OnboardingScreen({ T, user, onDone }) {
     <div style={{ minHeight: "100vh", background: T.bg, padding: "26px 18px" }}>
       <div style={{ maxWidth: 560, margin: "0 auto" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 30 }}>
-          <span style={{ fontSize: 17, fontWeight: 900, color: T.textPrimary }}>Aprenda<span style={{ color: T.accent }}>IA</span></span>
+          <span style={{ fontSize: 17, fontWeight: 900, color: T.textPrimary }}>Riv.<span style={{ color: T.accent }}>IA</span></span>
           <div style={{ flex: 1, display: "flex", gap: 3 }}>
             {Array.from({ length: TOTAL }).map((_, i) => <div key={i} style={{ flex: 1, height: 4, borderRadius: 4, background: i <= step ? T.accent : T.border, transition: "background .3s" }} />)}
           </div>
@@ -495,7 +495,7 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
     <div style={{ minHeight: "100vh", background: T.bg, paddingBottom: 70 }}>
       {/* Navbar */}
       <div style={{ background: T.navBg, borderBottom: `1px solid ${T.border}`, padding: "10px 16px", display: "flex", alignItems: "center", gap: 10, position: "sticky", top: 0, zIndex: 100, backdropFilter: "blur(16px)" }}>
-        <span style={{ fontSize: 16, fontWeight: 900, color: T.textPrimary }}>Aprenda<span style={{ color: T.accent }}>IA</span></span>
+        <span style={{ fontSize: 16, fontWeight: 900, color: T.textPrimary }}>Riv.<span style={{ color: T.accent }}>IA</span></span>
         <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8 }}>
           {(() => { const { lvl, pct } = getLevel(user.xp || 0); return <>
             <div style={{ background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 800, color: "#fff" }}>L{lvl}</div>
