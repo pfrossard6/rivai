@@ -1071,9 +1071,6 @@ function RankTab({ T, user }) {
   useEffect(() => {
     supabase.from("users").select("name,xp,email").order("xp",{ascending:false}).then(({data})=>{ if(data) setAllUsers(data.map(dbToUser)); });
   }, []);
-    .filter(u => u.name && u.xp !== undefined)
-    .sort((a, b) => (b.xp || 0) - (a.xp || 0))
-    .slice(0, 20);
 
   const myRank = allUsers.findIndex(u => u.email === user.email) + 1;
   const medals = ["🥇", "🥈", "🥉"];
