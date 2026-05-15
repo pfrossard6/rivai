@@ -163,7 +163,7 @@ function extractJSON(text) {
 }
 
 async function callAPI(messages, system, maxTokens = 1000) {
-  const body = { model: "claude-sonnet-4-20250514", max_tokens: maxTokens, messages };
+  const body = { model: "claude-sonnet-4-5", max_tokens: maxTokens, messages };
   if (system) body.system = system;
   const r = await fetch("/api/chat", {
     method: "POST", headers: { "Content-Type": "application/json" },
