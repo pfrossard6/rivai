@@ -490,6 +490,20 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
   const [tab, setTab] = useState("home");
   const [showProfile, setShowProfile] = useState(false);
   const navTo = useCallback(t => setTab(t), []);
+  const userRef = useRef(user);
+  useEffect(() => { userRef.current = user; }, [user]);
+
+  const completeMission = useCallback((mId) => {
+    const key = mId + "_" + getTodayStr();
+    const cur = userRef.current;
+    const completed = cur.completedMissions || [];
+    if (completed.includes(key)) return;
+    const m = DAILY_MISSIONS.find(x => x.id === mId);
+    if (!m) return;
+    updateUser({ ...cur, completedMissions: [...completed, key] });
+    addXP(m.xp);
+    addToast(`${m.icon} Missão completa! +${m.xp} XP`);
+  }, [updateUser, addXP, addToast]);
 
   return (
     <div style={{ minHeight: "100vh", background: T.bg, paddingBottom: 70 }}>
@@ -516,20 +530,22 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
       </div>
 
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "18px 14px" }}>
-        {tab === "home" && <HomeTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} navTo={navTo} />}
+        {tab === "home" && <HomeTab T={T} user={user} navTo={navTo} />}
+        {tab === "estudar" && <EstudarTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
         {tab === "trail" && <TrailTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} />}
-        {tab === "tutor" && <TutorTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} />}
-        {tab === "quiz" && <QuizTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} />}
-        {tab === "notes" && <NotesTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} />}
+        {tab === "tutor" && <TutorTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
+        {tab === "quiz" && <QuizTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
+        {tab === "notes" && <NotesTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
         {tab === "rank" && <RankTab T={T} user={user} />}
       </div>
 
       {/* Bottom nav */}
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: T.navBg, borderTop: `1px solid ${T.border}`, display: "flex", zIndex: 100, backdropFilter: "blur(16px)" }}>
         {[
-          { id: "home", icon: "🏠", label: "Início" }, { id: "trail", icon: "🗺️", label: "Trilha" },
-          { id: "tutor", icon: "⬡", label: "Tutor" }, { id: "quiz", icon: "🎯", label: "Quiz" },
-          { id: "notes", icon: "📓", label: "Notas" }, { id: "rank", icon: "🏆", label: "Ranking" },
+          { id: "home", icon: "🏠", label: "Início" }, { id: "estudar", icon: "⏱️", label: "Estudar" },
+          { id: "trail", icon: "🗺️", label: "Trilha" }, { id: "tutor", icon: "⬡", label: "Tutor" },
+          { id: "quiz", icon: "🎯", label: "Quiz" }, { id: "notes", icon: "📓", label: "Notas" },
+          { id: "rank", icon: "🏆", label: "Ranking" },
         ].map(item => (
           <button key={item.id} onClick={() => setTab(item.id)} style={{ flex: 1, padding: "8px 0 9px", background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2, fontFamily: "'Nunito',sans-serif" }}>
             <span style={{ fontSize: 18, filter: tab === item.id ? "none" : "grayscale(80%) opacity(.45)", transform: tab === item.id ? "scale(1.16)" : "scale(1)", transition: "all .15s", color: tab === item.id && item.id === "tutor" ? T.accent : undefined }}>{item.icon}</span>
@@ -603,14 +619,68 @@ function ProfileModal({ T, user, updateUser, onLogout, onRestart, addToast, onCl
 }
 
 // ─── Home Tab ──────────────────────────────────────────────────────────────
-function HomeTab({ T, user, updateUser, addXP, addToast, navTo }) {
+function HomeTab({ T, user, navTo }) {
+  const completedMissions = user.completedMissions || [];
+  const today = getTodayStr();
+
+  return (
+    <div style={{ animation: "fadeUp .4s ease" }}>
+      <h1 style={{ fontSize: 21, fontWeight: 900, color: T.textPrimary, marginBottom: 3 }}>Olá, {user.name?.split(" ")[0]}! 👋</h1>
+      {user.course && <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 18 }}>{user.course.headline}</p>}
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
+        {[{ l: "Streak", v: `${user.streak||0}🔥`, c: T.red }, { l: "XP", v: user.xp||0, c: T.amber }, { l: "🏆", v: (user.achievements||[]).length, c: T.accent }].map(st => (
+          <Card T={T} key={st.l} style={{ textAlign: "center", padding: "12px 8px" }}><p style={{ fontSize: 19, fontWeight: 900, color: st.c, fontFamily: "'JetBrains Mono',monospace" }}>{st.v}</p><p style={{ fontSize: 10, color: T.textDim, marginTop: 2 }}>{st.l}</p></Card>
+        ))}
+      </div>
+
+      <Card T={T} style={{ marginBottom: 12 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <h3 style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary }}>⚡ Missões do dia</h3>
+          <span style={{ fontSize: 11, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>{DAILY_MISSIONS.filter(m => completedMissions.includes(m.id + "_" + today)).length}/{DAILY_MISSIONS.length}</span>
+        </div>
+        {DAILY_MISSIONS.map(mission => {
+          const isDone = completedMissions.includes(mission.id + "_" + today);
+          return (
+            <div key={mission.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: isDone ? T.greenDim : T.surface, border: `1px solid ${isDone ? T.green + "33" : T.border}`, borderRadius: 11, marginBottom: 7, transition: "all .2s" }}>
+              <span style={{ fontSize: 17, filter: isDone ? "none" : "grayscale(50%)" }}>{mission.icon}</span>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontWeight: 700, fontSize: 13, color: isDone ? T.green : T.textPrimary, textDecoration: isDone ? "line-through" : "none" }}>{mission.title}</p>
+                <p style={{ fontSize: 11, color: T.textDim }}>{mission.desc}</p>
+              </div>
+              <span style={{ fontSize: 11, fontWeight: 800, color: T.amber, fontFamily: "'JetBrains Mono',monospace" }}>+{mission.xp}</span>
+              <div style={{ width: 26, height: 26, borderRadius: 7, border: `2px solid ${isDone ? T.green : T.border}`, background: isDone ? T.green : "transparent", color: isDone ? "#fff" : T.textDim, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{isDone ? "✓" : "○"}</div>
+            </div>
+          );
+        })}
+      </Card>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+        {[{ id: "estudar", icon: "⏱️", label: "Estudar" }, { id: "trail", icon: "🗺️", label: "Trilha" }, { id: "quiz", icon: "🎯", label: "Quiz" }, { id: "notes", icon: "📓", label: "Notas" }].map(item => (
+          <Card T={T} key={item.id} style={{ padding: "14px 10px", textAlign: "center" }} onClick={() => navTo(item.id)}>
+            <div style={{ fontSize: 24, marginBottom: 5 }}>{item.icon}</div>
+            <p style={{ fontWeight: 800, fontSize: 13, color: T.textPrimary }}>{item.label}</p>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ─── Estudar Tab ────────────────────────────────────────────────────────────
+function EstudarTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const timerState = useRef(loadTimer());
   const [timerSec, setTimerSec] = useState(timerState.current.sec);
   const [running, setRunning] = useState(timerState.current.running);
   const startedAtRef = useRef(timerState.current.running ? Date.now() : null);
   const ivRef = useRef(null);
-  const completedMissions = user.completedMissions || [];
+  const timerSecRef = useRef(timerSec);
   const goalSec = (user.settings?.dailyGoal || user.profile?.hours || 1) * 3600;
+  const today = getTodayStr();
+  const study30Done = (user.completedMissions || []).includes("study_30_" + today);
+  const triggeredRef = useRef(study30Done);
+
+  useEffect(() => { timerSecRef.current = timerSec; }, [timerSec]);
 
   useEffect(() => {
     if (running) {
@@ -618,14 +688,29 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo }) {
       ivRef.current = setInterval(() => {
         setTimerSec(s => { const n = s + 1; saveTimer(n, true, startedAtRef.current); return n; });
       }, 1000);
-    } else { clearInterval(ivRef.current); saveTimer(timerSec, false, null); startedAtRef.current = null; }
+    } else {
+      clearInterval(ivRef.current);
+      saveTimer(timerSecRef.current, false, null);
+      startedAtRef.current = null;
+    }
     return () => clearInterval(ivRef.current);
-  }, [running, timerSec]);
+  }, [running]);
+
+  useEffect(() => {
+    if (timerSec >= 1800 && !triggeredRef.current) {
+      triggeredRef.current = true;
+      completeMission("study_30");
+    }
+  }, [timerSec, completeMission]);
+
+  useEffect(() => {
+    if (study30Done) triggeredRef.current = true;
+  }, [study30Done]);
 
   function handleStart() {
     if (!running && timerSec === 0) {
       addXP(10, "first_study");
-      const today = getTodayStr(); const yesterday = new Date(Date.now() - 86400000).toDateString();
+      const yesterday = new Date(Date.now() - 86400000).toDateString();
       if (user.lastStudy !== today) {
         let streak = user.lastStudy === yesterday ? (user.streak || 0) + 1 : 1;
         const newAch = [...(user.achievements || [])];
@@ -641,24 +726,16 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo }) {
 
   function resetTimer() { setRunning(false); setTimerSec(0); saveTimer(0, false, null); startedAtRef.current = null; }
 
-  function completeMission(mId) {
-    const key = mId + "_" + getTodayStr();
-    if (completedMissions.includes(key)) return;
-    const m = DAILY_MISSIONS.find(x => x.id === mId);
-    if (!m) return;
-    updateUser({ ...user, completedMissions: [...completedMissions, key] });
-    addXP(m.xp); addToast(`${m.icon} Missão completa! +${m.xp} XP`);
-  }
-
   const pad = n => String(n).padStart(2, "0");
   const h = Math.floor(timerSec / 3600), m = Math.floor((timerSec % 3600) / 60), s = timerSec % 60;
   const pct = Math.min(100, (timerSec / goalSec) * 100);
   const done = timerSec >= goalSec;
+  const minStudied = Math.min(30, Math.floor(timerSec / 60));
 
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
-      <h1 style={{ fontSize: 21, fontWeight: 900, color: T.textPrimary, marginBottom: 3 }}>Olá, {user.name?.split(" ")[0]}! 👋</h1>
-      {user.course && <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 18 }}>{user.course.headline}</p>}
+      <h2 style={{ fontSize: 20, fontWeight: 900, color: T.textPrimary, marginBottom: 3 }}>Sessão de Estudo ⏱️</h2>
+      <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 18 }}>Acompanhe seu tempo de estudo diário.</p>
 
       <Card T={T} style={{ marginBottom: 12, textAlign: "center", background: done ? T.greenDim : T.card, border: `1px solid ${done ? T.green + "44" : T.border}` }}>
         <p style={{ fontSize: 10, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 8, fontFamily: "'JetBrains Mono',monospace" }}>sessão de hoje</p>
@@ -673,41 +750,21 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo }) {
         </div>
       </Card>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
-        {[{ l: "Streak", v: `${user.streak||0}🔥`, c: T.red }, { l: "XP", v: user.xp||0, c: T.amber }, { l: "🏆", v: (user.achievements||[]).length, c: T.accent }].map(st => (
-          <Card T={T} key={st.l} style={{ textAlign: "center", padding: "12px 8px" }}><p style={{ fontSize: 19, fontWeight: 900, color: st.c, fontFamily: "'JetBrains Mono',monospace" }}>{st.v}</p><p style={{ fontSize: 10, color: T.textDim, marginTop: 2 }}>{st.l}</p></Card>
-        ))}
-      </div>
-
-      <Card T={T} style={{ marginBottom: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-          <h3 style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary }}>⚡ Missões do dia</h3>
-          <span style={{ fontSize: 11, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>{DAILY_MISSIONS.filter(m => completedMissions.includes(m.id + "_" + getTodayStr())).length}/{DAILY_MISSIONS.length}</span>
-        </div>
-        {DAILY_MISSIONS.map(mission => {
-          const isDone = completedMissions.includes(mission.id + "_" + getTodayStr());
-          return (
-            <div key={mission.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: isDone ? T.greenDim : T.surface, border: `1px solid ${isDone ? T.green + "33" : T.border}`, borderRadius: 11, marginBottom: 7, transition: "all .2s" }}>
-              <span style={{ fontSize: 17, filter: isDone ? "none" : "grayscale(50%)" }}>{mission.icon}</span>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontWeight: 700, fontSize: 13, color: isDone ? T.green : T.textPrimary, textDecoration: isDone ? "line-through" : "none" }}>{mission.title}</p>
-                <p style={{ fontSize: 11, color: T.textDim }}>{mission.desc}</p>
-              </div>
-              <span style={{ fontSize: 11, fontWeight: 800, color: T.amber, fontFamily: "'JetBrains Mono',monospace" }}>+{mission.xp}</span>
-              <button onClick={() => completeMission(mission.id)} disabled={isDone} style={{ width: 26, height: 26, borderRadius: 7, border: `2px solid ${isDone ? T.green : T.border}`, background: isDone ? T.green : "transparent", color: isDone ? "#fff" : T.textDim, cursor: isDone ? "default" : "pointer", fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", transition: "all .2s", fontFamily: "'Nunito',sans-serif" }}>{isDone ? "✓" : "→"}</button>
+      <Card T={T}>
+        <p style={{ fontSize: 12, fontWeight: 800, color: T.textSecondary, marginBottom: 10, textTransform: "uppercase", letterSpacing: ".06em" }}>Missão vinculada</p>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ fontSize: 20 }}>⏱️</span>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontWeight: 700, fontSize: 13, color: study30Done ? T.green : T.textPrimary, textDecoration: study30Done ? "line-through" : "none" }}>Sessão de 30min</p>
+            <div style={{ marginTop: 5, height: 4, background: T.border, borderRadius: 4, overflow: "hidden" }}>
+              <div style={{ height: 4, background: study30Done ? T.green : T.accent, width: `${(minStudied / 30) * 100}%`, borderRadius: 4, transition: "width 1s linear" }} />
             </div>
-          );
-        })}
+            <p style={{ fontSize: 11, color: T.textDim, marginTop: 3 }}>{study30Done ? "Concluída! 🎉" : `${minStudied}/30 min — ${running ? "cronômetro rodando" : "inicie para progredir"}`}</p>
+          </div>
+          <span style={{ fontSize: 11, fontWeight: 800, color: T.amber, fontFamily: "'JetBrains Mono',monospace" }}>+50 XP</span>
+          <div style={{ width: 26, height: 26, borderRadius: 7, border: `2px solid ${study30Done ? T.green : T.border}`, background: study30Done ? T.green : "transparent", color: study30Done ? "#fff" : T.textDim, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{study30Done ? "✓" : "○"}</div>
+        </div>
       </Card>
-
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
-        {[{ id: "trail", icon: "🗺️", label: "Trilha" }, { id: "quiz", icon: "🎯", label: "Quiz" }, { id: "notes", icon: "📓", label: "Notas" }].map(item => (
-          <Card T={T} key={item.id} style={{ padding: "14px 10px", textAlign: "center" }} onClick={() => navTo(item.id)}>
-            <div style={{ fontSize: 24, marginBottom: 5 }}>{item.icon}</div>
-            <p style={{ fontWeight: 800, fontSize: 13, color: T.textPrimary }}>{item.label}</p>
-          </Card>
-        ))}
-      </div>
     </div>
   );
 }
@@ -802,7 +859,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast }) {
 }
 
 // ─── Tutor Tab ─────────────────────────────────────────────────────────────
-function TutorTab({ T, user, updateUser, addXP, addToast }) {
+function TutorTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const [msgs, setMsgs] = useState(user.chatHistory || []);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -820,6 +877,7 @@ function TutorTab({ T, user, updateUser, addXP, addToast }) {
       const final = [...newMsgs, { role: "assistant", content: reply }];
       setMsgs(final); updateUser({ ...user, chatHistory: final });
       addXP(8);
+      completeMission("ask_tutor");
       const count = final.filter(m => m.role === "user").length;
       if (count === 5) addXP(100, "chat_5");
     } catch (e) { addToast("Erro ao conectar com o tutor: " + e.message, "error"); }
@@ -867,7 +925,7 @@ function TutorTab({ T, user, updateUser, addXP, addToast }) {
 }
 
 // ─── Quiz Tab ──────────────────────────────────────────────────────────────
-function QuizTab({ T, user, updateUser, addXP, addToast }) {
+function QuizTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const [quiz, setQuiz] = useState(null);
   const [loading, setLoading] = useState(false);
   const [current, setCurrent] = useState(0);
@@ -900,6 +958,7 @@ function QuizTab({ T, user, updateUser, addXP, addToast }) {
       const history = [...(user.quizHistory || []), { date: getTodayStr(), score, total: quiz.questions.length, xp: xpGained }];
       updateUser({ ...user, quizHistory: history });
       addToast(`🎯 Quiz completo! ${score}/${quiz.questions.length} · +${xpGained} XP`);
+      completeMission("do_quiz");
       const totalQuizzes = history.length;
       if (totalQuizzes >= 5) addXP(150, "quiz_5");
     } else {
@@ -992,7 +1051,7 @@ function QuizTab({ T, user, updateUser, addXP, addToast }) {
 }
 
 // ─── Notes Tab ─────────────────────────────────────────────────────────────
-function NotesTab({ T, user, updateUser, addXP, addToast }) {
+function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const [notes, setNotes] = useState(user.notes || []);
   const [text, setText] = useState("");
   const [title, setTitle] = useState("");
@@ -1008,6 +1067,7 @@ function NotesTab({ T, user, updateUser, addXP, addToast }) {
     } else {
       newNotes = [note, ...notes];
       addXP(15); addToast("📓 Anotação salva! +15 XP");
+      completeMission("take_note");
       if (newNotes.length >= 10) addXP(100, "notes_10");
     }
     setNotes(newNotes); updateUser({ ...user, notes: newNotes });
