@@ -110,6 +110,61 @@ const DAILY_MISSIONS = [
   { id: "take_note", icon: "📓", title: "Faça uma Anotação", desc: "Escreva uma anotação de estudo", xp: 30 },
 ];
 const getTodayStr = () => new Date().toDateString();
+
+// ─── Tutorial ──────────────────────────────────────────────────────────────
+const TUTORIAL_KEY = "rivai_tutorial_v1";
+const getTutorialDone = () => localStorage.getItem(TUTORIAL_KEY) === "1";
+const markTutorialDone = () => localStorage.setItem(TUTORIAL_KEY, "1");
+
+// ─── Motivational phrases ──────────────────────────────────────────────────
+const MOTIVATIONAL_PHRASES = [
+  "A IA não vai te substituir. Quem souber usar IA vai.",
+  "Cada dia de estudo é um passo à frente da concorrência.",
+  "Consistência supera talento. Continue aparecendo.",
+  "O melhor momento para aprender IA foi há 2 anos. O segundo melhor é hoje.",
+  "Quem domina IA hoje será o profissional mais valioso de amanhã.",
+  "Pequenos progressos diários somam grandes transformações.",
+  "A curiosidade é o motor do aprendizado. Continue questionando.",
+  "Você está construindo uma habilidade que vai durar décadas.",
+  "Cada pergunta ao tutor te aproxima do domínio da IA.",
+  "A IA é uma ferramenta. Quem a usa bem tem superpoderes.",
+  "Seu futuro eu vai agradecer pelo estudo de hoje.",
+  "Disciplina hoje, liberdade amanhã.",
+  "Aprender IA não é sobre tecnologia — é sobre possibilidades.",
+  "O conhecimento que você acumula aqui nunca vai embora.",
+  "Errar faz parte. O importante é continuar experimentando.",
+];
+const getDailyPhrase = () => MOTIVATIONAL_PHRASES[new Date().getDate() % MOTIVATIONAL_PHRASES.length];
+
+// ─── Avatar options ────────────────────────────────────────────────────────
+const AVATAR_OPTIONS = ["🐶","🐱","🦊","🐼","🦁","🐨","🦄","🐸","🤖","👽","🧙","🧝","👩‍💻","🧑‍🚀","🦸","🌟","💎","⭐","🔥","⚡","🌊","🎯","🚀","🎨"];
+
+// ─── Lesson content (fixed for Aula 1) ────────────────────────────────────
+const LESSON_CONTENT_FIXED = {
+  "0_0": {
+    cards: [
+      { icon: "🧠", title: "O que é Inteligência Artificial?", body: "Inteligência Artificial (IA) é a capacidade de máquinas realizarem tarefas que normalmente exigiriam inteligência humana — como aprender, raciocinar, tomar decisões e entender linguagem natural." },
+      { icon: "⚙️", title: "Como a IA aprende?", body: "A IA aprende a partir de dados. Quanto mais exemplos ela vê, mais precisa fica. Um modelo como o ChatGPT foi treinado com bilhões de textos para aprender a gerar respostas coerentes e úteis." },
+      { icon: "🗂️", title: "Tipos de IA", body: "• IA Generativa: cria texto, imagens, código (ChatGPT, Claude, Midjourney)\n• IA Analítica: analisa dados e faz previsões (recomendações da Netflix)\n• IA de Visão: reconhece imagens e vídeos (Face ID, carros autônomos)\n• IA de Automação: executa tarefas repetitivas (chatbots, RPA)" },
+      { icon: "💡", title: "Você já usa IA", body: "Você usa IA sem perceber todos os dias:\n• Sugestões de músicas no Spotify\n• Filtro de spam no e-mail\n• Rotas inteligentes no Google Maps\n• Corretor ortográfico do celular\n• Detecção de fraude no cartão de crédito" },
+      { icon: "⚡", title: "Seu próximo passo", body: "Agora que você entende o que é IA, o próximo tópico vai te ensinar a conversar com ela de forma eficiente. Isso se chama engenharia de prompts — a habilidade mais valiosa que você pode desenvolver agora." },
+    ]
+  }
+};
+
+// ─── Trail helpers ─────────────────────────────────────────────────────────
+function getNextLesson(course, completedTopics) {
+  if (!course?.phases) return null;
+  for (let pi = 0; pi < course.phases.length; pi++) {
+    const phase = course.phases[pi];
+    for (let di = 0; di < (phase.days?.length || 0); di++) {
+      if (!completedTopics.includes(`${pi}_${di}`)) {
+        return { phaseIdx: pi, dayIdx: di, phase, day: phase.days[di] };
+      }
+    }
+  }
+  return null;
+}
 const getLevel = xp => {
   const lvl = Math.floor(xp / 500) + 1;
   const titles = ["", "Iniciante", "Explorador", "Praticante", "Especialista", "Mestre", "Lenda"];
@@ -124,7 +179,7 @@ const newUser = (email, pw, name) => ({
   completedTopics: [],
   notes: [],
   quizHistory: [],
-  settings: { dailyGoal: 1, notifications: true },
+  settings: { dailyGoal: 1, notifications: true, nickname: null, avatar: null },
 });
 
 // ─── Theme ─────────────────────────────────────────────────────────────────
@@ -256,6 +311,105 @@ function Chip({ T, label, active, onClick, radio, icon }) {
       {icon && <span>{icon}</span>}
       <span style={{ width: 16, height: 16, borderRadius: radio ? "50%" : 4, border: `2px solid ${active ? T.accent : T.textDim}`, background: active ? T.accent : "transparent", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 9, color: "#fff", transition: "all 0.15s" }}>{active ? (radio ? "●" : "✓") : ""}</span>
       {label}
+    </div>
+  );
+}
+
+// ─── Tutorial Overlay ──────────────────────────────────────────────────────
+function TutorialOverlay({ T, onDone }) {
+  const [step, setStep] = useState(0);
+  const STEPS = [
+    { icon: "🏠", tab: "Início", title: "Bem-vindo ao Riv.IA!", desc: "Aqui você vê suas missões do dia, progresso da trilha e a próxima aula recomendada. É seu ponto de partida diário." },
+    { icon: "🗺️", tab: "Trilha", title: "Sua jornada de aprendizado", desc: "A trilha mostra seu curso personalizado em fases, dias e tópicos. Clique em qualquer tópico para abrir a aula completa." },
+    { icon: "⏱️", tab: "Estudar", title: "Acompanhe seu tempo", desc: "Use o cronômetro para medir suas sessões e atingir a meta diária. Complete 30 minutos para ganhar XP extra!" },
+    { icon: "⬡", tab: "Tutor", title: "Seu tutor personalizado", desc: "Tire dúvidas com um tutor de IA especializado no seu perfil. Quanto mais você pergunta, mais personalizado fica." },
+    { icon: "🎯", tab: "Quiz", title: "Teste seu conhecimento", desc: "Faça quizzes gerados por IA. Clique numa resposta para ver imediatamente se acertou (verde) ou errou (vermelho) com explicação!" },
+    { icon: "📓", tab: "Notas", title: "Registre o que aprende", desc: "Anote insights e aprendizados. Escrever ajuda a fixar o conteúdo — e você ganha XP por cada nota criada!" },
+  ];
+  const s = STEPS[step];
+  const isLast = step === STEPS.length - 1;
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 1000, background: "#000c", display: "flex", alignItems: "center", justifyContent: "center", padding: 20, animation: "overlayIn .3s ease" }}>
+      <div style={{ width: "100%", maxWidth: 400, background: T.card, border: `1px solid ${T.border}`, borderRadius: 24, padding: "32px 26px", animation: "pop .35s ease" }}>
+        <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 28 }}>
+          {STEPS.map((_, i) => <div key={i} style={{ width: i === step ? 22 : 7, height: 7, borderRadius: 4, background: i <= step ? T.accent : T.border, transition: "all .3s" }} />)}
+        </div>
+        <div style={{ textAlign: "center", marginBottom: 24 }}>
+          <div style={{ fontSize: 52, marginBottom: 12 }}>{s.icon}</div>
+          <div style={{ display: "inline-block", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 8, padding: "3px 12px", fontSize: 12, fontWeight: 700, color: T.accent, marginBottom: 12 }}>{s.tab}</div>
+          <h2 style={{ fontSize: 20, fontWeight: 900, color: T.textPrimary, marginBottom: 10 }}>{s.title}</h2>
+          <p style={{ fontSize: 14, color: T.textSecondary, lineHeight: 1.7 }}>{s.desc}</p>
+        </div>
+        <div style={{ display: "flex", gap: 10 }}>
+          {step > 0 && <button onClick={() => setStep(p => p - 1)} style={{ padding: "13px 18px", background: "transparent", border: `1px solid ${T.border}`, borderRadius: 12, color: T.textSecondary, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Nunito',sans-serif" }}>←</button>}
+          <BtnPrimary T={T} style={{ flex: 1 }} onClick={() => isLast ? onDone() : setStep(p => p + 1)}>{isLast ? "Começar! 🚀" : "Próximo →"}</BtnPrimary>
+        </div>
+        {!isLast && <p onClick={onDone} style={{ textAlign: "center", fontSize: 12, color: T.textDim, marginTop: 14, cursor: "pointer" }}>Pular tutorial</p>}
+      </div>
+    </div>
+  );
+}
+
+// ─── Lesson Screen ─────────────────────────────────────────────────────────
+function LessonScreen({ T, phaseIdx, dayIdx, course, completedTopics, onConclude, onBack }) {
+  const [elapsed, setElapsed] = useState(0);
+  const phase = course.phases[phaseIdx];
+  const day = phase?.days?.[dayIdx];
+  const key = `${phaseIdx}_${dayIdx}`;
+  const isDone = completedTopics.includes(key);
+  const col = getPC(phase?.color, T);
+  const fixedContent = LESSON_CONTENT_FIXED[key];
+  const cards = fixedContent?.cards || [
+    { icon: "📖", title: day?.title || "Tópico", body: day?.description || "" },
+    { icon: "🏷️", title: "Categoria: " + (day?.tag || ""), body: "Use o Tutor para aprofundar este conteúdo e tirar dúvidas específicas sobre este tema com o seu assistente de IA personalizado." },
+    { icon: "⚡", title: "Aplique agora", body: `Abra a aba Tutor e pergunte: "Como posso aplicar ${day?.title || "este conceito"} na minha área de atuação?"` },
+  ];
+
+  useEffect(() => {
+    if (isDone) return;
+    const iv = setInterval(() => setElapsed(s => s + 1), 1000);
+    return () => clearInterval(iv);
+  }, [isDone]);
+
+  const pad = n => String(n).padStart(2, "0");
+  const mins = Math.floor(elapsed / 60), secs = elapsed % 60;
+
+  return (
+    <div style={{ animation: "fadeUp .4s ease" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+        <button onClick={onBack} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Nunito',sans-serif", flexShrink: 0 }}>← Voltar</button>
+        <div style={{ flex: 1, minWidth: 0 }}>
+          <p style={{ fontSize: 10, color: col.text, fontWeight: 700, fontFamily: "'JetBrains Mono',monospace", marginBottom: 1 }}>{phase?.title} · {day?.period}</p>
+          <h2 style={{ fontSize: 15, fontWeight: 900, color: T.textPrimary, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{day?.title}</h2>
+        </div>
+        {!isDone && (
+          <div style={{ background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 10, padding: "6px 12px", textAlign: "center", flexShrink: 0 }}>
+            <p style={{ fontSize: 9, color: T.textDim, marginBottom: 1, textTransform: "uppercase", letterSpacing: ".06em" }}>tempo</p>
+            <p style={{ fontSize: 14, fontWeight: 900, color: T.accent, fontFamily: "'JetBrains Mono',monospace" }}>{pad(mins)}:{pad(secs)}</p>
+          </div>
+        )}
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
+        {cards.map((card, i) => (
+          <Card T={T} key={i} style={{ animation: `fadeUp .4s ease ${i * .08}s both` }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+              <span style={{ fontSize: 22 }}>{card.icon}</span>
+              <p style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary }}>{card.title}</p>
+            </div>
+            <p style={{ fontSize: 13, color: T.textSecondary, lineHeight: 1.8, whiteSpace: "pre-line" }}>{card.body}</p>
+          </Card>
+        ))}
+      </div>
+      {isDone ? (
+        <div style={{ padding: "16px", background: T.greenDim, border: `1px solid ${T.green}44`, borderRadius: 14, textAlign: "center" }}>
+          <p style={{ fontSize: 15, fontWeight: 800, color: T.green }}>✓ Aula concluída</p>
+          <p style={{ fontSize: 12, color: T.textDim, marginTop: 4 }}>Você já completou esta aula. Boa revisão!</p>
+        </div>
+      ) : (
+        <BtnPrimary T={T} onClick={() => onConclude(phaseIdx, dayIdx)}>
+          ✓ Concluir aula · {pad(mins)}:{pad(secs)} estudados
+        </BtnPrimary>
+      )}
     </div>
   );
 }
@@ -467,7 +621,7 @@ function OnboardingScreen({ T, user, onDone }) {
                 <p style={{ fontSize: 14, fontWeight: 700, color: T.textPrimary }}>Horas de estudo por dia</p>
                 <span style={{ fontSize: 24, fontWeight: 900, color: T.accent, fontFamily: "'JetBrains Mono',monospace" }}>{hours}h</span>
               </div>
-              <input type="range" min={0.5} max={5} step={0.5} value={hours} onChange={e => setHours(Number(e.target.value))} style={{ width: "100%", accentColor: T.accent, background: "transparent", border: "none", padding: 0, cursor: "pointer" }} />
+              <input type="range" min={1} max={5} step={1} value={hours} onChange={e => setHours(Number(e.target.value))} style={{ width: "100%", accentColor: T.accent, background: "transparent", border: "none", padding: 0, cursor: "pointer" }} />
             </div>
             <p style={{ fontSize: 14, fontWeight: 700, color: T.textPrimary, marginBottom: 6 }}>Conte sobre você <span style={{ color: T.textDim, fontWeight: 500, fontSize: 13 }}>(opcional mas melhora muito)</span></p>
             <textarea rows={4} value={context} onChange={e => setContext(e.target.value)} placeholder="ex: trabalho com operações numa empresa de café, cuido de estoque e logística, tenho um projeto universitário chamado Produção 360..." style={{ width: "100%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, color: T.textPrimary, fontFamily: "'Nunito',sans-serif", fontSize: 14, padding: "12px 14px", outline: "none", resize: "none", marginBottom: 4 }} onFocus={e => e.target.style.borderColor = T.accent} onBlur={e => e.target.style.borderColor = T.border} />
@@ -489,9 +643,14 @@ function OnboardingScreen({ T, user, onDone }) {
 function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, themeKey, toggleTheme }) {
   const [tab, setTab] = useState("home");
   const [showProfile, setShowProfile] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
   const navTo = useCallback(t => setTab(t), []);
   const userRef = useRef(user);
   useEffect(() => { userRef.current = user; }, [user]);
+
+  useEffect(() => {
+    if (!getTutorialDone()) setShowTutorial(true);
+  }, []);
 
   const completeMission = useCallback((mId) => {
     const key = mId + "_" + getTodayStr();
@@ -524,8 +683,7 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
             <span>🔥</span><span style={{ fontSize: 12, fontWeight: 800, color: T.red }}>{user.streak}</span>
           </div>}
           <button onClick={toggleTheme} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 9, padding: "5px 9px", cursor: "pointer", fontSize: 14 }}>{themeKey === "dark" ? "☀️" : "🌙"}</button>
-          {/* Profile button */}
-          <button onClick={() => setShowProfile(true)} style={{ width: 32, height: 32, borderRadius: 10, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, border: "none", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 900, color: "#fff", cursor: "pointer" }}>{(user.name || "?")[0].toUpperCase()}</button>
+          <button onClick={() => setShowProfile(true)} style={{ width: 32, height: 32, borderRadius: 10, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, border: "none", display: "flex", alignItems: "center", justifyContent: "center", fontSize: user.settings?.avatar ? 17 : 13, fontWeight: 900, color: "#fff", cursor: "pointer" }}>{user.settings?.avatar || (user.name || "?")[0].toUpperCase()}</button>
         </div>
       </div>
 
@@ -556,6 +714,8 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
 
       {/* Profile Modal */}
       {showProfile && <ProfileModal T={T} user={user} updateUser={updateUser} onLogout={onLogout} onRestart={onRestart} addToast={addToast} onClose={() => setShowProfile(false)} />}
+      {/* Tutorial */}
+      {showTutorial && <TutorialOverlay T={T} onDone={() => { markTutorialDone(); setShowTutorial(false); }} />}
     </div>
   );
 }
@@ -563,10 +723,17 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
 // ─── Profile Modal ─────────────────────────────────────────────────────────
 function ProfileModal({ T, user, updateUser, onLogout, onRestart, addToast, onClose }) {
   const [name, setName] = useState(user.name || "");
+  const [nickname, setNickname] = useState(user.settings?.nickname || "");
+  const [avatar, setAvatar] = useState(user.settings?.avatar || "");
   const [goal, setGoal] = useState(user.settings?.dailyGoal || 1);
+  const [showAvatarPicker, setShowAvatarPicker] = useState(false);
   const { lvl, title, pct } = getLevel(user.xp || 0);
 
-  function save() { updateUser({ ...user, name, settings: { ...(user.settings || {}), dailyGoal: goal } }); addToast("✓ Perfil atualizado!"); onClose(); }
+  function save() {
+    updateUser({ ...user, name, settings: { ...(user.settings || {}), dailyGoal: goal, nickname: nickname || null, avatar: avatar || null } });
+    addToast("✓ Perfil atualizado!");
+    onClose();
+  }
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 500, display: "flex", alignItems: "flex-end", justifyContent: "center" }} onClick={e => e.target === e.currentTarget && onClose()}>
@@ -578,9 +745,12 @@ function ProfileModal({ T, user, updateUser, onLogout, onRestart, addToast, onCl
         </div>
         {/* Avatar + level */}
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20, padding: "14px", background: T.surface, borderRadius: 14, border: `1px solid ${T.border}` }}>
-          <div style={{ width: 52, height: 52, borderRadius: 16, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, fontWeight: 900, color: "#fff", flexShrink: 0 }}>{(user.name || "?")[0].toUpperCase()}</div>
+          <div onClick={() => setShowAvatarPicker(p => !p)} style={{ width: 56, height: 56, borderRadius: 16, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: avatar ? 26 : 22, fontWeight: 900, color: "#fff", flexShrink: 0, cursor: "pointer", position: "relative" }}>
+            {avatar || (user.name || "?")[0].toUpperCase()}
+            <div style={{ position: "absolute", bottom: -6, right: -6, width: 20, height: 20, borderRadius: "50%", background: T.accent, border: `2px solid ${T.card}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>✏️</div>
+          </div>
           <div style={{ flex: 1 }}>
-            <p style={{ fontWeight: 800, fontSize: 15, color: T.textPrimary }}>{user.name}</p>
+            <p style={{ fontWeight: 800, fontSize: 15, color: T.textPrimary }}>{nickname || user.name}</p>
             <p style={{ fontSize: 12, color: T.accent, fontWeight: 700 }}>Nível {lvl} — {title}</p>
             <div style={{ height: 4, background: T.border, borderRadius: 4, marginTop: 6, overflow: "hidden" }}>
               <div style={{ height: 4, background: `linear-gradient(90deg,${T.accent},${T.accentLight||T.green})`, width: pct + "%" }} />
@@ -588,14 +758,28 @@ function ProfileModal({ T, user, updateUser, onLogout, onRestart, addToast, onCl
             <p style={{ fontSize: 11, color: T.textDim, marginTop: 3 }}>{user.xp || 0} XP · {500 - ((user.xp || 0) % 500)} para o próx. nível</p>
           </div>
         </div>
+        {/* Avatar picker */}
+        {showAvatarPicker && (
+          <div style={{ marginBottom: 16, padding: 14, background: T.surface, borderRadius: 14, border: `1px solid ${T.border}` }}>
+            <p style={{ fontSize: 12, fontWeight: 700, color: T.textSecondary, marginBottom: 10 }}>Escolha seu avatar</p>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: 6 }}>
+              {AVATAR_OPTIONS.map(em => (
+                <div key={em} onClick={() => { setAvatar(em); setShowAvatarPicker(false); }} style={{ width: "100%", aspectRatio: "1", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, cursor: "pointer", background: avatar === em ? T.accentDim : "transparent", border: `1.5px solid ${avatar === em ? T.accent : T.border}`, transition: "all .15s" }}>{em}</div>
+              ))}
+              <div onClick={() => { setAvatar(""); setShowAvatarPicker(false); }} style={{ width: "100%", aspectRatio: "1", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700, cursor: "pointer", background: !avatar ? T.accentDim : "transparent", border: `1.5px solid ${!avatar ? T.accent : T.border}`, color: T.textDim, transition: "all .15s" }}>A</div>
+            </div>
+          </div>
+        )}
         {/* Edit */}
-        <p style={{ fontSize: 13, color: T.textSecondary, fontWeight: 700, marginBottom: 6 }}>Nome</p>
-        <TInput T={T} placeholder="Seu nome" value={name} onChange={e => setName(e.target.value)} style={{ marginBottom: 14 }} />
+        <p style={{ fontSize: 13, color: T.textSecondary, fontWeight: 700, marginBottom: 6 }}>Nome completo</p>
+        <TInput T={T} placeholder="Seu nome" value={name} onChange={e => setName(e.target.value)} style={{ marginBottom: 10 }} />
+        <p style={{ fontSize: 13, color: T.textSecondary, fontWeight: 700, marginBottom: 6 }}>Apelido <span style={{ color: T.textDim, fontWeight: 500, fontSize: 12 }}>(aparece no app)</span></p>
+        <TInput T={T} placeholder="Como prefere ser chamado?" value={nickname} onChange={e => setNickname(e.target.value)} style={{ marginBottom: 14 }} />
         <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
           <p style={{ fontSize: 13, color: T.textSecondary, fontWeight: 700 }}>Meta diária</p>
           <span style={{ fontSize: 17, fontWeight: 900, color: T.accent, fontFamily: "'JetBrains Mono',monospace" }}>{goal}h</span>
         </div>
-        <input type="range" min={0.5} max={5} step={0.5} value={goal} onChange={e => setGoal(Number(e.target.value))} style={{ width: "100%", accentColor: T.accent, background: "transparent", border: "none", padding: 0, cursor: "pointer", marginBottom: 18 }} />
+        <input type="range" min={1} max={5} step={1} value={goal} onChange={e => setGoal(Number(e.target.value))} style={{ width: "100%", accentColor: T.accent, background: "transparent", border: "none", padding: 0, cursor: "pointer", marginBottom: 18 }} />
         {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 18 }}>
           {[{ l: "Streak", v: `${user.streak||0}🔥` }, { l: "Conquistas", v: `${(user.achievements||[]).length}/${ACHIEVEMENTS.length}` }, { l: "Notas", v: (user.notes||[]).length }].map(s => (
@@ -621,19 +805,57 @@ function ProfileModal({ T, user, updateUser, onLogout, onRestart, addToast, onCl
 // ─── Home Tab ──────────────────────────────────────────────────────────────
 function HomeTab({ T, user, navTo }) {
   const completedMissions = user.completedMissions || [];
+  const completedTopics = user.completedTopics || [];
   const today = getTodayStr();
+  const displayName = user.settings?.nickname || user.name?.split(" ")[0] || "Estudante";
+
+  const totalTopics = user.course?.phases?.reduce((s, p) => s + (p.days?.length || 0), 0) || 0;
+  const progressPct = totalTopics > 0 ? Math.round((completedTopics.length / totalTopics) * 100) : 0;
+  const nextLesson = getNextLesson(user.course, completedTopics);
+  const allDone = totalTopics > 0 && completedTopics.length >= totalTopics;
+  const phrase = getDailyPhrase();
 
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
-      <h1 style={{ fontSize: 21, fontWeight: 900, color: T.textPrimary, marginBottom: 3 }}>Olá, {user.name?.split(" ")[0]}! 👋</h1>
-      {user.course && <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 18 }}>{user.course.headline}</p>}
+      <h1 style={{ fontSize: 21, fontWeight: 900, color: T.textPrimary, marginBottom: 3 }}>Olá, {displayName}! 👋</h1>
+      {user.course && <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 16 }}>{user.course.headline}</p>}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 12 }}>
-        {[{ l: "Streak", v: `${user.streak||0}🔥`, c: T.red }, { l: "XP", v: user.xp||0, c: T.amber }, { l: "🏆", v: (user.achievements||[]).length, c: T.accent }].map(st => (
-          <Card T={T} key={st.l} style={{ textAlign: "center", padding: "12px 8px" }}><p style={{ fontSize: 19, fontWeight: 900, color: st.c, fontFamily: "'JetBrains Mono',monospace" }}>{st.v}</p><p style={{ fontSize: 10, color: T.textDim, marginTop: 2 }}>{st.l}</p></Card>
-        ))}
+      {/* Frase motivacional */}
+      <div style={{ marginBottom: 12, padding: "13px 16px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 14, display: "flex", alignItems: "flex-start", gap: 10 }}>
+        <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>✨</span>
+        <p style={{ fontSize: 13, color: T.textPrimary, fontWeight: 600, lineHeight: 1.55, fontStyle: "italic" }}>"{phrase}"</p>
       </div>
 
+      {/* Progresso da trilha */}
+      {totalTopics > 0 && (
+        <Card T={T} style={{ marginBottom: 12 }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <h3 style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary }}>🗺️ Progresso da trilha</h3>
+            <span style={{ fontSize: 13, fontWeight: 900, color: T.accent, fontFamily: "'JetBrains Mono',monospace" }}>{progressPct}%</span>
+          </div>
+          <div style={{ height: 7, background: T.border, borderRadius: 6, overflow: "hidden", marginBottom: 8 }}>
+            <div style={{ height: 7, background: allDone ? `linear-gradient(90deg,${T.green},#00ffcc)` : `linear-gradient(90deg,${T.accent},${T.accentLight||T.green})`, width: progressPct + "%", borderRadius: 6, transition: "width .6s ease" }} />
+          </div>
+          <p style={{ fontSize: 12, color: T.textDim }}>{allDone ? "🎉 Trilha completa! Parabéns!" : `${completedTopics.length} de ${totalTopics} aulas concluídas`}</p>
+        </Card>
+      )}
+
+      {/* Próxima aula recomendada */}
+      {nextLesson && (
+        <Card T={T} style={{ marginBottom: 12, cursor: "pointer" }} onClick={() => navTo("trail")}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: T.accent, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6, fontFamily: "'JetBrains Mono',monospace" }}>▶ Próxima aula recomendada</p>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div style={{ width: 42, height: 42, borderRadius: 12, background: T.accentDim, border: `1px solid ${T.accent}33`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>📖</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary, marginBottom: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{nextLesson.day.title}</p>
+              <p style={{ fontSize: 11, color: T.textSecondary }}>{nextLesson.phase.title} · {nextLesson.day.period}</p>
+            </div>
+            <span style={{ fontSize: 18, color: T.accent, flexShrink: 0 }}>→</span>
+          </div>
+        </Card>
+      )}
+
+      {/* Missões do dia */}
       <Card T={T} style={{ marginBottom: 12 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
           <h3 style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary }}>⚡ Missões do dia</h3>
@@ -773,20 +995,38 @@ function EstudarTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 function TrailTab({ T, user, updateUser, addXP, addToast }) {
   const [openPhase, setOpenPhase] = useState(0);
   const [copied, setCopied] = useState(false);
+  const [lessonView, setLessonView] = useState(null); // {phaseIdx, dayIdx} or null
   const course = user.course;
   const completedTopics = user.completedTopics || [];
 
-  function toggleTopic(phaseIdx, dayIdx) {
+  function concludeLesson(phaseIdx, dayIdx) {
     const key = `${phaseIdx}_${dayIdx}`;
-    const newCompleted = completedTopics.includes(key) ? completedTopics.filter(k => k !== key) : [...completedTopics, key];
+    if (completedTopics.includes(key)) { setLessonView(null); return; }
+    const newCompleted = [...completedTopics, key];
     updateUser({ ...user, completedTopics: newCompleted });
-    if (!completedTopics.includes(key)) { addXP(20); addToast("✓ Tópico concluído! +20 XP"); }
-    // check 50% achievement
+    addXP(20); addToast("✓ Aula concluída! +20 XP");
     const totalTopics = course?.phases?.reduce((s, p) => s + (p.days?.length || 0), 0) || 1;
     if (newCompleted.length >= Math.floor(totalTopics / 2) && !(user.achievements || []).includes("progress_50")) addXP(300, "progress_50");
+    setLessonView(null);
   }
 
   if (!course) return <div style={{ textAlign: "center", padding: 40, color: T.textSecondary }}>Nenhum curso encontrado.</div>;
+
+  if (lessonView) {
+    return (
+      <LessonScreen
+        T={T}
+        phaseIdx={lessonView.phaseIdx}
+        dayIdx={lessonView.dayIdx}
+        course={course}
+        completedTopics={completedTopics}
+        onConclude={concludeLesson}
+        onBack={() => setLessonView(null)}
+        addXP={addXP}
+        addToast={addToast}
+      />
+    );
+  }
 
   const totalTopics = course.phases?.reduce((s, p) => s + (p.days?.length || 0), 0) || 1;
   const progressPct = Math.round((completedTopics.length / totalTopics) * 100);
@@ -832,14 +1072,16 @@ function TrailTab({ T, user, updateUser, addXP, addToast }) {
               const key = `${pi}_${di}`;
               const done = completedTopics.includes(key);
               return (
-                <div key={di} style={{ display: "flex", gap: 12, padding: "12px 0", borderTop: `1px solid ${T.border}`, opacity: done ? 0.7 : 1, transition: "opacity .2s" }}>
+                <div key={di} onClick={() => setLessonView({ phaseIdx: pi, dayIdx: di })} style={{ display: "flex", gap: 12, padding: "12px 0", borderTop: `1px solid ${T.border}`, cursor: "pointer", transition: "opacity .2s" }}>
                   <div style={{ minWidth: 52, fontSize: 10, fontWeight: 700, color: col.text, paddingTop: 2, fontFamily: "'JetBrains Mono',monospace" }}>{day.period}</div>
                   <div style={{ flex: 1 }}>
                     <p style={{ fontWeight: 700, fontSize: 14, color: T.textPrimary, marginBottom: 4, textDecoration: done ? "line-through" : "none" }}>{day.title}</p>
                     <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 7, lineHeight: 1.6 }}>{day.description}</p>
                     <span style={{ fontSize: 11, background: col.bg, color: col.text, padding: "2px 9px", borderRadius: 5, border: `1px solid ${col.border}`, fontWeight: 700 }}>{day.tag}</span>
                   </div>
-                  <button onClick={() => toggleTopic(pi, di)} style={{ width: 28, height: 28, borderRadius: 8, border: `2px solid ${done ? T.green : T.border}`, background: done ? T.green : "transparent", color: done ? "#fff" : T.textDim, cursor: "pointer", fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all .2s", fontFamily: "'Nunito',sans-serif", marginTop: 2 }}>{done ? "✓" : "○"}</button>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, flexShrink: 0 }}>
+                    <div style={{ width: 28, height: 28, borderRadius: 8, border: `2px solid ${done ? T.green : T.border}`, background: done ? T.green : "transparent", color: done ? "#fff" : T.textDim, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", transition: "all .2s" }}>{done ? "✓" : "▶"}</div>
+                  </div>
                 </div>
               );
             })}
@@ -1027,24 +1269,33 @@ function QuizTab({ T, user, updateUser, addXP, addToast, completeMission }) {
         {q.options.map((opt, i) => {
           const isCorrect = i === q.answer;
           const isSelected = i === selected;
-          let bg = T.surface, border = T.border, color = T.textPrimary;
+          let bg = T.surface, border = T.border, color = T.textPrimary, fontWeight = 500;
           if (answered) {
-            if (isCorrect) { bg = T.greenDim; border = T.green + "44"; color = T.green; }
-            else if (isSelected) { bg = T.redDim; border = T.red + "44"; color = T.red; }
+            if (isCorrect) { bg = T.greenDim; border = T.green + "88"; color = T.green; fontWeight = 700; }
+            else if (isSelected) { bg = T.redDim; border = T.red + "88"; color = T.red; fontWeight = 700; }
           } else if (isSelected) { bg = T.accentDim; border = T.accent; }
           return (
-            <div key={i} onClick={() => answer(i)} style={{ padding: "13px 15px", background: bg, border: `1.5px solid ${border}`, borderRadius: 12, fontSize: 14, fontWeight: 500, color, cursor: answered ? "default" : "pointer", transition: "all .15s", display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ width: 22, height: 22, borderRadius: "50%", border: `2px solid ${border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 800, flexShrink: 0 }}>{answered && isCorrect ? "✓" : answered && isSelected ? "✗" : String.fromCharCode(65 + i)}</span>
+            <div key={i} onClick={() => answer(i)} style={{ padding: "13px 15px", background: bg, border: `2px solid ${border}`, borderRadius: 12, fontSize: 14, fontWeight, color, cursor: answered ? "default" : "pointer", transition: "all .2s", display: "flex", alignItems: "center", gap: 10, transform: answered && (isCorrect || isSelected) ? "scale(1.01)" : "scale(1)" }}>
+              <span style={{ width: 24, height: 24, borderRadius: "50%", border: `2px solid ${border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 900, flexShrink: 0, background: answered && isCorrect ? T.green : answered && isSelected ? T.red : "transparent", color: answered && (isCorrect || isSelected) ? "#fff" : color }}>{answered && isCorrect ? "✓" : answered && isSelected ? "✗" : String.fromCharCode(65 + i)}</span>
               {opt}
             </div>
           );
         })}
       </div>
-      {answered && (
-        <Card T={T} style={{ marginBottom: 12, background: T.greenDim, border: `1px solid ${T.green}33` }}>
-          <p style={{ fontSize: 13, color: T.textPrimary, lineHeight: 1.6 }}><span style={{ fontWeight: 800, color: T.green }}>💡 </span>{q.explanation}</p>
-        </Card>
-      )}
+      {answered && (() => {
+        const correct = selected === q.answer;
+        return (
+          <div style={{ marginBottom: 12, borderRadius: 14, overflow: "hidden", border: `1px solid ${correct ? T.green + "55" : T.red + "55"}` }}>
+            <div style={{ padding: "10px 14px", background: correct ? T.green : T.red, display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 16 }}>{correct ? "✓" : "✗"}</span>
+              <p style={{ fontWeight: 800, fontSize: 14, color: "#fff" }}>{correct ? "Resposta correta!" : "Resposta incorreta!"}</p>
+            </div>
+            <div style={{ padding: "12px 14px", background: correct ? T.greenDim : T.redDim }}>
+              <p style={{ fontSize: 13, color: T.textPrimary, lineHeight: 1.65 }}><span style={{ fontWeight: 800, color: correct ? T.green : T.red }}>💡 </span>{q.explanation}</p>
+            </div>
+          </div>
+        );
+      })()}
       {answered && <BtnPrimary T={T} onClick={next}>{current + 1 >= quiz.questions.length ? "Ver resultado →" : "Próxima pergunta →"}</BtnPrimary>}
     </div>
   );

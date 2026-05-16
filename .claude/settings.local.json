@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npx react-scripts *)"
+      "Bash(npx react-scripts *)",
+      "Bash(Get-ChildItem -Path C:\\\\Users\\\\PH\\\\Desktop\\\\rivai -Recurse -Force)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)",
+      "PowerShell(Get-ChildItem -Path C:\\\\Users\\\\PH\\\\Desktop\\\\rivai -Depth 3 -Directory -Force | Where-Object { $_.Name -notmatch '^\\\\.' -and $_.Name -ne 'node_modules' -and $_.Name -ne '.git' } | Select-Object -ExpandProperty FullName)",
+      "Bash(npm run *)"
     ]
   }
 }
