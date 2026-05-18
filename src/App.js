@@ -109,6 +109,12 @@ const DAILY_MISSIONS = [
   { id: "do_quiz", icon: "🎯", title: "Quiz do Dia", desc: "Complete o quiz diário", xp: 60 },
   { id: "take_note", icon: "📓", title: "Faça uma Anotação", desc: "Escreva uma anotação de estudo", xp: 30 },
 ];
+const HOME_MISSIONS_DEF = [
+  { id: "home_study_15", xp: 30 },
+  { id: "home_quiz",     xp: 50 },
+  { id: "home_tutor",    xp: 20 },
+];
+const TRAIL_STUDY_KEY = "rivai_trail_study";
 const getTodayStr = () => new Date().toDateString();
 
 // ─── Tutorial ──────────────────────────────────────────────────────────────
@@ -342,6 +348,7 @@ function TutorPanel({ T, user, updateUser, addXP, addToast, completeMission, les
       setMsgs(final);
       addXP(8);
       completeMission("ask_tutor");
+      completeMission("home_tutor");
       const count = final.filter(m => m.role === "user").length;
       if (count === 5) addXP(100, "chat_5");
     } catch (e) { addToast("Erro ao conectar com o tutor: " + e.message, "error"); }
@@ -891,11 +898,11 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
     const cur = userRef.current;
     const completed = cur.completedMissions || [];
     if (completed.includes(key)) return;
-    const m = DAILY_MISSIONS.find(x => x.id === mId);
+    const m = DAILY_MISSIONS.find(x => x.id === mId) || HOME_MISSIONS_DEF.find(x => x.id === mId);
     if (!m) return;
     updateUser({ ...cur, completedMissions: [...completed, key] });
     addXP(m.xp);
-    addToast(`${m.icon} Missão completa! +${m.xp} XP`);
+    addToast(`${m.icon ? m.icon + " " : "✓ "}Missão concluída! +${m.xp} XP`);
   }, [updateUser, addXP, addToast]);
 
   return (
@@ -1086,19 +1093,20 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
     }));
 
   const HOME_MISSIONS = [
-    { id: "home_study_15", icon: "📚", label: "Estudar por 15 min",    xp: 30 },
-    { id: "home_quiz",     icon: "🧠", label: "Fazer o quiz do dia",   xp: 50 },
-    { id: "home_tutor",    icon: "💬", label: "Perguntar ao tutor",    xp: 20 },
+    { id: "home_study_15", icon: "📚", label: "Estudar por 15 min",    xp: 30, hint: "Vá para a aba Trilhas e estude" },
+    { id: "home_quiz",     icon: "🧠", label: "Fazer o quiz do dia",   xp: 50, hint: "Complete um quiz na aba Quiz" },
+    { id: "home_tutor",    icon: "💬", label: "Perguntar ao tutor",    xp: 20, hint: "Envie uma mensagem ao Tutor" },
   ];
 
-  function markMission(id, xp) {
-    const key = id + "_" + today;
-    if (completedMissions.includes(key)) return;
-    const next = [...completedMissions, key];
-    updateUser({ ...user, completedMissions: next });
-    addXP(xp);
-    addToast(`✓ Missão concluída! +${xp} XP`);
-  }
+  const studySec = (() => {
+    try {
+      const s = JSON.parse(localStorage.getItem(TRAIL_STUDY_KEY) || "{}");
+      return s.date === today ? (s.sec || 0) : 0;
+    } catch { return 0; }
+  })();
+  const studyMin = Math.floor(studySec / 60);
+  const studySecRem = studySec % 60;
+  const studyPct = Math.min(100, Math.round((studySec / 900) * 100));
 
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
@@ -1155,11 +1163,30 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
           {HOME_MISSIONS.map(m => {
             const done = completedMissions.includes(m.id + "_" + today);
+            const isStudy = m.id === "home_study_15";
             return (
-              <div key={m.id} onClick={() => markMission(m.id, m.xp)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: done ? T.greenDim : T.surface, border: `1px solid ${done ? T.green + "44" : T.border}`, borderRadius: 11, cursor: done ? "default" : "pointer", transition: "all .2s" }}>
+              <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: done ? T.greenDim : T.surface, border: `1px solid ${done ? T.green + "44" : T.border}`, borderRadius: 11, cursor: "default", transition: "all .2s" }}>
                 <div style={{ width: 22, height: 22, borderRadius: 7, border: `2px solid ${done ? T.green : T.border}`, background: done ? T.green : "transparent", color: "#fff", fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all .2s" }}>{done ? "✓" : ""}</div>
                 <span style={{ fontSize: 16 }}>{m.icon}</span>
-                <p style={{ flex: 1, fontWeight: 700, fontSize: 13, color: done ? T.green : T.textPrimary, textDecoration: done ? "line-through" : "none" }}>{m.label}</p>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontWeight: 700, fontSize: 13, color: done ? T.green : T.textPrimary, textDecoration: done ? "line-through" : "none" }}>{m.label}</p>
+                  {!done && isStudy && (
+                    <div style={{ marginTop: 4 }}>
+                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
+                        <span style={{ fontSize: 10, color: T.textSecondary, fontFamily: "'JetBrains Mono',monospace" }}>
+                          {studyMin}:{String(studySecRem).padStart(2, "0")} / 15:00
+                        </span>
+                        <span style={{ fontSize: 10, color: T.accent, fontFamily: "'JetBrains Mono',monospace" }}>{studyPct}%</span>
+                      </div>
+                      <div style={{ height: 3, background: T.border, borderRadius: 3, overflow: "hidden" }}>
+                        <div style={{ height: 3, background: "linear-gradient(90deg,#6C4DFF,#8b84ff)", width: studyPct + "%", borderRadius: 3, transition: "width .5s ease" }} />
+                      </div>
+                    </div>
+                  )}
+                  {!done && !isStudy && (
+                    <p style={{ fontSize: 10, color: T.textDim, marginTop: 2 }}>{m.hint}</p>
+                  )}
+                </div>
                 <span style={{ fontSize: 11, fontWeight: 800, color: T.amber, fontFamily: "'JetBrains Mono',monospace", flexShrink: 0 }}>+{m.xp} XP</span>
               </div>
             );
@@ -1323,6 +1350,23 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const [lessonView, setLessonView] = useState(null); // {phaseIdx, dayIdx} or null
   const [openPrompts, setOpenPrompts] = useState(new Set());
   const [showTrailTutor, setShowTrailTutor] = useState(false);
+  const studySecRef = useRef(0);
+  if (studySecRef.current === 0) {
+    try {
+      const s = JSON.parse(localStorage.getItem(TRAIL_STUDY_KEY) || "{}");
+      if (s.date === getTodayStr()) studySecRef.current = s.sec || 0;
+    } catch {}
+  }
+
+  useEffect(() => {
+    const iv = setInterval(() => {
+      const next = studySecRef.current + 1;
+      studySecRef.current = next;
+      localStorage.setItem(TRAIL_STUDY_KEY, JSON.stringify({ date: getTodayStr(), sec: next }));
+      if (next === 900) completeMission("home_study_15");
+    }, 1000);
+    return () => clearInterval(iv);
+  }, [completeMission]);
 
   function togglePrompt(key, e) {
     e.stopPropagation();
@@ -1368,10 +1412,12 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
-      {/* Floating tutor button */}
-      <button onClick={() => setShowTrailTutor(true)} style={{ position: "fixed", bottom: 82, right: 18, zIndex: 110, background: "#6C4DFF", border: "none", borderRadius: 22, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", boxShadow: "0 4px 20px #6C4DFF55", display: "flex", alignItems: "center", gap: 7 }}>
-        <span style={{ fontSize: 16 }}>💬</span> Tutor
-      </button>
+      {/* Floating tutor button — only when panel is closed */}
+      {!showTrailTutor && (
+        <button onClick={() => setShowTrailTutor(true)} style={{ position: "fixed", bottom: 90, right: 18, zIndex: 110, background: "#6C4DFF", border: "none", borderRadius: 22, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", boxShadow: "0 4px 20px #6C4DFF55", display: "flex", alignItems: "center", gap: 7 }}>
+          <span style={{ fontSize: 16 }}>💬</span> Tutor
+        </button>
+      )}
       {showTrailTutor && <TutorPanel T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} lessonContext={null} onClose={() => setShowTrailTutor(false)} />}
 
       {/* Header */}
@@ -1560,6 +1606,7 @@ function QuizTab({ T, user, updateUser, addXP, addToast, completeMission }) {
       updateUser({ ...user, quizHistory: history });
       addToast(`🎯 Quiz completo! ${score}/${quiz.questions.length} · +${xpGained} XP`);
       completeMission("do_quiz");
+      completeMission("home_quiz");
       const totalQuizzes = history.length;
       if (totalQuizzes >= 5) addXP(150, "quiz_5");
     } else {
