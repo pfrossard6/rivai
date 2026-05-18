@@ -348,7 +348,7 @@ function TutorPanel({ T, user, updateUser, addXP, addToast, completeMission, les
     finally { setLoading(false); }
   }
 
-  const suggestion = `Me explique melhor: "${lessonContext?.dayTitle}"`;
+  const WELCOME = "Olá! Sou seu tutor de IA. Pode me perguntar qualquer coisa — sobre as aulas, sobre IA em geral, ou sobre como aplicar no seu dia a dia. 🚀";
 
   return (
     <div style={{ position: "fixed", inset: 0, zIndex: 200, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
@@ -363,22 +363,17 @@ function TutorPanel({ T, user, updateUser, addXP, addToast, completeMission, les
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 18px 12px", borderBottom: `1px solid ${T.border}` }}>
           <div style={{ width: 34, height: 34, borderRadius: 10, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, boxShadow: `0 0 12px ${T.accentGlow}`, flexShrink: 0 }}>⬡</div>
-          <div style={{ flex: 1, minWidth: 0 }}>
-            <p style={{ fontWeight: 900, fontSize: 14, color: T.textPrimary, lineHeight: 1 }}>Tutor Personalizado</p>
-            <p style={{ fontSize: 11, color: T.textDim, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📖 {lessonContext?.dayTitle}</p>
-          </div>
+          <p style={{ flex: 1, fontWeight: 900, fontSize: 14, color: T.textPrimary }}>Tutor Personalizado</p>
           <button onClick={onClose} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "6px 11px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Nunito',sans-serif", flexShrink: 0 }}>✕</button>
         </div>
 
         {/* Messages */}
         <div style={{ flex: 1, overflowY: "auto", padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10, minHeight: 0 }}>
-          {msgs.length === 0 && (
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, padding: "20px 10px", flex: 1 }}>
-              <div style={{ fontSize: 36 }}>⬡</div>
-              <p style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary, textAlign: "center" }}>Tire suas dúvidas sobre esta aula!</p>
-              <button onClick={() => send(suggestion)} style={{ padding: "9px 14px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 18, color: T.accent, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'Nunito',sans-serif", textAlign: "left", lineHeight: 1.4 }}>{suggestion}</button>
-            </div>
-          )}
+          {/* Welcome message always shown */}
+          <div style={{ display: "flex", justifyContent: "flex-start", animation: "fadeUp .25s ease" }}>
+            <div style={{ width: 22, height: 22, borderRadius: 6, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, flexShrink: 0, marginRight: 7, marginTop: 2 }}>⬡</div>
+            <div style={{ maxWidth: "82%", padding: "9px 13px", borderRadius: "14px 14px 14px 4px", background: T.surface, border: `1px solid ${T.border}`, fontSize: 13, lineHeight: 1.7, color: T.textPrimary }}>{WELCOME}</div>
+          </div>
           {msgs.map((msg, i) => (
             <div key={i} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start", animation: "fadeUp .25s ease" }}>
               {msg.role === "assistant" && <div style={{ width: 22, height: 22, borderRadius: 6, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, flexShrink: 0, marginRight: 7, marginTop: 2 }}>⬡</div>}
@@ -394,7 +389,7 @@ function TutorPanel({ T, user, updateUser, addXP, addToast, completeMission, les
         {/* Input */}
         <div style={{ display: "flex", gap: 8, padding: "10px 16px 0" }}>
           <input
-            placeholder="Pergunte sobre esta aula..."
+            placeholder="Me pergunte qualquer coisa sobre IA..."
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && !e.shiftKey && send()}
