@@ -639,6 +639,28 @@ function OnboardingScreen({ T, user, onDone }) {
   );
 }
 
+// ─── Explorar Tab ──────────────────────────────────────────────────────────
+function ExploreTab({ T }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 320, gap: 16, animation: "fadeUp .4s ease" }}>
+      <span style={{ fontSize: 52 }}>🔍</span>
+      <h2 style={{ fontSize: 20, fontWeight: 900, color: T.textPrimary }}>Explorar</h2>
+      <p style={{ fontSize: 14, color: T.textSecondary }}>Em breve</p>
+    </div>
+  );
+}
+
+// ─── Comunidade Tab ─────────────────────────────────────────────────────────
+function CommunityTab({ T }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 320, gap: 16, animation: "fadeUp .4s ease" }}>
+      <span style={{ fontSize: 52 }}>👥</span>
+      <h2 style={{ fontSize: 20, fontWeight: 900, color: T.textPrimary }}>Comunidade</h2>
+      <p style={{ fontSize: 14, color: T.textSecondary }}>Em breve</p>
+    </div>
+  );
+}
+
 // ─── Dashboard ─────────────────────────────────────────────────────────────
 function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, themeKey, toggleTheme }) {
   const [tab, setTab] = useState("home");
@@ -689,21 +711,24 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
 
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "18px 14px" }}>
         {tab === "home" && <HomeTab T={T} user={user} navTo={navTo} />}
-        {tab === "estudar" && <EstudarTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
         {tab === "trail" && <TrailTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} />}
+        {tab === "explore" && <ExploreTab T={T} />}
+        {tab === "community" && <CommunityTab T={T} />}
+        {tab === "notes" && <NotesTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
+        {tab === "estudar" && <EstudarTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
         {tab === "tutor" && <TutorTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
         {tab === "quiz" && <QuizTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
-        {tab === "notes" && <NotesTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
         {tab === "rank" && <RankTab T={T} user={user} />}
       </div>
 
       {/* Bottom nav */}
       <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: T.navBg, borderTop: `1px solid ${T.border}`, display: "flex", zIndex: 100, backdropFilter: "blur(16px)" }}>
         {[
-          { id: "home", icon: "🏠", label: "Início" }, { id: "estudar", icon: "⏱️", label: "Estudar" },
-          { id: "trail", icon: "🗺️", label: "Trilha" }, { id: "tutor", icon: "⬡", label: "Tutor" },
-          { id: "quiz", icon: "🎯", label: "Quiz" }, { id: "notes", icon: "📓", label: "Notas" },
-          { id: "rank", icon: "🏆", label: "Ranking" },
+          { id: "home", icon: "🏠", label: "Início" },
+          { id: "trail", icon: "📚", label: "Trilhas" },
+          { id: "explore", icon: "🔍", label: "Explorar" },
+          { id: "community", icon: "👥", label: "Comunidade" },
+          { id: "notes", icon: "📓", label: "Notas" },
         ].map(item => (
           <button key={item.id} onClick={() => setTab(item.id)} style={{ flex: 1, padding: "8px 0 9px", background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2, fontFamily: "'Nunito',sans-serif" }}>
             <span style={{ fontSize: 18, filter: tab === item.id ? "none" : "grayscale(80%) opacity(.45)", transform: tab === item.id ? "scale(1.16)" : "scale(1)", transition: "all .15s", color: tab === item.id && item.id === "tutor" ? T.accent : undefined }}>{item.icon}</span>
