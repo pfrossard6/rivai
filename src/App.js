@@ -640,12 +640,91 @@ function OnboardingScreen({ T, user, onDone }) {
 }
 
 // ─── Explorar Tab ──────────────────────────────────────────────────────────
+const EXPLORE_TRAILS = [
+  { id: 1, title: "ChatGPT para Produtividade", desc: "Automatize tarefas do dia a dia", level: "Intermediário", lessons: 8, icon: "🤖" },
+  { id: 2, title: "Automação com IA", desc: "Crie fluxos inteligentes sem código", level: "Iniciante", lessons: 6, icon: "⚡" },
+  { id: 3, title: "IA no Trabalho", desc: "Aplique IA na sua rotina profissional", level: "Iniciante", lessons: 10, icon: "💼" },
+];
+
+const EXPLORE_CATEGORIES = [
+  { id: "produtividade", label: "Produtividade", icon: "⚡" },
+  { id: "automacao", label: "Automação", icon: "🔄" },
+  { id: "carreira", label: "Carreira", icon: "🚀" },
+  { id: "criatividade", label: "Criatividade", icon: "🎨" },
+  { id: "dados", label: "Dados", icon: "📊" },
+];
+
 function ExploreTab({ T }) {
+  const [query, setQuery] = useState("");
+  const [activeCategory, setActiveCategory] = useState(null);
+  const [searchFocused, setSearchFocused] = useState(false);
+
+  const filtered = EXPLORE_TRAILS.filter(t => {
+    const q = query.toLowerCase();
+    const matchesQuery = !q || t.title.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q) || t.level.toLowerCase().includes(q);
+    return matchesQuery;
+  });
+
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 320, gap: 16, animation: "fadeUp .4s ease" }}>
-      <span style={{ fontSize: 52 }}>🔍</span>
-      <h2 style={{ fontSize: 20, fontWeight: 900, color: T.textPrimary }}>Explorar</h2>
-      <p style={{ fontSize: 14, color: T.textSecondary }}>Em breve</p>
+    <div style={{ animation: "fadeUp .4s ease" }}>
+      {/* Search bar */}
+      <div style={{ position: "relative", marginBottom: 22 }}>
+        <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 15, pointerEvents: "none" }}>🔍</span>
+        <input
+          placeholder="Buscar trilhas, temas ou aulas..."
+          value={query}
+          onChange={e => setQuery(e.target.value)}
+          onFocus={() => setSearchFocused(true)}
+          onBlur={() => setSearchFocused(false)}
+          style={{ width: "100%", background: T.surface, border: `1px solid ${searchFocused ? T.accent : T.border}`, borderRadius: 13, color: T.textPrimary, fontFamily: "'Nunito',sans-serif", fontSize: 14, padding: "13px 14px 13px 40px", outline: "none", transition: "border .2s", boxShadow: searchFocused ? `0 0 0 3px ${T.accentDim}` : "none", boxSizing: "border-box" }}
+        />
+      </div>
+
+      {/* Categorias */}
+      <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 10, fontFamily: "'JetBrains Mono',monospace" }}>Categorias</p>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 24 }}>
+        {EXPLORE_CATEGORIES.map(cat => {
+          const active = activeCategory === cat.id;
+          return (
+            <button key={cat.id} onClick={() => setActiveCategory(active ? null : cat.id)} style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 13px", border: `1.5px solid ${active ? T.accent : T.border}`, borderRadius: 20, background: active ? T.accentDim : "transparent", color: active ? T.accent : T.textSecondary, fontSize: 13, fontWeight: active ? 700 : 500, fontFamily: "'Nunito',sans-serif", cursor: "pointer", transition: "all .15s", boxShadow: active ? `0 0 0 1px ${T.accent}` : "none" }}>
+              <span>{cat.icon}</span>{cat.label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Em destaque */}
+      <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 12, fontFamily: "'JetBrains Mono',monospace" }}>Em destaque</p>
+      {filtered.length === 0 ? (
+        <Card T={T} style={{ textAlign: "center", padding: "32px 20px" }}>
+          <div style={{ fontSize: 38, marginBottom: 10 }}>🔍</div>
+          <p style={{ fontWeight: 800, fontSize: 15, color: T.textPrimary, marginBottom: 4 }}>Nenhum resultado</p>
+          <p style={{ color: T.textSecondary, fontSize: 13 }}>Tente outro termo de busca.</p>
+        </Card>
+      ) : (
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {filtered.map(trail => (
+            <Card T={T} key={trail.id} style={{ padding: "16px 18px" }}>
+              <div style={{ display: "flex", alignItems: "flex-start", gap: 14 }}>
+                <div style={{ width: 46, height: 46, borderRadius: 13, background: `linear-gradient(135deg,${T.accent},${T.accentLight || T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 22, flexShrink: 0 }}>{trail.icon}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontWeight: 900, fontSize: 15, color: T.textPrimary, marginBottom: 3 }}>{trail.title}</p>
+                  <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 8, lineHeight: 1.5 }}>{trail.desc}</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, background: trail.level === "Iniciante" ? T.greenDim : T.amberDim, color: trail.level === "Iniciante" ? T.green : T.amber, fontFamily: "'JetBrains Mono',monospace" }}>{trail.level}</span>
+                    <span style={{ fontSize: 11, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>📖 {trail.lessons} aulas</span>
+                  </div>
+                </div>
+              </div>
+              <button style={{ marginTop: 14, width: "100%", padding: "10px 0", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 10, color: T.accent, fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", transition: "all .15s" }}
+                onMouseEnter={e => { e.currentTarget.style.background = T.accent; e.currentTarget.style.color = "#fff"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = T.accentDim; e.currentTarget.style.color = T.accent; }}>
+                Ver trilha →
+              </button>
+            </Card>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
