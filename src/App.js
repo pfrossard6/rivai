@@ -1280,6 +1280,13 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const [openPhase, setOpenPhase] = useState(0);
   const [copied, setCopied] = useState(false);
   const [lessonView, setLessonView] = useState(null); // {phaseIdx, dayIdx} or null
+  const [openPrompts, setOpenPrompts] = useState(new Set());
+  const [showTrailTutor, setShowTrailTutor] = useState(false);
+
+  function togglePrompt(key, e) {
+    e.stopPropagation();
+    setOpenPrompts(prev => { const n = new Set(prev); n.has(key) ? n.delete(key) : n.add(key); return n; });
+  }
   const course = user.course;
   const completedTopics = user.completedTopics || [];
 
@@ -1320,6 +1327,24 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
+      {/* Floating tutor button */}
+      <button onClick={() => setShowTrailTutor(true)} style={{ position: "fixed", bottom: 82, right: 18, zIndex: 110, background: "#6C4DFF", border: "none", borderRadius: 22, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", boxShadow: "0 4px 20px #6C4DFF55", display: "flex", alignItems: "center", gap: 7 }}>
+        <span style={{ fontSize: 16 }}>💬</span> Tutor
+      </button>
+
+      {showTrailTutor && (
+        <TutorPanel
+          T={T}
+          user={user}
+          updateUser={updateUser}
+          addXP={addXP}
+          addToast={addToast}
+          completeMission={completeMission}
+          lessonContext={null}
+          onClose={() => setShowTrailTutor(false)}
+        />
+      )}
+
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 5 }}>
         <h2 style={{ fontSize: 20, fontWeight: 900, color: T.textPrimary }}>Sua trilha 🗺️</h2>
         <span style={{ fontSize: 13, fontWeight: 800, color: T.accent }}>{progressPct}%</span>
@@ -1367,10 +1392,19 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
                     <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 7, lineHeight: 1.6 }}>{day.description}</p>
                     <span style={{ fontSize: 11, background: col.bg, color: col.text, padding: "2px 9px", borderRadius: 5, border: `1px solid ${col.border}`, fontWeight: 700 }}>{day.tag}</span>
                     {isFirstLesson && course.first_prompt && (
-                      <div onClick={e => e.stopPropagation()} style={{ marginTop: 12, padding: "12px 14px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 11 }}>
-                        <p style={{ fontSize: 10, fontWeight: 800, color: T.accent, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6, fontFamily: "'JetBrains Mono',monospace" }}>✦ Prompt do dia 1</p>
-                        <p style={{ fontSize: 12, color: T.textSecondary, lineHeight: 1.7, fontStyle: "italic", marginBottom: 10 }}>"{course.first_prompt}"</p>
-                        <button onClick={() => { navigator.clipboard?.writeText(course.first_prompt); setCopied(true); addXP(5); setTimeout(() => setCopied(false), 2000); }} style={{ padding: "7px 14px", background: T.accent, border: "none", borderRadius: 8, color: "#fff", fontSize: 12, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer" }}>{copied ? "✓ Copiado!" : "Copiar prompt"}</button>
+                      <div onClick={e => e.stopPropagation()} style={{ marginTop: 10 }}>
+                        {!openPrompts.has(key) ? (
+                          <button onClick={e => togglePrompt(key, e)} style={{ padding: "5px 12px", background: T.accentDim, border: `1px solid ${T.accent}44`, borderRadius: 8, color: T.accent, fontSize: 12, fontWeight: 700, fontFamily: "'Nunito',sans-serif", cursor: "pointer" }}>✨ Ver prompt</button>
+                        ) : (
+                          <div style={{ padding: "12px 14px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 11 }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                              <p style={{ fontSize: 10, fontWeight: 800, color: T.accent, textTransform: "uppercase", letterSpacing: ".08em", fontFamily: "'JetBrains Mono',monospace" }}>✦ Prompt do dia 1</p>
+                              <button onClick={e => togglePrompt(key, e)} style={{ background: "none", border: "none", color: T.textDim, fontSize: 14, cursor: "pointer", lineHeight: 1 }}>✕</button>
+                            </div>
+                            <p style={{ fontSize: 12, color: T.textSecondary, lineHeight: 1.7, fontStyle: "italic", marginBottom: 10 }}>"{course.first_prompt}"</p>
+                            <button onClick={e => { e.stopPropagation(); navigator.clipboard?.writeText(course.first_prompt); setCopied(true); addXP(5); setTimeout(() => setCopied(false), 2000); }} style={{ padding: "7px 14px", background: T.accent, border: "none", borderRadius: 8, color: "#fff", fontSize: 12, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer" }}>{copied ? "✓ Copiado!" : "Copiar prompt"}</button>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
