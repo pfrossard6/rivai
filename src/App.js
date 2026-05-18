@@ -749,7 +749,6 @@ const COMMUNITY_FEED = [
 ];
 
 const MEDALS = ["🥇", "🥈", "🥉"];
-const RANK_COLORS = ["#f59e0b", "#9ca3af", "#b45309"];
 
 function CommunityTab({ T }) {
   return (
