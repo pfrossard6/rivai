@@ -1332,7 +1332,16 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const [text, setText] = useState("");
   const [title, setTitle] = useState("");
   const [editing, setEditing] = useState(null);
-  const [view, setView] = useState("list"); // list | new | read
+  const [view, setView] = useState("list"); // list | new
+  const [section, setSection] = useState("notes"); // notes | agenda
+
+  const [agenda, setAgenda] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("rivai_agenda") || "[]"); } catch { return []; }
+  });
+  const [showAgendaForm, setShowAgendaForm] = useState(false);
+  const [agendaTitle, setAgendaTitle] = useState("");
+  const [agendaDate, setAgendaDate] = useState("");
+  const [agendaTime, setAgendaTime] = useState("");
 
   function saveNote() {
     if (!text.trim()) return;
@@ -1352,6 +1361,28 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 
   function deleteNote(id) { const n = notes.filter(x => x.id !== id); setNotes(n); updateUser({ ...user, notes: n }); }
 
+  function saveAgendaItem() {
+    if (!agendaTitle.trim()) return;
+    const item = { id: Date.now(), title: agendaTitle, date: agendaDate, time: agendaTime };
+    const newAgenda = [...agenda, item].sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+    setAgenda(newAgenda);
+    localStorage.setItem("rivai_agenda", JSON.stringify(newAgenda));
+    setAgendaTitle(""); setAgendaDate(""); setAgendaTime(""); setShowAgendaForm(false);
+    addToast("📅 Compromisso adicionado!");
+  }
+
+  function deleteAgendaItem(id) {
+    const newAgenda = agenda.filter(a => a.id !== id);
+    setAgenda(newAgenda);
+    localStorage.setItem("rivai_agenda", JSON.stringify(newAgenda));
+  }
+
+  function formatAgendaDate(iso) {
+    if (!iso) return "—";
+    const [y, m, d] = iso.split("-");
+    return `${d}/${m}/${y}`;
+  }
+
   if (view === "new" || editing !== null) {
     const editNote = editing !== null ? notes.find(n => n.id === editing) : null;
     return (
@@ -1369,33 +1400,99 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-        <div><h2 style={{ fontSize: 20, fontWeight: 900, color: T.textPrimary }}>Anotações 📓</h2><p style={{ fontSize: 12, color: T.textDim }}>{notes.length} nota{notes.length !== 1 ? "s" : ""}</p></div>
-        <BtnPrimary T={T} style={{ width: "auto", padding: "10px 18px", fontSize: 13 }} onClick={() => { setView("new"); setText(""); setTitle(""); setEditing(null); }}>+ Nova nota</BtnPrimary>
+      {/* Section tabs */}
+      <div style={{ display: "flex", gap: 8, marginBottom: 20, background: T.surface, borderRadius: 12, padding: 4, border: `1px solid ${T.border}` }}>
+        {[{ id: "notes", label: "📓 Anotações" }, { id: "agenda", label: "📅 Agenda" }].map(s => (
+          <button key={s.id} onClick={() => setSection(s.id)} style={{ flex: 1, padding: "9px 0", border: "none", borderRadius: 9, cursor: "pointer", fontFamily: "'Nunito',sans-serif", fontSize: 13, fontWeight: section === s.id ? 800 : 600, background: section === s.id ? `linear-gradient(135deg,${T.accent},${T.accentLight || T.green})` : "transparent", color: section === s.id ? "#fff" : T.textSecondary, transition: "all .18s" }}>
+            {s.label}
+          </button>
+        ))}
       </div>
-      {notes.length === 0 ? (
-        <Card T={T} style={{ textAlign: "center", padding: "36px 20px" }}>
-          <div style={{ fontSize: 44, marginBottom: 12 }}>📓</div>
-          <p style={{ fontWeight: 800, fontSize: 16, color: T.textPrimary, marginBottom: 6 }}>Nenhuma anotação ainda</p>
-          <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 18 }}>Anote o que você aprende para fixar melhor o conteúdo.</p>
-          <BtnPrimary T={T} style={{ width: "auto", padding: "11px 24px" }} onClick={() => setView("new")}>Criar primeira nota</BtnPrimary>
-        </Card>
-      ) : (
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          {notes.map(note => (
-            <Card T={T} key={note.id} style={{ padding: "15px 16px" }}>
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
-                <p style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary, flex: 1, marginRight: 10 }}>{note.title}</p>
-                <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                  <button onClick={() => { setEditing(note.id); setText(note.text); setTitle(note.title); }} style={{ background: T.accentDim, border: `1px solid ${T.accent}22`, borderRadius: 7, padding: "4px 9px", cursor: "pointer", color: T.accent, fontSize: 12, fontFamily: "'Nunito',sans-serif" }}>✏️</button>
-                  <button onClick={() => deleteNote(note.id)} style={{ background: T.redDim, border: `1px solid ${T.red}22`, borderRadius: 7, padding: "4px 9px", cursor: "pointer", color: T.red, fontSize: 12, fontFamily: "'Nunito',sans-serif" }}>🗑️</button>
-                </div>
-              </div>
-              <p style={{ fontSize: 13, color: T.textSecondary, lineHeight: 1.6, marginBottom: 8, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{note.text}</p>
-              <p style={{ fontSize: 10, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>{note.date} · {note.time}</p>
+
+      {/* ── Anotações ── */}
+      {section === "notes" && (
+        <>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <div><h2 style={{ fontSize: 18, fontWeight: 900, color: T.textPrimary }}>Anotações</h2><p style={{ fontSize: 12, color: T.textDim }}>{notes.length} nota{notes.length !== 1 ? "s" : ""}</p></div>
+            <BtnPrimary T={T} style={{ width: "auto", padding: "10px 18px", fontSize: 13 }} onClick={() => { setView("new"); setText(""); setTitle(""); setEditing(null); }}>+ Nova nota</BtnPrimary>
+          </div>
+          {notes.length === 0 ? (
+            <Card T={T} style={{ textAlign: "center", padding: "36px 20px" }}>
+              <div style={{ fontSize: 44, marginBottom: 12 }}>📓</div>
+              <p style={{ fontWeight: 800, fontSize: 16, color: T.textPrimary, marginBottom: 6 }}>Nenhuma anotação ainda</p>
+              <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 18 }}>Anote o que você aprende para fixar melhor o conteúdo.</p>
+              <BtnPrimary T={T} style={{ width: "auto", padding: "11px 24px" }} onClick={() => setView("new")}>Criar primeira nota</BtnPrimary>
             </Card>
-          ))}
-        </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {notes.map(note => (
+                <Card T={T} key={note.id} style={{ padding: "15px 16px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
+                    <p style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary, flex: 1, marginRight: 10 }}>{note.title}</p>
+                    <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
+                      <button onClick={() => { setEditing(note.id); setText(note.text); setTitle(note.title); }} style={{ background: T.accentDim, border: `1px solid ${T.accent}22`, borderRadius: 7, padding: "4px 9px", cursor: "pointer", color: T.accent, fontSize: 12, fontFamily: "'Nunito',sans-serif" }}>✏️</button>
+                      <button onClick={() => deleteNote(note.id)} style={{ background: T.redDim, border: `1px solid ${T.red}22`, borderRadius: 7, padding: "4px 9px", cursor: "pointer", color: T.red, fontSize: 12, fontFamily: "'Nunito',sans-serif" }}>🗑️</button>
+                    </div>
+                  </div>
+                  <p style={{ fontSize: 13, color: T.textSecondary, lineHeight: 1.6, marginBottom: 8, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{note.text}</p>
+                  <p style={{ fontSize: 10, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>{note.date} · {note.time}</p>
+                </Card>
+              ))}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* ── Agenda ── */}
+      {section === "agenda" && (
+        <>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+            <div><h2 style={{ fontSize: 18, fontWeight: 900, color: T.textPrimary }}>Agenda de estudos</h2><p style={{ fontSize: 12, color: T.textDim }}>{agenda.length} compromisso{agenda.length !== 1 ? "s" : ""}</p></div>
+            {!showAgendaForm && <BtnPrimary T={T} style={{ width: "auto", padding: "10px 18px", fontSize: 13 }} onClick={() => setShowAgendaForm(true)}>+ Adicionar</BtnPrimary>}
+          </div>
+
+          {showAgendaForm && (
+            <Card T={T} style={{ marginBottom: 16, padding: "16px" }}>
+              <p style={{ fontSize: 14, fontWeight: 800, color: T.textPrimary, marginBottom: 12 }}>Novo compromisso</p>
+              <TInput T={T} placeholder="Título (ex: Revisão de álgebra)" value={agendaTitle} onChange={e => setAgendaTitle(e.target.value)} />
+              <div style={{ display: "flex", gap: 10 }}>
+                <TInput T={T} type="date" placeholder="Data" value={agendaDate} onChange={e => setAgendaDate(e.target.value)} style={{ flex: 1 }} />
+                <TInput T={T} type="time" placeholder="Horário" value={agendaTime} onChange={e => setAgendaTime(e.target.value)} style={{ flex: 1 }} />
+              </div>
+              <div style={{ display: "flex", gap: 8 }}>
+                <BtnPrimary T={T} onClick={saveAgendaItem} disabled={!agendaTitle.trim()}>Salvar</BtnPrimary>
+                <button onClick={() => { setShowAgendaForm(false); setAgendaTitle(""); setAgendaDate(""); setAgendaTime(""); }} style={{ flex: 1, padding: "13px 0", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, cursor: "pointer", color: T.textSecondary, fontSize: 14, fontWeight: 700, fontFamily: "'Nunito',sans-serif" }}>Cancelar</button>
+              </div>
+            </Card>
+          )}
+
+          {agenda.length === 0 && !showAgendaForm ? (
+            <Card T={T} style={{ textAlign: "center", padding: "36px 20px" }}>
+              <div style={{ fontSize: 44, marginBottom: 12 }}>📅</div>
+              <p style={{ fontWeight: 800, fontSize: 16, color: T.textPrimary, marginBottom: 6 }}>Nenhum compromisso ainda</p>
+              <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 18 }}>Organize seus horários de estudo para manter a consistência.</p>
+              <BtnPrimary T={T} style={{ width: "auto", padding: "11px 24px" }} onClick={() => setShowAgendaForm(true)}>Criar primeiro compromisso</BtnPrimary>
+            </Card>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {agenda.map(item => (
+                <Card T={T} key={item.id} style={{ padding: "14px 16px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <div style={{ flex: 1, marginRight: 10 }}>
+                      <p style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary, marginBottom: 4 }}>{item.title}</p>
+                      <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
+                        {item.date && <span style={{ fontSize: 11, color: T.accent, fontFamily: "'JetBrains Mono',monospace", fontWeight: 700 }}>📆 {formatAgendaDate(item.date)}</span>}
+                        {item.time && <span style={{ fontSize: 11, color: T.textSecondary, fontFamily: "'JetBrains Mono',monospace" }}>⏰ {item.time}</span>}
+                        {!item.date && !item.time && <span style={{ fontSize: 11, color: T.textDim }}>sem data/horário</span>}
+                      </div>
+                    </div>
+                    <button onClick={() => deleteAgendaItem(item.id)} style={{ background: T.redDim, border: `1px solid ${T.red}22`, borderRadius: 7, padding: "5px 10px", cursor: "pointer", color: T.red, fontSize: 12, fontFamily: "'Nunito',sans-serif", flexShrink: 0 }}>🗑️</button>
+                  </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
