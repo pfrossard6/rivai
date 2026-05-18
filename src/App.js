@@ -852,7 +852,7 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
       </div>
 
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "18px 14px" }}>
-        {tab === "home" && <HomeTab T={T} user={user} navTo={navTo} />}
+        {tab === "home" && <HomeTab T={T} user={user} navTo={navTo} onProfileClick={() => setShowProfile(true)} />}
         {tab === "trail" && <TrailTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} />}
         {tab === "explore" && <ExploreTab T={T} />}
         {tab === "community" && <CommunityTab T={T} />}
@@ -970,88 +970,128 @@ function ProfileModal({ T, user, updateUser, onLogout, onRestart, addToast, onCl
 }
 
 // ─── Home Tab ──────────────────────────────────────────────────────────────
-function HomeTab({ T, user, navTo }) {
-  const completedMissions = user.completedMissions || [];
+function HomeTab({ T, user, navTo, onProfileClick }) {
   const completedTopics = user.completedTopics || [];
-  const today = getTodayStr();
   const displayName = user.settings?.nickname || user.name?.split(" ")[0] || "Estudante";
 
   const totalTopics = user.course?.phases?.reduce((s, p) => s + (p.days?.length || 0), 0) || 0;
   const progressPct = totalTopics > 0 ? Math.round((completedTopics.length / totalTopics) * 100) : 0;
-  const nextLesson = getNextLesson(user.course, completedTopics);
   const allDone = totalTopics > 0 && completedTopics.length >= totalTopics;
-  const phrase = getDailyPhrase();
+
+  const hour = new Date().getHours();
+  const subtitle = hour < 12 ? "Pronto para evoluir hoje?"
+    : hour < 18 ? "Boa tarde! Vamos continuar?"
+    : "Boa noite! Mais um dia de evolução.";
+
+  const completedPhases = (user.course?.phases || []).filter((p, pi) =>
+    (p.days || []).every((_, di) => completedTopics.includes(`${pi}_${di}`))
+  ).length;
+
+  const avgScore = user.quizHistory?.length > 0
+    ? Math.round(user.quizHistory.reduce((s, h) => s + (h.score / h.total * 100), 0) / user.quizHistory.length)
+    : null;
+
+  const [rank, setRank] = useState(null);
+  useEffect(() => {
+    supabase.from("users").select("email,xp").order("xp", { ascending: false }).then(({ data }) => {
+      if (!data) return;
+      const idx = data.findIndex(u => u.email === user.email);
+      if (idx >= 0) setRank(idx + 1);
+    });
+  }, [user.email]);
+
+  const phasesInProgress = (user.course?.phases || []).map((p, pi) => {
+    const total = p.days?.length || 0;
+    const done = (p.days || []).filter((_, di) => completedTopics.includes(`${pi}_${di}`)).length;
+    return { phase: p, pi, done, total, pct: total > 0 ? Math.round((done / total) * 100) : 0 };
+  }).filter(p => p.done > 0 && p.done < p.total).slice(-2).reverse();
+
+  const phasesToShow = phasesInProgress.length > 0 ? phasesInProgress
+    : (user.course?.phases || []).slice(0, 2).map((p, pi) => ({
+      phase: p, pi,
+      done: (p.days || []).filter((_, di) => completedTopics.includes(`${pi}_${di}`)).length,
+      total: p.days?.length || 0,
+      pct: 0,
+    }));
 
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
-      <h1 style={{ fontSize: 21, fontWeight: 900, color: T.textPrimary, marginBottom: 3 }}>Olá, {displayName}! 👋</h1>
-      {user.course && <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 16 }}>{user.course.headline}</p>}
 
-      {/* Frase motivacional */}
-      <div style={{ marginBottom: 12, padding: "13px 16px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 14, display: "flex", alignItems: "flex-start", gap: 10 }}>
-        <span style={{ fontSize: 18, flexShrink: 0, marginTop: 1 }}>✨</span>
-        <p style={{ fontSize: 13, color: T.textPrimary, fontWeight: 600, lineHeight: 1.55, fontStyle: "italic" }}>"{phrase}"</p>
+      {/* Header */}
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22 }}>
+        <div>
+          <h1 style={{ fontSize: 22, fontWeight: 900, color: T.textPrimary, marginBottom: 3 }}>Olá, {displayName}! 👋</h1>
+          <p style={{ fontSize: 13, color: T.textSecondary }}>{subtitle}</p>
+        </div>
+        <button onClick={onProfileClick} style={{ width: 44, height: 44, borderRadius: 13, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, border: "none", display: "flex", alignItems: "center", justifyContent: "center", fontSize: user.settings?.avatar ? 20 : 16, fontWeight: 900, color: "#fff", cursor: "pointer", flexShrink: 0 }}>
+          {user.settings?.avatar || (user.name || "?")[0].toUpperCase()}
+        </button>
       </div>
 
-      {/* Progresso da trilha */}
-      {totalTopics > 0 && (
-        <Card T={T} style={{ marginBottom: 12 }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-            <h3 style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary }}>🗺️ Progresso da trilha</h3>
-            <span style={{ fontSize: 13, fontWeight: 900, color: T.accent, fontFamily: "'JetBrains Mono',monospace" }}>{progressPct}%</span>
+      {/* Card "Sua jornada" */}
+      {user.course && (
+        <Card T={T} glow style={{ marginBottom: 14 }}>
+          <p style={{ fontSize: 11, fontWeight: 800, color: T.accent, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 6, fontFamily: "'JetBrains Mono',monospace" }}>Sua jornada</p>
+          <p style={{ fontWeight: 900, fontSize: 16, color: T.textPrimary, marginBottom: 12 }}>{user.course.headline || user.course.title || "Trilha atual"}</p>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+            <span style={{ fontSize: 12, color: T.textSecondary }}>{completedTopics.length} de {totalTopics} aulas</span>
+            <span style={{ fontSize: 14, fontWeight: 900, color: T.accent, fontFamily: "'JetBrains Mono',monospace" }}>{progressPct}%</span>
           </div>
-          <div style={{ height: 7, background: T.border, borderRadius: 6, overflow: "hidden", marginBottom: 8 }}>
-            <div style={{ height: 7, background: allDone ? `linear-gradient(90deg,${T.green},#00ffcc)` : `linear-gradient(90deg,${T.accent},${T.accentLight||T.green})`, width: progressPct + "%", borderRadius: 6, transition: "width .6s ease" }} />
+          <div style={{ height: 8, background: T.border, borderRadius: 6, overflow: "hidden", marginBottom: 14 }}>
+            <div style={{ height: 8, background: allDone ? `linear-gradient(90deg,${T.green},#00ffcc)` : "linear-gradient(90deg,#6C4DFF,#8b84ff)", width: progressPct + "%", borderRadius: 6, transition: "width .6s ease" }} />
           </div>
-          <p style={{ fontSize: 12, color: T.textDim }}>{allDone ? "🎉 Trilha completa! Parabéns!" : `${completedTopics.length} de ${totalTopics} aulas concluídas`}</p>
+          <button onClick={() => navTo("trail")}
+            onMouseEnter={e => e.currentTarget.style.opacity = ".85"}
+            onMouseLeave={e => e.currentTarget.style.opacity = "1"}
+            style={{ width: "100%", padding: "12px 0", background: "linear-gradient(135deg,#6C4DFF,#8b84ff)", border: "none", borderRadius: 11, color: "#fff", fontSize: 14, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", transition: "opacity .15s" }}>
+            {allDone ? "🎉 Trilha concluída!" : "Continuar trilha →"}
+          </button>
         </Card>
       )}
 
-      {/* Próxima aula recomendada */}
-      {nextLesson && (
-        <Card T={T} style={{ marginBottom: 12, cursor: "pointer" }} onClick={() => navTo("trail")}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: T.accent, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6, fontFamily: "'JetBrains Mono',monospace" }}>▶ Próxima aula recomendada</p>
-          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <div style={{ width: 42, height: 42, borderRadius: 12, background: T.accentDim, border: `1px solid ${T.accent}33`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 20, flexShrink: 0 }}>📖</div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <p style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary, marginBottom: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{nextLesson.day.title}</p>
-              <p style={{ fontSize: 11, color: T.textSecondary }}>{nextLesson.phase.title} · {nextLesson.day.period}</p>
+      {/* Card "Seu desempenho" */}
+      <Card T={T} style={{ marginBottom: 14 }}>
+        <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 12, fontFamily: "'JetBrains Mono',monospace" }}>Seu desempenho</p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
+          {[
+            { icon: "🏁", value: completedPhases, suffix: "", label: "Trilhas\nconcluídas" },
+            { icon: "🎯", value: avgScore !== null ? avgScore : "—", suffix: avgScore !== null ? "%" : "", label: "Aprovei-\ntamento" },
+            { icon: "🏆", value: rank ? `#${rank}` : "—", suffix: "", label: "Posição no\nranking" },
+          ].map(m => (
+            <div key={m.label} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 13, padding: "13px 8px", textAlign: "center" }}>
+              <div style={{ fontSize: 19, marginBottom: 5 }}>{m.icon}</div>
+              <p style={{ fontSize: 17, fontWeight: 900, color: T.accent, fontFamily: "'JetBrains Mono',monospace", lineHeight: 1 }}>{m.value}{m.suffix}</p>
+              <p style={{ fontSize: 10, color: T.textDim, marginTop: 5, lineHeight: 1.35, whiteSpace: "pre-line" }}>{m.label}</p>
             </div>
-            <span style={{ fontSize: 18, color: T.accent, flexShrink: 0 }}>→</span>
-          </div>
-        </Card>
-      )}
-
-      {/* Missões do dia */}
-      <Card T={T} style={{ marginBottom: 12 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-          <h3 style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary }}>⚡ Missões do dia</h3>
-          <span style={{ fontSize: 11, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>{DAILY_MISSIONS.filter(m => completedMissions.includes(m.id + "_" + today)).length}/{DAILY_MISSIONS.length}</span>
+          ))}
         </div>
-        {DAILY_MISSIONS.map(mission => {
-          const isDone = completedMissions.includes(mission.id + "_" + today);
-          return (
-            <div key={mission.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: isDone ? T.greenDim : T.surface, border: `1px solid ${isDone ? T.green + "33" : T.border}`, borderRadius: 11, marginBottom: 7, transition: "all .2s" }}>
-              <span style={{ fontSize: 17, filter: isDone ? "none" : "grayscale(50%)" }}>{mission.icon}</span>
-              <div style={{ flex: 1 }}>
-                <p style={{ fontWeight: 700, fontSize: 13, color: isDone ? T.green : T.textPrimary, textDecoration: isDone ? "line-through" : "none" }}>{mission.title}</p>
-                <p style={{ fontSize: 11, color: T.textDim }}>{mission.desc}</p>
-              </div>
-              <span style={{ fontSize: 11, fontWeight: 800, color: T.amber, fontFamily: "'JetBrains Mono',monospace" }}>+{mission.xp}</span>
-              <div style={{ width: 26, height: 26, borderRadius: 7, border: `2px solid ${isDone ? T.green : T.border}`, background: isDone ? T.green : "transparent", color: isDone ? "#fff" : T.textDim, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{isDone ? "✓" : "○"}</div>
-            </div>
-          );
-        })}
       </Card>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
-        {[{ id: "estudar", icon: "⏱️", label: "Estudar" }, { id: "trail", icon: "🗺️", label: "Trilha" }, { id: "quiz", icon: "🎯", label: "Quiz" }, { id: "notes", icon: "📓", label: "Notas" }].map(item => (
-          <Card T={T} key={item.id} style={{ padding: "14px 10px", textAlign: "center" }} onClick={() => navTo(item.id)}>
-            <div style={{ fontSize: 24, marginBottom: 5 }}>{item.icon}</div>
-            <p style={{ fontWeight: 800, fontSize: 13, color: T.textPrimary }}>{item.label}</p>
-          </Card>
-        ))}
-      </div>
+      {/* Continuar aprendendo */}
+      {phasesToShow.length > 0 && (
+        <div>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
+            <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", fontFamily: "'JetBrains Mono',monospace" }}>Continuar aprendendo</p>
+            <button onClick={() => navTo("trail")} style={{ background: "none", border: "none", color: T.accent, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'Nunito',sans-serif" }}>Ver todas →</button>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {phasesToShow.map(({ phase, pi, pct }) => (
+              <Card T={T} key={pi} style={{ padding: "13px 14px", cursor: "pointer" }} onClick={() => navTo("trail")}>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 38, height: 38, borderRadius: 11, background: T.accentDim, border: `1px solid ${T.accent}33`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>📚</div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ fontWeight: 800, fontSize: 13, color: T.textPrimary, marginBottom: 6, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{phase.title}</p>
+                    <div style={{ height: 4, background: T.border, borderRadius: 4, overflow: "hidden" }}>
+                      <div style={{ height: 4, background: "linear-gradient(90deg,#6C4DFF,#8b84ff)", width: pct + "%", borderRadius: 4, transition: "width .6s ease" }} />
+                    </div>
+                  </div>
+                  <span style={{ fontSize: 12, fontWeight: 800, color: T.accent, fontFamily: "'JetBrains Mono',monospace", flexShrink: 0, marginLeft: 6 }}>{pct}%</span>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
