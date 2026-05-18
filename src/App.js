@@ -730,12 +730,76 @@ function ExploreTab({ T }) {
 }
 
 // ─── Comunidade Tab ─────────────────────────────────────────────────────────
+const COMMUNITY_RANKING = [
+  { name: "Fernanda Lima", xp: 980, avatar: "F" },
+  { name: "Rafael Souza", xp: 810, avatar: "R" },
+  { name: "Beatriz Costa", xp: 740, avatar: "B" },
+  { name: "Lucas Mendes", xp: 620, avatar: "L" },
+  { name: "Juliana Alves", xp: 510, avatar: "J" },
+];
+
+const COMMUNITY_FEED = [
+  { name: "Ana", avatar: "A", text: "concluiu \"ChatGPT para Produtividade\" 🎉", ago: "há 18min" },
+  { name: "Carlos", avatar: "C", text: "ganhou 150 XP hoje 🏆", ago: "há 1h" },
+  { name: "Mariana", avatar: "M", text: "está em sequência de 7 dias 🔥", ago: "há 2h" },
+  { name: "Pedro", avatar: "P", text: "concluiu \"Automação com IA\" ⚡", ago: "há 3h" },
+  { name: "Sofia", avatar: "S", text: "adicionou 5 anotações esta semana 📓", ago: "há 5h" },
+  { name: "Diego", avatar: "D", text: "subiu para o nível 8 🚀", ago: "há 1 dia" },
+  { name: "Larissa", avatar: "L", text: "completou todas as missões diárias ✅", ago: "há 1 dia" },
+];
+
+const MEDALS = ["🥇", "🥈", "🥉"];
+const RANK_COLORS = ["#f59e0b", "#9ca3af", "#b45309"];
+
 function CommunityTab({ T }) {
   return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 320, gap: 16, animation: "fadeUp .4s ease" }}>
-      <span style={{ fontSize: 52 }}>👥</span>
-      <h2 style={{ fontSize: 20, fontWeight: 900, color: T.textPrimary }}>Comunidade</h2>
-      <p style={{ fontSize: 14, color: T.textSecondary }}>Em breve</p>
+    <div style={{ animation: "fadeUp .4s ease" }}>
+
+      {/* Ranking da semana */}
+      <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 12, fontFamily: "'JetBrains Mono',monospace" }}>Ranking da semana</p>
+
+      {/* 1º lugar em destaque */}
+      <Card T={T} glow style={{ marginBottom: 10, padding: "18px 18px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <span style={{ fontSize: 28 }}>🥇</span>
+          <div style={{ width: 44, height: 44, borderRadius: 13, background: `linear-gradient(135deg,${T.accent},${T.accentLight || T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 900, color: "#fff", flexShrink: 0 }}>{COMMUNITY_RANKING[0].avatar}</div>
+          <div style={{ flex: 1 }}>
+            <p style={{ fontWeight: 900, fontSize: 15, color: T.textPrimary }}>{COMMUNITY_RANKING[0].name}</p>
+            <p style={{ fontSize: 12, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>1º lugar esta semana</p>
+          </div>
+          <span style={{ fontSize: 15, fontWeight: 900, color: T.amber, fontFamily: "'JetBrains Mono',monospace" }}>{COMMUNITY_RANKING[0].xp} XP</span>
+        </div>
+      </Card>
+
+      {/* 2º ao 5º */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 28 }}>
+        {COMMUNITY_RANKING.slice(1).map((u, i) => (
+          <div key={u.name} style={{ display: "flex", alignItems: "center", gap: 12, padding: "11px 14px", background: T.card, border: `1px solid ${T.border}`, borderRadius: 13 }}>
+            <span style={{ fontSize: 18, minWidth: 24, textAlign: "center" }}>{MEDALS[i + 1] || `#${i + 2}`}</span>
+            <div style={{ width: 34, height: 34, borderRadius: 10, background: T.surface, border: `1px solid ${T.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 900, color: T.textSecondary, flexShrink: 0 }}>{u.avatar}</div>
+            <p style={{ flex: 1, fontWeight: 700, fontSize: 14, color: T.textPrimary }}>{u.name}</p>
+            <span style={{ fontSize: 13, fontWeight: 800, color: T.amber, fontFamily: "'JetBrains Mono',monospace" }}>{u.xp} XP</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Feed de atividades */}
+      <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 12, fontFamily: "'JetBrains Mono',monospace" }}>Atividades recentes</p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+        {COMMUNITY_FEED.map((item, i) => (
+          <Card T={T} key={i} style={{ padding: "12px 14px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg,${T.accent}99,${T.accentLight || T.green}99)`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 900, color: "#fff", flexShrink: 0 }}>{item.avatar}</div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <p style={{ fontSize: 13, color: T.textPrimary, lineHeight: 1.45 }}>
+                  <span style={{ fontWeight: 800 }}>{item.name}</span>{" "}{item.text}
+                </p>
+              </div>
+              <span style={{ fontSize: 10, color: T.textDim, fontFamily: "'JetBrains Mono',monospace", flexShrink: 0, marginLeft: 6 }}>{item.ago}</span>
+            </div>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
