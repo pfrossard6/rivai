@@ -351,14 +351,12 @@ function TutorPanel({ T, user, updateUser, addXP, addToast, completeMission, les
   const WELCOME = "Olá! Sou seu tutor de IA. Pode me perguntar qualquer coisa — sobre as aulas, sobre IA em geral, ou sobre como aplicar no seu dia a dia. 🚀";
 
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 200, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+    <div style={{ position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}>
       {/* Backdrop */}
       <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,.55)", backdropFilter: "blur(3px)" }} />
 
       {/* Panel */}
-      <div style={{ position: "relative", background: T.bg, borderRadius: "22px 22px 0 0", padding: "0 0 16px", maxHeight: "85vh", display: "flex", flexDirection: "column", boxShadow: `0 -8px 40px rgba(0,0,0,.4)`, animation: "fadeUp .28s ease" }}>
-        {/* Handle */}
-        <div style={{ width: 36, height: 4, background: T.border, borderRadius: 4, margin: "12px auto 0" }} />
+      <div style={{ position: "relative", background: T.bg, borderRadius: 16, padding: "0 0 16px", width: "min(420px, calc(100% - 40px))", height: "80vh", display: "flex", flexDirection: "column", boxShadow: "0 8px 40px rgba(0,0,0,.45)", animation: "fadeUp .28s ease", margin: "0 20px 20px 0" }}>
 
         {/* Header */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 18px 12px", borderBottom: `1px solid ${T.border}` }}>
@@ -393,7 +391,7 @@ function TutorPanel({ T, user, updateUser, addXP, addToast, completeMission, les
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && !e.shiftKey && send()}
-            style={{ flex: 1, background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, color: T.textPrimary, fontFamily: "'Nunito',sans-serif", fontSize: 14, padding: "11px 13px", outline: "none" }}
+            style={{ flex: 1, background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, color: T.textPrimary, fontFamily: "'Nunito',sans-serif", fontSize: 14, padding: "13px 15px", outline: "none", minHeight: 48 }}
             onFocus={e => e.target.style.borderColor = T.accent}
             onBlur={e => e.target.style.borderColor = T.border}
           />
