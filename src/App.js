@@ -1358,6 +1358,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
             {phase.days?.map((day, di) => {
               const key = `${pi}_${di}`;
               const done = completedTopics.includes(key);
+              const isFirstLesson = pi === 0 && di === 0;
               return (
                 <div key={di} onClick={() => setLessonView({ phaseIdx: pi, dayIdx: di })} style={{ display: "flex", gap: 12, padding: "12px 0", borderTop: `1px solid ${T.border}`, cursor: "pointer", transition: "opacity .2s" }}>
                   <div style={{ minWidth: 52, fontSize: 10, fontWeight: 700, color: col.text, paddingTop: 2, fontFamily: "'JetBrains Mono',monospace" }}>{day.period}</div>
@@ -1365,6 +1366,13 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
                     <p style={{ fontWeight: 700, fontSize: 14, color: T.textPrimary, marginBottom: 4, textDecoration: done ? "line-through" : "none" }}>{day.title}</p>
                     <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 7, lineHeight: 1.6 }}>{day.description}</p>
                     <span style={{ fontSize: 11, background: col.bg, color: col.text, padding: "2px 9px", borderRadius: 5, border: `1px solid ${col.border}`, fontWeight: 700 }}>{day.tag}</span>
+                    {isFirstLesson && course.first_prompt && (
+                      <div onClick={e => e.stopPropagation()} style={{ marginTop: 12, padding: "12px 14px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 11 }}>
+                        <p style={{ fontSize: 10, fontWeight: 800, color: T.accent, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6, fontFamily: "'JetBrains Mono',monospace" }}>✦ Prompt do dia 1</p>
+                        <p style={{ fontSize: 12, color: T.textSecondary, lineHeight: 1.7, fontStyle: "italic", marginBottom: 10 }}>"{course.first_prompt}"</p>
+                        <button onClick={() => { navigator.clipboard?.writeText(course.first_prompt); setCopied(true); addXP(5); setTimeout(() => setCopied(false), 2000); }} style={{ padding: "7px 14px", background: T.accent, border: "none", borderRadius: 8, color: "#fff", fontSize: 12, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer" }}>{copied ? "✓ Copiado!" : "Copiar prompt"}</button>
+                      </div>
+                    )}
                   </div>
                   <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, flexShrink: 0 }}>
                     <div style={{ width: 28, height: 28, borderRadius: 8, border: `2px solid ${done ? T.green : T.border}`, background: done ? T.green : "transparent", color: done ? "#fff" : T.textDim, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", transition: "all .2s" }}>{done ? "✓" : "▶"}</div>
@@ -1376,13 +1384,6 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
         );
       })}
 
-      {course.first_prompt && (
-        <Card T={T} glow style={{ marginTop: 10 }}>
-          <p style={{ fontSize: 11, fontWeight: 800, color: T.accent, marginBottom: 8, textTransform: "uppercase", letterSpacing: ".08em", fontFamily: "'JetBrains Mono',monospace" }}>✦ Prompt do dia 1</p>
-          <p style={{ fontSize: 13, color: T.textSecondary, lineHeight: 1.7, fontStyle: "italic", marginBottom: 12 }}>"{course.first_prompt}"</p>
-          <BtnPrimary T={T} style={{ width: "auto", padding: "10px 18px", fontSize: 13 }} onClick={() => { navigator.clipboard?.writeText(course.first_prompt); setCopied(true); addXP(5); setTimeout(() => setCopied(false), 2000); }}>{copied ? "✓ Copiado!" : "Copiar prompt"}</BtnPrimary>
-        </Card>
-      )}
     </div>
   );
 }
