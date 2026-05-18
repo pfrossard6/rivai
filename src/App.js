@@ -220,9 +220,12 @@ Regras: 3 fases (fase1=violet, fase2=emerald, fase3=amber), 3-4 dias por fase, t
   return JSON.parse(extractJSON(raw));
 }
 
-async function askTutor(messages, profile) {
+async function askTutor(messages, profile, lessonContext = null) {
+  const lessonLine = lessonContext
+    ? `\nContexto da aula atual: "${lessonContext.dayTitle}" (fase: ${lessonContext.phaseTitle}). Priorize respostas relacionadas a este conteúdo quando pertinente.`
+    : "";
   const system = `Você é um tutor de IA especializado e personalizado. Estilo: direto, empolgante, didático mas descontraído.
-Perfil: ${profile?.name}, área: ${profile?.areas?.join(", ")}, nível: ${profile?.level}, objetivos: ${profile?.goals?.join(", ")}, contexto: ${profile?.context || "não informado"}.
+Perfil: ${profile?.name}, área: ${profile?.areas?.join(", ")}, nível: ${profile?.level}, objetivos: ${profile?.goals?.join(", ")}, contexto: ${profile?.context || "não informado"}.${lessonLine}
 Regras: máx 4 parágrafos curtos, use exemplos concretos da área do aluno, seja específico nunca genérico, responda em português.`;
   return await callAPI(messages, system, 900);
 }
@@ -320,8 +323,95 @@ function TutorialOverlay({ T, onDone }) {
 }
 
 // ─── Lesson Screen ─────────────────────────────────────────────────────────
-function LessonScreen({ T, phaseIdx, dayIdx, course, completedTopics, onConclude, onBack }) {
+function TutorPanel({ T, user, updateUser, addXP, addToast, completeMission, lessonContext, onClose }) {
+  const [msgs, setMsgs] = useState([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const endRef = useRef(null);
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs]);
+
+  async function send(text) {
+    const msg = text || input;
+    if (!msg.trim() || loading) return;
+    const userMsg = { role: "user", content: msg };
+    const newMsgs = [...msgs, userMsg];
+    setMsgs(newMsgs); setInput(""); setLoading(true);
+    try {
+      const reply = await askTutor(newMsgs.map(m => ({ role: m.role, content: m.content })), user.profile || {}, lessonContext);
+      const final = [...newMsgs, { role: "assistant", content: reply }];
+      setMsgs(final);
+      addXP(8);
+      completeMission("ask_tutor");
+      const count = final.filter(m => m.role === "user").length;
+      if (count === 5) addXP(100, "chat_5");
+    } catch (e) { addToast("Erro ao conectar com o tutor: " + e.message, "error"); }
+    finally { setLoading(false); }
+  }
+
+  const suggestion = `Me explique melhor: "${lessonContext?.dayTitle}"`;
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 200, display: "flex", flexDirection: "column", justifyContent: "flex-end" }}>
+      {/* Backdrop */}
+      <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,.55)", backdropFilter: "blur(3px)" }} />
+
+      {/* Panel */}
+      <div style={{ position: "relative", background: T.bg, borderRadius: "22px 22px 0 0", padding: "0 0 16px", maxHeight: "85vh", display: "flex", flexDirection: "column", boxShadow: `0 -8px 40px rgba(0,0,0,.4)`, animation: "fadeUp .28s ease" }}>
+        {/* Handle */}
+        <div style={{ width: 36, height: 4, background: T.border, borderRadius: 4, margin: "12px auto 0" }} />
+
+        {/* Header */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 18px 12px", borderBottom: `1px solid ${T.border}` }}>
+          <div style={{ width: 34, height: 34, borderRadius: 10, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, boxShadow: `0 0 12px ${T.accentGlow}`, flexShrink: 0 }}>⬡</div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontWeight: 900, fontSize: 14, color: T.textPrimary, lineHeight: 1 }}>Tutor Personalizado</p>
+            <p style={{ fontSize: 11, color: T.textDim, marginTop: 2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>📖 {lessonContext?.dayTitle}</p>
+          </div>
+          <button onClick={onClose} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "6px 11px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Nunito',sans-serif", flexShrink: 0 }}>✕</button>
+        </div>
+
+        {/* Messages */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10, minHeight: 0 }}>
+          {msgs.length === 0 && (
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, padding: "20px 10px", flex: 1 }}>
+              <div style={{ fontSize: 36 }}>⬡</div>
+              <p style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary, textAlign: "center" }}>Tire suas dúvidas sobre esta aula!</p>
+              <button onClick={() => send(suggestion)} style={{ padding: "9px 14px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 18, color: T.accent, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'Nunito',sans-serif", textAlign: "left", lineHeight: 1.4 }}>{suggestion}</button>
+            </div>
+          )}
+          {msgs.map((msg, i) => (
+            <div key={i} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start", animation: "fadeUp .25s ease" }}>
+              {msg.role === "assistant" && <div style={{ width: 22, height: 22, borderRadius: 6, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, flexShrink: 0, marginRight: 7, marginTop: 2 }}>⬡</div>}
+              <div style={{ maxWidth: "82%", padding: "9px 13px", borderRadius: msg.role === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px", background: msg.role === "user" ? `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})` : T.surface, border: msg.role === "user" ? "none" : `1px solid ${T.border}`, fontSize: 13, lineHeight: 1.7, color: msg.role === "user" ? "#fff" : T.textPrimary, whiteSpace: "pre-wrap" }}>{msg.content}</div>
+            </div>
+          ))}
+          {loading && <div style={{ display: "flex", gap: 5, padding: "9px 13px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: "14px 14px 14px 4px", width: "fit-content", marginLeft: 29 }}>
+            {[0,1,2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: T.accent, animation: `pulse 1s ease-in-out ${i*.15}s infinite` }} />)}
+          </div>}
+          <div ref={endRef} />
+        </div>
+
+        {/* Input */}
+        <div style={{ display: "flex", gap: 8, padding: "10px 16px 0" }}>
+          <input
+            placeholder="Pergunte sobre esta aula..."
+            value={input}
+            onChange={e => setInput(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && !e.shiftKey && send()}
+            style={{ flex: 1, background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, color: T.textPrimary, fontFamily: "'Nunito',sans-serif", fontSize: 14, padding: "11px 13px", outline: "none" }}
+            onFocus={e => e.target.style.borderColor = T.accent}
+            onBlur={e => e.target.style.borderColor = T.border}
+          />
+          <BtnPrimary T={T} style={{ width: 46, padding: 0, fontSize: 16, borderRadius: 12, flexShrink: 0 }} onClick={() => send()} disabled={loading}>→</BtnPrimary>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LessonScreen({ T, phaseIdx, dayIdx, course, completedTopics, onConclude, onBack, user, updateUser, addXP, addToast, completeMission }) {
   const [elapsed, setElapsed] = useState(0);
+  const [showTutor, setShowTutor] = useState(false);
   const phase = course.phases[phaseIdx];
   const day = phase?.days?.[dayIdx];
   const key = `${phaseIdx}_${dayIdx}`;
@@ -345,6 +435,24 @@ function LessonScreen({ T, phaseIdx, dayIdx, course, completedTopics, onConclude
 
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
+      {/* Floating tutor button */}
+      <button onClick={() => setShowTutor(true)} style={{ position: "fixed", bottom: 82, right: 18, zIndex: 110, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, border: "none", borderRadius: 22, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", boxShadow: `0 4px 20px ${T.accentGlow}`, display: "flex", alignItems: "center", gap: 7 }}>
+        <span style={{ fontSize: 16 }}>💬</span> Perguntar ao Tutor
+      </button>
+
+      {showTutor && (
+        <TutorPanel
+          T={T}
+          user={user}
+          updateUser={updateUser}
+          addXP={addXP}
+          addToast={addToast}
+          completeMission={completeMission}
+          lessonContext={{ phaseTitle: phase?.title, dayTitle: day?.title }}
+          onClose={() => setShowTutor(false)}
+        />
+      )}
+
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
         <button onClick={onBack} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Nunito',sans-serif", flexShrink: 0 }}>← Voltar</button>
         <div style={{ flex: 1, minWidth: 0 }}>
@@ -822,7 +930,7 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
 
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "18px 14px" }}>
         {tab === "home" && <HomeTab T={T} user={user} navTo={navTo} onProfileClick={() => setShowProfile(true)} />}
-        {tab === "trail" && <TrailTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} />}
+        {tab === "trail" && <TrailTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
         {tab === "explore" && <ExploreTab T={T} />}
         {tab === "community" && <CommunityTab T={T} />}
         {tab === "notes" && <NotesTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
@@ -1168,7 +1276,7 @@ function EstudarTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 }
 
 // ─── Trail Tab ─────────────────────────────────────────────────────────────
-function TrailTab({ T, user, updateUser, addXP, addToast }) {
+function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const [openPhase, setOpenPhase] = useState(0);
   const [copied, setCopied] = useState(false);
   const [lessonView, setLessonView] = useState(null); // {phaseIdx, dayIdx} or null
@@ -1198,8 +1306,11 @@ function TrailTab({ T, user, updateUser, addXP, addToast }) {
         completedTopics={completedTopics}
         onConclude={concludeLesson}
         onBack={() => setLessonView(null)}
+        user={user}
+        updateUser={updateUser}
         addXP={addXP}
         addToast={addToast}
+        completeMission={completeMission}
       />
     );
   }
