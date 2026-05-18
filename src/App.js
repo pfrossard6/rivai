@@ -116,25 +116,6 @@ const TUTORIAL_KEY = "rivai_tutorial_v1";
 const getTutorialDone = () => localStorage.getItem(TUTORIAL_KEY) === "1";
 const markTutorialDone = () => localStorage.setItem(TUTORIAL_KEY, "1");
 
-// ─── Motivational phrases ──────────────────────────────────────────────────
-const MOTIVATIONAL_PHRASES = [
-  "A IA não vai te substituir. Quem souber usar IA vai.",
-  "Cada dia de estudo é um passo à frente da concorrência.",
-  "Consistência supera talento. Continue aparecendo.",
-  "O melhor momento para aprender IA foi há 2 anos. O segundo melhor é hoje.",
-  "Quem domina IA hoje será o profissional mais valioso de amanhã.",
-  "Pequenos progressos diários somam grandes transformações.",
-  "A curiosidade é o motor do aprendizado. Continue questionando.",
-  "Você está construindo uma habilidade que vai durar décadas.",
-  "Cada pergunta ao tutor te aproxima do domínio da IA.",
-  "A IA é uma ferramenta. Quem a usa bem tem superpoderes.",
-  "Seu futuro eu vai agradecer pelo estudo de hoje.",
-  "Disciplina hoje, liberdade amanhã.",
-  "Aprender IA não é sobre tecnologia — é sobre possibilidades.",
-  "O conhecimento que você acumula aqui nunca vai embora.",
-  "Errar faz parte. O importante é continuar experimentando.",
-];
-const getDailyPhrase = () => MOTIVATIONAL_PHRASES[new Date().getDate() % MOTIVATIONAL_PHRASES.length];
 
 // ─── Avatar options ────────────────────────────────────────────────────────
 const AVATAR_OPTIONS = ["🐶","🐱","🦊","🐼","🦁","🐨","🦄","🐸","🤖","👽","🧙","🧝","👩‍💻","🧑‍🚀","🦸","🌟","💎","⭐","🔥","⚡","🌊","🎯","🚀","🎨"];
@@ -153,18 +134,6 @@ const LESSON_CONTENT_FIXED = {
 };
 
 // ─── Trail helpers ─────────────────────────────────────────────────────────
-function getNextLesson(course, completedTopics) {
-  if (!course?.phases) return null;
-  for (let pi = 0; pi < course.phases.length; pi++) {
-    const phase = course.phases[pi];
-    for (let di = 0; di < (phase.days?.length || 0); di++) {
-      if (!completedTopics.includes(`${pi}_${di}`)) {
-        return { phaseIdx: pi, dayIdx: di, phase, day: phase.days[di] };
-      }
-    }
-  }
-  return null;
-}
 const getLevel = xp => {
   const lvl = Math.floor(xp / 500) + 1;
   const titles = ["", "Iniciante", "Explorador", "Praticante", "Especialista", "Mestre", "Lenda"];
