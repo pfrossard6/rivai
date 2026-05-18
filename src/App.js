@@ -922,7 +922,7 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
       </div>
 
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "18px 14px" }}>
-        {tab === "home" && <HomeTab T={T} user={user} navTo={navTo} onProfileClick={() => setShowProfile(true)} />}
+        {tab === "home" && <HomeTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} navTo={navTo} onProfileClick={() => setShowProfile(true)} />}
         {tab === "trail" && <TrailTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
         {tab === "explore" && <ExploreTab T={T} />}
         {tab === "community" && <CommunityTab T={T} />}
@@ -1040,9 +1040,11 @@ function ProfileModal({ T, user, updateUser, onLogout, onRestart, addToast, onCl
 }
 
 // ─── Home Tab ──────────────────────────────────────────────────────────────
-function HomeTab({ T, user, navTo, onProfileClick }) {
+function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }) {
   const completedTopics = user.completedTopics || [];
+  const completedMissions = user.completedMissions || [];
   const displayName = user.settings?.nickname || user.name?.split(" ")[0] || "Estudante";
+  const today = getTodayStr();
 
   const totalTopics = user.course?.phases?.reduce((s, p) => s + (p.days?.length || 0), 0) || 0;
   const progressPct = totalTopics > 0 ? Math.round((completedTopics.length / totalTopics) * 100) : 0;
@@ -1080,9 +1082,23 @@ function HomeTab({ T, user, navTo, onProfileClick }) {
     : (user.course?.phases || []).slice(0, 2).map((p, pi) => ({
       phase: p, pi,
       done: (p.days || []).filter((_, di) => completedTopics.includes(`${pi}_${di}`)).length,
-      total: p.days?.length || 0,
-      pct: 0,
+      total: p.days?.length || 0, pct: 0,
     }));
+
+  const HOME_MISSIONS = [
+    { id: "home_study_15", icon: "📚", label: "Estudar por 15 min",    xp: 30 },
+    { id: "home_quiz",     icon: "🧠", label: "Fazer o quiz do dia",   xp: 50 },
+    { id: "home_tutor",    icon: "💬", label: "Perguntar ao tutor",    xp: 20 },
+  ];
+
+  function markMission(id, xp) {
+    const key = id + "_" + today;
+    if (completedMissions.includes(key)) return;
+    const next = [...completedMissions, key];
+    updateUser({ ...user, completedMissions: next });
+    addXP(xp);
+    addToast(`✓ Missão concluída! +${xp} XP`);
+  }
 
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
@@ -1118,6 +1134,38 @@ function HomeTab({ T, user, navTo, onProfileClick }) {
           </button>
         </Card>
       )}
+
+      {/* Card streak */}
+      {(user.streak || 0) > 0 && (
+        <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "13px 16px", background: T.redDim, border: `1px solid ${T.red}33`, borderRadius: 14, marginBottom: 14 }}>
+          <span style={{ fontSize: 28, flexShrink: 0 }}>🔥</span>
+          <div>
+            <p style={{ fontWeight: 900, fontSize: 14, color: T.textPrimary }}>Você está em <span style={{ color: T.red }}>{user.streak} dias seguidos!</span></p>
+            <p style={{ fontSize: 12, color: T.textSecondary, marginTop: 2 }}>Continue assim e não quebre sua sequência.</p>
+          </div>
+        </div>
+      )}
+
+      {/* Missões do dia */}
+      <Card T={T} style={{ marginBottom: 14 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+          <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", fontFamily: "'JetBrains Mono',monospace" }}>Missões do dia</p>
+          <span style={{ fontSize: 11, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>{HOME_MISSIONS.filter(m => completedMissions.includes(m.id + "_" + today)).length}/{HOME_MISSIONS.length}</span>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {HOME_MISSIONS.map(m => {
+            const done = completedMissions.includes(m.id + "_" + today);
+            return (
+              <div key={m.id} onClick={() => markMission(m.id, m.xp)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: done ? T.greenDim : T.surface, border: `1px solid ${done ? T.green + "44" : T.border}`, borderRadius: 11, cursor: done ? "default" : "pointer", transition: "all .2s" }}>
+                <div style={{ width: 22, height: 22, borderRadius: 7, border: `2px solid ${done ? T.green : T.border}`, background: done ? T.green : "transparent", color: "#fff", fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all .2s" }}>{done ? "✓" : ""}</div>
+                <span style={{ fontSize: 16 }}>{m.icon}</span>
+                <p style={{ flex: 1, fontWeight: 700, fontSize: 13, color: done ? T.green : T.textPrimary, textDecoration: done ? "line-through" : "none" }}>{m.label}</p>
+                <span style={{ fontSize: 11, fontWeight: 800, color: T.amber, fontFamily: "'JetBrains Mono',monospace", flexShrink: 0 }}>+{m.xp} XP</span>
+              </div>
+            );
+          })}
+        </div>
+      </Card>
 
       {/* Card "Seu desempenho" */}
       <Card T={T} style={{ marginBottom: 14 }}>
@@ -1270,7 +1318,7 @@ function EstudarTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 
 // ─── Trail Tab ─────────────────────────────────────────────────────────────
 function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
-  const [openPhase, setOpenPhase] = useState(0);
+  const [openPhase, setOpenPhase] = useState(-1);
   const [copied, setCopied] = useState(false);
   const [lessonView, setLessonView] = useState(null); // {phaseIdx, dayIdx} or null
   const [openPrompts, setOpenPrompts] = useState(new Set());
@@ -1324,93 +1372,89 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
       <button onClick={() => setShowTrailTutor(true)} style={{ position: "fixed", bottom: 82, right: 18, zIndex: 110, background: "#6C4DFF", border: "none", borderRadius: 22, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", boxShadow: "0 4px 20px #6C4DFF55", display: "flex", alignItems: "center", gap: 7 }}>
         <span style={{ fontSize: 16 }}>💬</span> Tutor
       </button>
+      {showTrailTutor && <TutorPanel T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} lessonContext={null} onClose={() => setShowTrailTutor(false)} />}
 
-      {showTrailTutor && (
-        <TutorPanel
-          T={T}
-          user={user}
-          updateUser={updateUser}
-          addXP={addXP}
-          addToast={addToast}
-          completeMission={completeMission}
-          lessonContext={null}
-          onClose={() => setShowTrailTutor(false)}
-        />
-      )}
-
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 5 }}>
-        <h2 style={{ fontSize: 20, fontWeight: 900, color: T.textPrimary }}>Sua trilha 🗺️</h2>
-        <span style={{ fontSize: 13, fontWeight: 800, color: T.accent }}>{progressPct}%</span>
+      {/* Header */}
+      <h2 style={{ fontSize: 20, fontWeight: 900, color: T.textPrimary, marginBottom: 4 }}>{course.headline || "Sua trilha"}</h2>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+        <p style={{ fontSize: 13, color: T.textSecondary }}>Seu progresso:</p>
+        <span style={{ fontSize: 13, fontWeight: 900, color: "#6C4DFF", fontFamily: "'JetBrains Mono',monospace" }}>{progressPct}%</span>
       </div>
-      <div style={{ height: 5, background: T.border, borderRadius: 4, marginBottom: 6, overflow: "hidden" }}>
-        <div style={{ height: 5, background: `linear-gradient(90deg,${T.accent},${T.green})`, width: progressPct + "%", borderRadius: 4, transition: "width .5s ease" }} />
+      <div style={{ height: 7, background: T.border, borderRadius: 6, overflow: "hidden", marginBottom: 22 }}>
+        <div style={{ height: 7, background: "linear-gradient(90deg,#6C4DFF,#8b84ff)", width: progressPct + "%", borderRadius: 6, transition: "width .6s ease" }} />
       </div>
-      <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 18, lineHeight: 1.6 }}>{course.overview}</p>
 
-      {/* Phase map */}
-      <div style={{ display: "flex", alignItems: "flex-start", marginBottom: 18, overflowX: "auto", paddingBottom: 4 }}>
+      {/* Modules */}
+      <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 12, fontFamily: "'JetBrains Mono',monospace" }}>Módulos</p>
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
         {course.phases?.map((phase, pi) => {
           const col = getPC(phase.color, T);
+          const total = phase.days?.length || 0;
+          const done = (phase.days || []).filter((_, di) => completedTopics.includes(`${pi}_${di}`)).length;
+          const prevAccessible = pi === 0 || completedTopics.some(k => k.startsWith(`${pi - 1}_`));
+          const status = done === total && total > 0 ? "done" : done > 0 ? "inProgress" : prevAccessible ? "next" : "locked";
+          const isOpen = openPhase === pi;
+          const isAccessible = status !== "locked";
+          const s = { done: { icon: "✅", label: "Concluído", color: T.green }, inProgress: { icon: "🟡", label: "Em andamento", color: T.amber }, next: { icon: "⚪", label: "Próximo módulo", color: T.textSecondary }, locked: { icon: "🔒", label: "Bloqueado", color: T.textDim } }[status];
           return (
-            <div key={pi} style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
-              <div onClick={() => setOpenPhase(pi)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, cursor: "pointer", padding: "0 8px" }}>
-                <div style={{ width: 44, height: 44, borderRadius: "50%", background: openPhase === pi ? col.bg : T.surface, border: `2px solid ${openPhase === pi ? col.dot : T.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 15, fontWeight: 900, color: col.text, transition: "all .2s", boxShadow: openPhase === pi ? `0 0 16px ${col.dot}44` : "none" }}>{pi + 1}</div>
-                <p style={{ fontSize: 10, fontWeight: 700, color: openPhase === pi ? col.text : T.textDim, textAlign: "center", maxWidth: 66, lineHeight: 1.3 }}>{phase.title}</p>
-                <p style={{ fontSize: 9, color: T.textDim }}>{phase.duration}</p>
+            <div key={pi}>
+              {/* Module header */}
+              <div onClick={() => isAccessible && setOpenPhase(isOpen ? -1 : pi)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", background: T.card, border: `1px solid ${isOpen ? "#6C4DFF44" : T.border}`, borderRadius: isOpen ? "14px 14px 0 0" : 14, cursor: isAccessible ? "pointer" : "default", opacity: status === "locked" ? 0.5 : 1, transition: "all .2s" }}>
+                <div style={{ width: 36, height: 36, borderRadius: 10, background: isOpen ? "#6C4DFF18" : T.surface, border: `1.5px solid ${isOpen ? "#6C4DFF66" : T.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 900, color: isOpen ? "#6C4DFF" : T.textDim, flexShrink: 0 }}>{pi + 1}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <p style={{ fontWeight: 800, fontSize: 14, color: status === "locked" ? T.textDim : T.textPrimary, marginBottom: 4 }}>{phase.title}</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ fontSize: 12 }}>{s.icon}</span>
+                    <span style={{ fontSize: 11, fontWeight: 700, color: s.color }}>{s.label}</span>
+                    {total > 0 && <span style={{ fontSize: 10, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>· {done}/{total}</span>}
+                  </div>
+                </div>
+                {isAccessible && <span style={{ color: T.textDim, fontSize: 16, display: "inline-block", transition: "transform .2s", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}>▾</span>}
               </div>
-              {pi < course.phases.length - 1 && <div style={{ width: 24, height: 2, background: T.border, flexShrink: 0, marginBottom: 26 }} />}
+
+              {/* Lessons (expanded) */}
+              {isOpen && isAccessible && (
+                <div style={{ background: T.card, border: "1px solid #6C4DFF44", borderTop: `1px solid ${T.border}`, borderRadius: "0 0 14px 14px" }}>
+                  {(phase.days || []).map((day, di) => {
+                    const key = `${pi}_${di}`;
+                    const lessonDone = completedTopics.includes(key);
+                    const isFirstLesson = pi === 0 && di === 0;
+                    return (
+                      <div key={di} onClick={() => setLessonView({ phaseIdx: pi, dayIdx: di })} style={{ display: "flex", gap: 12, padding: "12px 16px", borderTop: di === 0 ? "none" : `1px solid ${T.border}`, cursor: "pointer" }}>
+                        <div style={{ minWidth: 48, fontSize: 10, fontWeight: 700, color: col.text, paddingTop: 2, fontFamily: "'JetBrains Mono',monospace" }}>{day.period}</div>
+                        <div style={{ flex: 1 }}>
+                          <p style={{ fontWeight: 700, fontSize: 13, color: T.textPrimary, marginBottom: 3, textDecoration: lessonDone ? "line-through" : "none" }}>{day.title}</p>
+                          <p style={{ fontSize: 12, color: T.textSecondary, marginBottom: 6, lineHeight: 1.5 }}>{day.description}</p>
+                          <span style={{ fontSize: 10, background: col.bg, color: col.text, padding: "2px 8px", borderRadius: 5, border: `1px solid ${col.border}`, fontWeight: 700 }}>{day.tag}</span>
+                          {isFirstLesson && course.first_prompt && (
+                            <div onClick={e => e.stopPropagation()} style={{ marginTop: 10 }}>
+                              {!openPrompts.has(key) ? (
+                                <button onClick={e => togglePrompt(key, e)} style={{ padding: "5px 12px", background: T.accentDim, border: `1px solid ${T.accent}44`, borderRadius: 8, color: T.accent, fontSize: 12, fontWeight: 700, fontFamily: "'Nunito',sans-serif", cursor: "pointer" }}>✨ Ver prompt</button>
+                              ) : (
+                                <div style={{ padding: "12px 14px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 11 }}>
+                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                                    <p style={{ fontSize: 10, fontWeight: 800, color: T.accent, textTransform: "uppercase", letterSpacing: ".08em", fontFamily: "'JetBrains Mono',monospace" }}>✦ Prompt do dia 1</p>
+                                    <button onClick={e => togglePrompt(key, e)} style={{ background: "none", border: "none", color: T.textDim, fontSize: 14, cursor: "pointer", lineHeight: 1 }}>✕</button>
+                                  </div>
+                                  <p style={{ fontSize: 12, color: T.textSecondary, lineHeight: 1.7, fontStyle: "italic", marginBottom: 10 }}>"{course.first_prompt}"</p>
+                                  <button onClick={e => { e.stopPropagation(); navigator.clipboard?.writeText(course.first_prompt); setCopied(true); addXP(5); setTimeout(() => setCopied(false), 2000); }} style={{ padding: "7px 14px", background: T.accent, border: "none", borderRadius: 8, color: "#fff", fontSize: 12, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer" }}>{copied ? "✓ Copiado!" : "Copiar prompt"}</button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+                          <div style={{ width: 26, height: 26, borderRadius: 8, border: `2px solid ${lessonDone ? T.green : T.border}`, background: lessonDone ? T.green : "transparent", color: lessonDone ? "#fff" : T.textDim, fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", transition: "all .2s" }}>{lessonDone ? "✓" : "▶"}</div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           );
         })}
       </div>
-
-      {course.phases?.map((phase, pi) => {
-        const col = getPC(phase.color, T);
-        if (openPhase !== pi) return null;
-        return (
-          <Card T={T} key={pi} style={{ marginBottom: 12, border: `1px solid ${col.border}`, animation: "pop .3s ease" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 12 }}>
-              <div style={{ width: 34, height: 34, borderRadius: 10, background: col.bg, border: `1px solid ${col.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 900, color: col.text }}>{pi + 1}</div>
-              <div><p style={{ fontWeight: 800, fontSize: 15, color: T.textPrimary }}>{phase.title}</p><p style={{ fontSize: 11, color: T.textDim }}>{phase.duration} · {phase.focus}</p></div>
-            </div>
-            {phase.days?.map((day, di) => {
-              const key = `${pi}_${di}`;
-              const done = completedTopics.includes(key);
-              const isFirstLesson = pi === 0 && di === 0;
-              return (
-                <div key={di} onClick={() => setLessonView({ phaseIdx: pi, dayIdx: di })} style={{ display: "flex", gap: 12, padding: "12px 0", borderTop: `1px solid ${T.border}`, cursor: "pointer", transition: "opacity .2s" }}>
-                  <div style={{ minWidth: 52, fontSize: 10, fontWeight: 700, color: col.text, paddingTop: 2, fontFamily: "'JetBrains Mono',monospace" }}>{day.period}</div>
-                  <div style={{ flex: 1 }}>
-                    <p style={{ fontWeight: 700, fontSize: 14, color: T.textPrimary, marginBottom: 4, textDecoration: done ? "line-through" : "none" }}>{day.title}</p>
-                    <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 7, lineHeight: 1.6 }}>{day.description}</p>
-                    <span style={{ fontSize: 11, background: col.bg, color: col.text, padding: "2px 9px", borderRadius: 5, border: `1px solid ${col.border}`, fontWeight: 700 }}>{day.tag}</span>
-                    {isFirstLesson && course.first_prompt && (
-                      <div onClick={e => e.stopPropagation()} style={{ marginTop: 10 }}>
-                        {!openPrompts.has(key) ? (
-                          <button onClick={e => togglePrompt(key, e)} style={{ padding: "5px 12px", background: T.accentDim, border: `1px solid ${T.accent}44`, borderRadius: 8, color: T.accent, fontSize: 12, fontWeight: 700, fontFamily: "'Nunito',sans-serif", cursor: "pointer" }}>✨ Ver prompt</button>
-                        ) : (
-                          <div style={{ padding: "12px 14px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 11 }}>
-                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                              <p style={{ fontSize: 10, fontWeight: 800, color: T.accent, textTransform: "uppercase", letterSpacing: ".08em", fontFamily: "'JetBrains Mono',monospace" }}>✦ Prompt do dia 1</p>
-                              <button onClick={e => togglePrompt(key, e)} style={{ background: "none", border: "none", color: T.textDim, fontSize: 14, cursor: "pointer", lineHeight: 1 }}>✕</button>
-                            </div>
-                            <p style={{ fontSize: 12, color: T.textSecondary, lineHeight: 1.7, fontStyle: "italic", marginBottom: 10 }}>"{course.first_prompt}"</p>
-                            <button onClick={e => { e.stopPropagation(); navigator.clipboard?.writeText(course.first_prompt); setCopied(true); addXP(5); setTimeout(() => setCopied(false), 2000); }} style={{ padding: "7px 14px", background: T.accent, border: "none", borderRadius: 8, color: "#fff", fontSize: 12, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer" }}>{copied ? "✓ Copiado!" : "Copiar prompt"}</button>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, flexShrink: 0 }}>
-                    <div style={{ width: 28, height: 28, borderRadius: 8, border: `2px solid ${done ? T.green : T.border}`, background: done ? T.green : "transparent", color: done ? "#fff" : T.textDim, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", transition: "all .2s" }}>{done ? "✓" : "▶"}</div>
-                  </div>
-                </div>
-              );
-            })}
-          </Card>
-        );
-      })}
-
     </div>
   );
 }
