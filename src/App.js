@@ -126,6 +126,18 @@ const markTutorialDone = () => localStorage.setItem(TUTORIAL_KEY, "1");
 // ─── Avatar options ────────────────────────────────────────────────────────
 const AVATAR_OPTIONS = ["🐶","🐱","🦊","🐼","🦁","🐨","🦄","🐸","🤖","👽","🧙","🧝","👩‍💻","🧑‍🚀","🦸","🌟","💎","⭐","🔥","⚡","🌊","🎯","🚀","🎨"];
 
+// ─── Language & Profile Photo ──────────────────────────────────────────────
+const LANG_OPTIONS = [
+  { id: "pt", flag: "🇧🇷", label: "Português" },
+  { id: "en", flag: "🇺🇸", label: "English" },
+  { id: "es", flag: "🇪🇸", label: "Español" },
+];
+const PROFILE_EMOJIS = ["🐶","🐱","🦊","🐼","🦁","🐨","🦄","🐸","🤖","👽","🧙","🎯"];
+const getLang = () => localStorage.getItem("rivai_lang") || "pt";
+const saveLang = l => localStorage.setItem("rivai_lang", l);
+const getProfilePhoto = () => localStorage.getItem("rivai_profile_photo");
+const saveProfilePhoto = b64 => b64 ? localStorage.setItem("rivai_profile_photo", b64) : localStorage.removeItem("rivai_profile_photo");
+
 // ─── Lesson content (fixed for Aula 1) ────────────────────────────────────
 const LESSON_CONTENT_FIXED = {
   "0_0": {
@@ -250,6 +262,20 @@ JSON exato:
 
 answer é o índice da opção correta (0-3). 5 perguntas específicas para o perfil.`;
 
+  const raw = await callAPI([{ role: "user", content }], system, 1200);
+  return JSON.parse(extractJSON(raw));
+}
+
+async function generateModuleQuiz(profile, phase) {
+  const system = `Você é um especialista em educação. Gere APENAS JSON válido, sem texto antes ou depois, sem markdown.`;
+  const topics = (phase?.days || []).map(d => d.title).join(", ");
+  const content = `Gere um quiz de 5 perguntas sobre o módulo "${phase?.title}" abrangendo os tópicos: ${topics}.
+Perfil do aluno: área ${profile?.areas?.join(", ") || "geral"}, nível ${profile?.level || "iniciante"}.
+
+JSON exato:
+{"title":"Quiz: ${phase?.title}","questions":[{"q":"pergunta","options":["A) opção","B) opção","C) opção","D) opção"],"answer":0,"explanation":"explicação curta"}]}
+
+answer é o índice correto (0-3). 5 perguntas cobrindo os tópicos do módulo.`;
   const raw = await callAPI([{ role: "user", content }], system, 1200);
   return JSON.parse(extractJSON(raw));
 }
@@ -404,6 +430,134 @@ function TutorPanel({ T, user, updateUser, addXP, addToast, completeMission, les
           />
           <BtnPrimary T={T} style={{ width: 46, padding: 0, fontSize: 16, borderRadius: 12, flexShrink: 0 }} onClick={() => send()} disabled={loading}>→</BtnPrimary>
         </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Mini Profile Menu ─────────────────────────────────────────────────────
+function MiniProfileMenu({ T, user, lang, setLang, onEditPhoto, onOpenProfile, onLogout, onClose }) {
+  const isPhoto = user.settings?.avatarType === "photo";
+  const photo = isPhoto ? getProfilePhoto() : null;
+  const avatarContent = photo
+    ? <img src={photo} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
+    : (user.settings?.avatar && user.settings.avatarType === "emoji" ? user.settings.avatar : (user.name || "?")[0].toUpperCase());
+
+  return (
+    <>
+      <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 390 }} />
+      <div style={{ position: "fixed", top: 56, right: 10, zIndex: 400, background: T.card, border: `1px solid ${T.border}`, borderRadius: 16, padding: "14px", minWidth: 230, boxShadow: "0 8px 32px rgba(0,0,0,.35)", animation: "fadeUp .2s ease" }}>
+        {/* User info */}
+        <div style={{ display: "flex", alignItems: "center", gap: 10, paddingBottom: 12, borderBottom: `1px solid ${T.border}`, marginBottom: 12 }}>
+          <div style={{ width: 42, height: 42, borderRadius: 12, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, fontWeight: 900, color: "#fff", overflow: "hidden", flexShrink: 0 }}>
+            {avatarContent}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.settings?.nickname || user.name}</p>
+            <p style={{ fontSize: 11, color: T.textDim, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.email}</p>
+          </div>
+        </div>
+        {/* Language */}
+        <p style={{ fontSize: 10, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 8, fontFamily: "'JetBrains Mono',monospace" }}>Idioma</p>
+        <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+          {LANG_OPTIONS.map(l => (
+            <button key={l.id} onClick={() => { setLang(l.id); saveLang(l.id); }} style={{ flex: 1, padding: "6px 4px", border: `1.5px solid ${lang === l.id ? T.accent : T.border}`, borderRadius: 9, background: lang === l.id ? T.accentDim : "transparent", cursor: "pointer", fontFamily: "'Nunito',sans-serif", fontSize: 11, fontWeight: lang === l.id ? 800 : 500, color: lang === l.id ? T.accent : T.textSecondary, display: "flex", flexDirection: "column", alignItems: "center", gap: 2, transition: "all .15s" }}>
+              <span style={{ fontSize: 18 }}>{l.flag}</span>
+              <span>{l.label}</span>
+            </button>
+          ))}
+        </div>
+        {/* Actions */}
+        <button onClick={() => { onClose(); onEditPhoto(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Nunito',sans-serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
+          🖼️ Editar perfil
+        </button>
+        <button onClick={() => { onClose(); onOpenProfile(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Nunito',sans-serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
+          ⚙️ Configurações
+        </button>
+        <button onClick={onLogout} style={{ width: "100%", padding: "10px 12px", background: T.redDim, border: `1px solid ${T.red}33`, borderRadius: 10, cursor: "pointer", fontFamily: "'Nunito',sans-serif", fontSize: 13, fontWeight: 700, color: T.red, textAlign: "left", display: "flex", alignItems: "center", gap: 8 }}>
+          🚪 Sair da conta
+        </button>
+      </div>
+    </>
+  );
+}
+
+// ─── Profile Photo Modal ───────────────────────────────────────────────────
+function ProfilePhotoModal({ T, user, updateUser, addToast, onClose }) {
+  const [mode, setMode] = useState(null);
+  const [selectedEmoji, setSelectedEmoji] = useState(user.settings?.avatar || "");
+  const fileRef = useRef(null);
+
+  function applyInitial() {
+    saveProfilePhoto(null);
+    updateUser({ ...user, settings: { ...(user.settings || {}), avatar: null, avatarType: "initial" } });
+    addToast("✓ Avatar atualizado!");
+    onClose();
+  }
+
+  function applyEmoji() {
+    if (!selectedEmoji) return;
+    saveProfilePhoto(null);
+    updateUser({ ...user, settings: { ...(user.settings || {}), avatar: selectedEmoji, avatarType: "emoji" } });
+    addToast("✓ Emoji aplicado!");
+    onClose();
+  }
+
+  function handlePhotoChange(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => {
+      saveProfilePhoto(ev.target.result);
+      updateUser({ ...user, settings: { ...(user.settings || {}), avatar: null, avatarType: "photo" } });
+      addToast("✓ Foto de perfil atualizada!");
+      onClose();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 600, display: "flex", alignItems: "center", justifyContent: "center", padding: 20 }} onClick={e => e.target === e.currentTarget && onClose()}>
+      <div style={{ position: "absolute", inset: 0, background: "#000a", animation: "overlayIn .25s ease" }} onClick={onClose} />
+      <div style={{ position: "relative", width: "100%", maxWidth: 380, background: T.card, border: `1px solid ${T.border}`, borderRadius: 20, padding: "24px 20px", animation: "pop .3s ease" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+          <h3 style={{ fontWeight: 900, fontSize: 16, color: T.textPrimary }}>Editar foto de perfil</h3>
+          <button onClick={onClose} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", color: T.textSecondary, fontSize: 14, fontFamily: "'Nunito',sans-serif" }}>✕</button>
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: mode === "emoji" ? 14 : 0 }}>
+          <button onClick={() => { setMode("photo"); setTimeout(() => fileRef.current?.click(), 60); }} style={{ padding: "13px 16px", background: mode === "photo" ? T.accentDim : T.surface, border: `1.5px solid ${mode === "photo" ? T.accent : T.border}`, borderRadius: 13, cursor: "pointer", fontFamily: "'Nunito',sans-serif", textAlign: "left", display: "flex", alignItems: "center", gap: 12, transition: "all .15s" }}>
+            <span style={{ fontSize: 24 }}>📷</span>
+            <div>
+              <p style={{ fontSize: 14, fontWeight: 700, color: T.textPrimary }}>Enviar foto</p>
+              <p style={{ fontSize: 12, color: T.textSecondary }}>Upload de imagem do dispositivo</p>
+            </div>
+          </button>
+          <input ref={fileRef} type="file" accept="image/*" onChange={handlePhotoChange} style={{ display: "none" }} />
+          <button onClick={applyInitial} style={{ padding: "13px 16px", background: T.surface, border: `1.5px solid ${T.border}`, borderRadius: 13, cursor: "pointer", fontFamily: "'Nunito',sans-serif", textAlign: "left", display: "flex", alignItems: "center", gap: 12, transition: "all .15s" }}>
+            <span style={{ fontSize: 24 }}>🔤</span>
+            <div>
+              <p style={{ fontSize: 14, fontWeight: 700, color: T.textPrimary }}>Usar inicial do nome</p>
+              <p style={{ fontSize: 12, color: T.textSecondary }}>Exibe a primeira letra do seu nome</p>
+            </div>
+          </button>
+          <button onClick={() => setMode(m => m === "emoji" ? null : "emoji")} style={{ padding: "13px 16px", background: mode === "emoji" ? T.accentDim : T.surface, border: `1.5px solid ${mode === "emoji" ? T.accent : T.border}`, borderRadius: 13, cursor: "pointer", fontFamily: "'Nunito',sans-serif", textAlign: "left", display: "flex", alignItems: "center", gap: 12, transition: "all .15s" }}>
+            <span style={{ fontSize: 24 }}>😀</span>
+            <div>
+              <p style={{ fontSize: 14, fontWeight: 700, color: T.textPrimary }}>Escolher emoji</p>
+              <p style={{ fontSize: 12, color: T.textSecondary }}>Selecione um emoji como avatar</p>
+            </div>
+          </button>
+        </div>
+        {mode === "emoji" && (
+          <div style={{ marginTop: 4 }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 8, marginBottom: 12 }}>
+              {PROFILE_EMOJIS.map(em => (
+                <div key={em} onClick={() => setSelectedEmoji(em)} style={{ aspectRatio: "1", borderRadius: 10, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26, cursor: "pointer", background: selectedEmoji === em ? T.accentDim : T.surface, border: `1.5px solid ${selectedEmoji === em ? T.accent : T.border}`, transition: "all .15s" }}>{em}</div>
+              ))}
+            </div>
+            <BtnPrimary T={T} onClick={applyEmoji} disabled={!selectedEmoji}>Aplicar emoji</BtnPrimary>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -884,6 +1038,9 @@ function CommunityTab({ T }) {
 function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, themeKey, toggleTheme }) {
   const [tab, setTab] = useState("home");
   const [showProfile, setShowProfile] = useState(false);
+  const [showMiniMenu, setShowMiniMenu] = useState(false);
+  const [showPhotoModal, setShowPhotoModal] = useState(false);
+  const [lang, setLang] = useState(getLang);
   const [showTutorial, setShowTutorial] = useState(false);
   const navTo = useCallback(t => setTab(t), []);
   const userRef = useRef(user);
@@ -924,12 +1081,17 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
             <span>🔥</span><span style={{ fontSize: 12, fontWeight: 800, color: T.red }}>{user.streak}</span>
           </div>}
           <button onClick={toggleTheme} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 9, padding: "5px 9px", cursor: "pointer", fontSize: 14 }}>{themeKey === "dark" ? "☀️" : "🌙"}</button>
-          <button onClick={() => setShowProfile(true)} style={{ width: 32, height: 32, borderRadius: 10, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, border: "none", display: "flex", alignItems: "center", justifyContent: "center", fontSize: user.settings?.avatar ? 17 : 13, fontWeight: 900, color: "#fff", cursor: "pointer" }}>{user.settings?.avatar || (user.name || "?")[0].toUpperCase()}</button>
+          <button onClick={() => setShowMiniMenu(m => !m)} style={{ width: 32, height: 32, borderRadius: 10, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, border: "none", display: "flex", alignItems: "center", justifyContent: "center", fontSize: user.settings?.avatarType === "photo" || !user.settings?.avatar ? 13 : 17, fontWeight: 900, color: "#fff", cursor: "pointer", overflow: "hidden" }}>
+            {user.settings?.avatarType === "photo" && getProfilePhoto()
+              ? <img src={getProfilePhoto()} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
+              : (user.settings?.avatarType === "emoji" ? user.settings.avatar : (user.settings?.avatar || (user.name || "?")[0].toUpperCase()))
+            }
+          </button>
         </div>
       </div>
 
       <div style={{ maxWidth: 720, margin: "0 auto", padding: "18px 14px" }}>
-        {tab === "home" && <HomeTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} navTo={navTo} onProfileClick={() => setShowProfile(true)} />}
+        {tab === "home" && <HomeTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} navTo={navTo} onProfileClick={() => setShowMiniMenu(m => !m)} />}
         {tab === "trail" && <TrailTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
         {tab === "explore" && <ExploreTab T={T} />}
         {tab === "community" && <CommunityTab T={T} />}
@@ -956,6 +1118,21 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
         ))}
       </div>
 
+      {/* Mini Profile Menu */}
+      {showMiniMenu && (
+        <MiniProfileMenu
+          T={T}
+          user={user}
+          lang={lang}
+          setLang={setLang}
+          onEditPhoto={() => setShowPhotoModal(true)}
+          onOpenProfile={() => setShowProfile(true)}
+          onLogout={() => { setShowMiniMenu(false); onLogout(); }}
+          onClose={() => setShowMiniMenu(false)}
+        />
+      )}
+      {/* Profile Photo Modal */}
+      {showPhotoModal && <ProfilePhotoModal T={T} user={user} updateUser={updateUser} addToast={addToast} onClose={() => setShowPhotoModal(false)} />}
       {/* Profile Modal */}
       {showProfile && <ProfileModal T={T} user={user} updateUser={updateUser} onLogout={onLogout} onRestart={onRestart} addToast={addToast} onClose={() => setShowProfile(false)} />}
       {/* Tutorial */}
@@ -1117,8 +1294,11 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
           <h1 style={{ fontSize: 22, fontWeight: 900, color: T.textPrimary, marginBottom: 3 }}>Olá, {displayName}! 👋</h1>
           <p style={{ fontSize: 13, color: T.textSecondary }}>{subtitle}</p>
         </div>
-        <button onClick={onProfileClick} style={{ width: 44, height: 44, borderRadius: 13, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, border: "none", display: "flex", alignItems: "center", justifyContent: "center", fontSize: user.settings?.avatar ? 20 : 16, fontWeight: 900, color: "#fff", cursor: "pointer", flexShrink: 0 }}>
-          {user.settings?.avatar || (user.name || "?")[0].toUpperCase()}
+        <button onClick={onProfileClick} style={{ width: 44, height: 44, borderRadius: 13, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, border: "none", display: "flex", alignItems: "center", justifyContent: "center", fontSize: user.settings?.avatarType === "photo" || !user.settings?.avatar ? 16 : 20, fontWeight: 900, color: "#fff", cursor: "pointer", flexShrink: 0, overflow: "hidden" }}>
+          {user.settings?.avatarType === "photo" && getProfilePhoto()
+            ? <img src={getProfilePhoto()} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
+            : (user.settings?.avatarType === "emoji" ? user.settings.avatar : (user.settings?.avatar || (user.name || "?")[0].toUpperCase()))
+          }
         </button>
       </div>
 
@@ -1343,6 +1523,123 @@ function EstudarTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   );
 }
 
+// ─── Module Quiz Screen ────────────────────────────────────────────────────
+function ModuleQuizScreen({ T, user, phase, onBack, onComplete }) {
+  const [quiz, setQuiz] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [current, setCurrent] = useState(0);
+  const [selected, setSelected] = useState(null);
+  const [answered, setAnswered] = useState(false);
+  const [score, setScore] = useState(0);
+  const [finished, setFinished] = useState(false);
+  const [err, setErr] = useState("");
+
+  useEffect(() => {
+    generateModuleQuiz(user.profile, phase)
+      .then(q => setQuiz(q))
+      .catch(e => setErr("Erro ao gerar quiz: " + e.message))
+      .finally(() => setLoading(false));
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function answer(idx) {
+    if (answered) return;
+    setSelected(idx); setAnswered(true);
+    if (idx === quiz.questions[current].answer) setScore(s => s + 1);
+  }
+
+  function next() {
+    if (current + 1 >= quiz.questions.length) {
+      setFinished(true);
+    } else {
+      setCurrent(c => c + 1); setSelected(null); setAnswered(false);
+    }
+  }
+
+  if (loading) return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 300, gap: 16, animation: "fadeUp .4s ease" }}>
+      <div style={{ fontSize: 42, animation: "pulse 1.2s ease-in-out infinite" }}>🧠</div>
+      <p style={{ fontWeight: 800, color: T.textPrimary }}>Gerando quiz do módulo...</p>
+      <p style={{ fontSize: 13, color: T.textSecondary }}>{phase?.title}</p>
+    </div>
+  );
+
+  if (err) return (
+    <div style={{ animation: "fadeUp .4s ease" }}>
+      <button onClick={onBack} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Nunito',sans-serif", marginBottom: 16 }}>← Voltar</button>
+      <p style={{ color: T.red, fontSize: 13 }}>{err}</p>
+    </div>
+  );
+
+  if (finished) return (
+    <div style={{ animation: "fadeUp .4s ease", textAlign: "center" }}>
+      <Card T={T} style={{ padding: "36px 24px" }}>
+        <div style={{ fontSize: 52, marginBottom: 12 }}>{score === quiz.questions.length ? "🏆" : score >= quiz.questions.length * 0.6 ? "⭐" : "💪"}</div>
+        <h2 style={{ fontSize: 22, fontWeight: 900, color: T.textPrimary, marginBottom: 6 }}>{score === quiz.questions.length ? "Perfeito!" : score >= quiz.questions.length * 0.6 ? "Muito bem!" : "Continue praticando!"}</h2>
+        <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 8 }}>Módulo: {phase?.title}</p>
+        <p style={{ fontSize: 32, fontWeight: 900, color: T.accent, marginBottom: 4, fontFamily: "'JetBrains Mono',monospace" }}>{score}/{quiz.questions.length}</p>
+        <p style={{ color: T.green, fontSize: 14, fontWeight: 700, marginBottom: 20 }}>+{score * 20 + 30} XP · Módulo marcado como concluído! ✓</p>
+        <BtnPrimary T={T} onClick={() => onComplete(score, quiz.questions.length)}>← Voltar à trilha</BtnPrimary>
+      </Card>
+    </div>
+  );
+
+  if (!quiz) return null;
+  const q = quiz.questions[current];
+  return (
+    <div style={{ animation: "fadeUp .4s ease" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
+        <button onClick={onBack} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Nunito',sans-serif", flexShrink: 0 }}>← Voltar</button>
+        <div>
+          <p style={{ fontSize: 10, color: T.accent, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em" }}>Quiz do Módulo</p>
+          <p style={{ fontSize: 14, fontWeight: 900, color: T.textPrimary }}>{phase?.title}</p>
+        </div>
+      </div>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+        <span style={{ fontSize: 13, fontWeight: 800, color: T.textPrimary }}>{quiz.title}</span>
+        <span style={{ fontSize: 12, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>{current + 1}/{quiz.questions.length}</span>
+      </div>
+      <div style={{ height: 4, background: T.border, borderRadius: 4, marginBottom: 18, overflow: "hidden" }}>
+        <div style={{ height: 4, background: T.accent, width: ((current / quiz.questions.length) * 100) + "%", borderRadius: 4, transition: "width .4s ease" }} />
+      </div>
+      <Card T={T} style={{ marginBottom: 14 }}>
+        <p style={{ fontSize: 15, fontWeight: 700, color: T.textPrimary, lineHeight: 1.5 }}>{q.q}</p>
+      </Card>
+      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
+        {q.options.map((opt, i) => {
+          const isCorrect = i === q.answer;
+          const isSelected = i === selected;
+          let bg = T.surface, border = T.border, color = T.textPrimary, fontWeight = 500;
+          if (answered) {
+            if (isCorrect) { bg = T.greenDim; border = T.green + "88"; color = T.green; fontWeight = 700; }
+            else if (isSelected) { bg = T.redDim; border = T.red + "88"; color = T.red; fontWeight = 700; }
+          } else if (isSelected) { bg = T.accentDim; border = T.accent; }
+          return (
+            <div key={i} onClick={() => answer(i)} style={{ padding: "13px 15px", background: bg, border: `2px solid ${border}`, borderRadius: 12, fontSize: 14, fontWeight, color, cursor: answered ? "default" : "pointer", transition: "all .2s", display: "flex", alignItems: "center", gap: 10 }}>
+              <span style={{ width: 24, height: 24, borderRadius: "50%", border: `2px solid ${border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 900, flexShrink: 0, background: answered && isCorrect ? T.green : answered && isSelected ? T.red : "transparent", color: answered && (isCorrect || isSelected) ? "#fff" : color }}>{answered && isCorrect ? "✓" : answered && isSelected ? "✗" : String.fromCharCode(65 + i)}</span>
+              {opt}
+            </div>
+          );
+        })}
+      </div>
+      {answered && (() => {
+        const correct = selected === q.answer;
+        return (
+          <div style={{ marginBottom: 12, borderRadius: 14, overflow: "hidden", border: `1px solid ${correct ? T.green + "55" : T.red + "55"}` }}>
+            <div style={{ padding: "10px 14px", background: correct ? T.green : T.red, display: "flex", alignItems: "center", gap: 8 }}>
+              <span style={{ fontSize: 16 }}>{correct ? "✓" : "✗"}</span>
+              <p style={{ fontWeight: 800, fontSize: 14, color: "#fff" }}>{correct ? "Resposta correta!" : "Resposta incorreta!"}</p>
+            </div>
+            <div style={{ padding: "12px 14px", background: correct ? T.greenDim : T.redDim }}>
+              <p style={{ fontSize: 13, color: T.textPrimary, lineHeight: 1.65 }}><span style={{ fontWeight: 800, color: correct ? T.green : T.red }}>💡 </span>{q.explanation}</p>
+            </div>
+          </div>
+        );
+      })()}
+      {answered && <BtnPrimary T={T} onClick={next}>{current + 1 >= quiz.questions.length ? "Ver resultado →" : "Próxima pergunta →"}</BtnPrimary>}
+    </div>
+  );
+}
+
 // ─── Trail Tab ─────────────────────────────────────────────────────────────
 function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const [openPhase, setOpenPhase] = useState(-1);
@@ -1350,6 +1647,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const [lessonView, setLessonView] = useState(null); // {phaseIdx, dayIdx} or null
   const [openPrompts, setOpenPrompts] = useState(new Set());
   const [showTrailTutor, setShowTrailTutor] = useState(false);
+  const [moduleQuiz, setModuleQuiz] = useState(null); // {phaseIdx} or null
   const studySecRef = useRef(0);
   if (studySecRef.current === 0) {
     try {
@@ -1387,6 +1685,28 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   }
 
   if (!course) return <div style={{ textAlign: "center", padding: 40, color: T.textSecondary }}>Nenhum curso encontrado.</div>;
+
+  if (moduleQuiz) {
+    const phase = course.phases[moduleQuiz.phaseIdx];
+    return (
+      <ModuleQuizScreen
+        T={T}
+        user={user}
+        phase={phase}
+        onBack={() => setModuleQuiz(null)}
+        onComplete={(score, total) => {
+          const xpGained = score * 20 + 30;
+          const newKeys = (phase.days || []).map((_, di) => `${moduleQuiz.phaseIdx}_${di}`);
+          const newCompleted = [...new Set([...completedTopics, ...newKeys])];
+          updateUser({ ...user, completedTopics: newCompleted });
+          addXP(xpGained);
+          completeMission("do_quiz");
+          completeMission("home_quiz");
+          setModuleQuiz(null);
+        }}
+      />
+    );
+  }
 
   if (lessonView) {
     return (
@@ -1495,6 +1815,14 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
                       </div>
                     );
                   })}
+                  {/* Quiz do módulo */}
+                  <div style={{ padding: "12px 16px", borderTop: `1px solid ${T.border}` }}>
+                    <button onClick={e => { e.stopPropagation(); setModuleQuiz({ phaseIdx: pi }); }} style={{ width: "100%", padding: "11px 0", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 11, color: T.accent, fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7, transition: "all .15s" }}
+                      onMouseEnter={e => { e.currentTarget.style.background = T.accent; e.currentTarget.style.color = "#fff"; }}
+                      onMouseLeave={e => { e.currentTarget.style.background = T.accentDim; e.currentTarget.style.color = T.accent; }}>
+                      🧠 Fazer quiz do módulo
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
