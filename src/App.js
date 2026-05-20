@@ -437,7 +437,7 @@ function TutorPanel({ T, user, updateUser, addXP, addToast, completeMission, les
 }
 
 // ─── Mini Profile Menu ─────────────────────────────────────────────────────
-function MiniProfileMenu({ T, user, lang, setLang, onEditPhoto, onOpenProfile, onLogout, onClose }) {
+function MiniProfileMenu({ T, user, lang, setLang, onEditPhoto, onOpenProfile, onTutorial, onLogout, onClose }) {
   const isPhoto = user.settings?.avatarType === "photo";
   const photo = isPhoto ? getProfilePhoto() : null;
   const avatarContent = photo
@@ -471,6 +471,9 @@ function MiniProfileMenu({ T, user, lang, setLang, onEditPhoto, onOpenProfile, o
         {/* Actions */}
         <button onClick={() => { onClose(); onEditPhoto(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Nunito',sans-serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
           🖼️ Editar perfil
+        </button>
+        <button onClick={() => { onClose(); onTutorial(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Nunito',sans-serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
+          📖 Ver tutorial
         </button>
         <button onClick={() => { onClose(); onOpenProfile(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Nunito',sans-serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
           ⚙️ Configurações
@@ -1128,6 +1131,7 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
           setLang={setLang}
           onEditPhoto={() => setShowPhotoModal(true)}
           onOpenProfile={() => setShowProfile(true)}
+          onTutorial={() => setShowTutorial(true)}
           onLogout={() => { setShowMiniMenu(false); onLogout(); }}
           onClose={() => setShowMiniMenu(false)}
         />
