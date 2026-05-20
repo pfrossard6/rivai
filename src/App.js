@@ -982,9 +982,9 @@ function ExploreTab({ T }) {
   });
 
   return (
-    <div style={{ animation: "fadeUp .4s ease" }}>
+    <div style={{ animation: "fadeUp .4s ease", position: 'relative', overflow: 'hidden' }}>
       {/* BG illustration: pessoa com binóculos */}
-      <svg style={{ position: "fixed", bottom: 56, right: 0, width: 150, opacity: 0.10, zIndex: 0, pointerEvents: "none" }} viewBox="0 0 140 160" xmlns="http://www.w3.org/2000/svg">
+      <svg style={{ position: 'absolute', bottom: 0, right: 0, width: 300, height: 'auto', opacity: 0.08, zIndex: 0, pointerEvents: 'none' }} viewBox="0 0 140 160" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
         <circle cx="70" cy="36" r="12" fill="#6C4DFF"/>
         <path d="M55 55 Q70 46 85 55 L88 95 L52 95 Z" fill="#6C4DFF" opacity="0.9"/>
         <line x1="55" y1="95" x2="50" y2="130" stroke="#6C4DFF" strokeWidth="6" strokeLinecap="round"/>
@@ -998,6 +998,7 @@ function ExploreTab({ T }) {
         <circle cx="98" cy="78" r="5" fill="#6C4DFF" opacity="0.5"/>
         <line x1="5" y1="138" x2="135" y2="138" stroke="#8A2BE2" strokeWidth="2" opacity="0.5"/>
       </svg>
+      <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Search bar */}
       <div style={{ position: "relative", marginBottom: 22 }}>
         <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 15, pointerEvents: "none" }}>🔍</span>
@@ -1056,6 +1057,7 @@ function ExploreTab({ T }) {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }
@@ -1083,9 +1085,9 @@ const MEDALS = ["🥇", "🥈", "🥉"];
 
 function CommunityTab({ T }) {
   return (
-    <div style={{ animation: "fadeUp .4s ease" }}>
+    <div style={{ animation: "fadeUp .4s ease", position: 'relative', overflow: 'hidden' }}>
       {/* BG illustration: rede de pessoas conectadas */}
-      <svg style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", opacity: 0.07, zIndex: 0, pointerEvents: "none" }} viewBox="0 0 390 700" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <svg style={{ position: 'absolute', bottom: 0, right: 0, width: 300, height: 'auto', opacity: 0.08, zIndex: 0, pointerEvents: 'none' }} viewBox="0 0 390 700" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
         <line x1="75" y1="160" x2="200" y2="290" stroke="#6C4DFF" strokeWidth="1.5"/>
         <line x1="200" y1="290" x2="325" y2="185" stroke="#6C4DFF" strokeWidth="1.5"/>
         <line x1="75" y1="160" x2="325" y2="185" stroke="#8A2BE2" strokeWidth="1"/>
@@ -1101,6 +1103,7 @@ function CommunityTab({ T }) {
         <circle cx="345" cy="358" r="8" fill="#6C4DFF"/><path d="M333 375 Q345 367 357 375 L359 398 L331 398 Z" fill="#6C4DFF"/>
         <circle cx="45" cy="348" r="8" fill="#8A2BE2"/><path d="M33 365 Q45 357 57 365 L59 388 L31 388 Z" fill="#8A2BE2"/>
       </svg>
+      <div style={{ position: 'relative', zIndex: 1 }}>
 
       {/* Ranking da semana */}
       <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 12, fontFamily: "'JetBrains Mono',monospace" }}>Ranking da semana</p>
@@ -1146,6 +1149,7 @@ function CommunityTab({ T }) {
             </div>
           </Card>
         ))}
+      </div>
       </div>
     </div>
   );
@@ -1404,13 +1408,14 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
   const studyPct = Math.min(100, Math.round((studySec / 900) * 100));
 
   return (
-    <div style={{ animation: "fadeUp .4s ease" }}>
+    <div style={{ animation: "fadeUp .4s ease", position: 'relative', overflow: 'hidden' }}>
       {/* BG illustration: onda roxa de ritmo */}
-      <svg style={{ position: "fixed", bottom: 56, left: 0, width: "100%", opacity: 0.09, zIndex: 0, pointerEvents: "none" }} viewBox="0 0 390 110" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <svg style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: 'auto', opacity: 0.08, zIndex: 0, pointerEvents: 'none' }} viewBox="0 0 390 110" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
         <path d="M0 55 C55 25 110 75 165 50 C220 25 275 70 330 45 C355 33 375 50 390 42 L390 110 L0 110 Z" fill="#6C4DFF"/>
         <path d="M0 72 C70 48 140 82 210 62 C270 45 330 78 390 60 L390 110 L0 110 Z" fill="#8A2BE2" opacity="0.65"/>
         <path d="M0 88 C80 72 160 96 240 84 C300 74 355 92 390 84 L390 110 L0 110 Z" fill="#6C4DFF" opacity="0.45"/>
       </svg>
+      <div style={{ position: 'relative', zIndex: 1 }}>
 
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22 }}>
@@ -1541,6 +1546,7 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
@@ -1861,9 +1867,9 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const progressPct = Math.round((completedTopics.length / totalTopics) * 100);
 
   return (
-    <div style={{ animation: "fadeUp .4s ease" }}>
+    <div style={{ animation: "fadeUp .4s ease", position: 'relative', overflow: 'hidden' }}>
       {/* BG illustration: montanha com figura humana */}
-      <svg style={{ position: "fixed", bottom: 56, right: 0, width: 210, opacity: 0.10, zIndex: 0, pointerEvents: "none" }} viewBox="0 0 210 190" xmlns="http://www.w3.org/2000/svg">
+      <svg style={{ position: 'absolute', bottom: 0, right: 0, width: 300, height: 'auto', opacity: 0.08, zIndex: 0, pointerEvents: 'none' }} viewBox="0 0 210 190" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
         <polygon points="105,12 195,165 15,165" fill="#6C4DFF"/>
         <polygon points="48,88 108,165 0,165" fill="#8A2BE2" opacity="0.6"/>
         <polygon points="160,68 210,165 118,165" fill="#8A2BE2" opacity="0.45"/>
@@ -1874,6 +1880,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
         <line x1="102" y1="24" x2="97" y2="33" stroke="#8A2BE2" strokeWidth="2.5" strokeLinecap="round"/>
         <line x1="108" y1="24" x2="113" y2="33" stroke="#8A2BE2" strokeWidth="2.5" strokeLinecap="round"/>
       </svg>
+      <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Floating tutor button — rendered via Portal directly in document.body */}
       {tutorBtnMounted && !showTrailTutor && ReactDOM.createPortal(
         <button onClick={() => setShowTrailTutor(true)} style={{ position: 'fixed', bottom: '90px', right: '20px', zIndex: 9999, background: "#6C4DFF", border: "none", borderRadius: 22, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", boxShadow: "0 4px 20px #6C4DFF55", display: "flex", alignItems: "center", gap: 7 }}>
@@ -1971,6 +1978,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
             </div>
           );
         })}
+      </div>
       </div>
     </div>
   );
@@ -2251,9 +2259,9 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   }
 
   return (
-    <div style={{ animation: "fadeUp .4s ease" }}>
+    <div style={{ animation: "fadeUp .4s ease", position: 'relative', overflow: 'hidden' }}>
       {/* BG illustration: pessoa escrevendo à beira de um rio */}
-      <svg style={{ position: "fixed", bottom: 56, left: 0, width: "100%", opacity: 0.09, zIndex: 0, pointerEvents: "none" }} viewBox="0 0 390 115" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+      <svg style={{ position: 'absolute', bottom: 0, right: 0, width: 300, height: 'auto', opacity: 0.08, zIndex: 0, pointerEvents: 'none' }} viewBox="0 0 390 115" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
         <path d="M0 72 C50 55 100 80 150 65 C200 50 250 75 300 62 C340 52 368 68 390 60 L390 115 L0 115 Z" fill="#6C4DFF" opacity="0.6"/>
         <path d="M0 85 C65 70 130 92 195 78 C255 65 315 88 375 76 L390 78 L390 115 L0 115 Z" fill="#8A2BE2" opacity="0.5"/>
         <path d="M0 98 C80 86 160 102 240 93 C300 85 352 100 390 93 L390 115 L0 115 Z" fill="#6C4DFF" opacity="0.4"/>
@@ -2268,6 +2276,7 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
         <line x1="82" y1="72" x2="94" y2="72" stroke="#6C4DFF" strokeWidth="1.5"/>
         <line x1="82" y1="76" x2="94" y2="76" stroke="#6C4DFF" strokeWidth="1.5"/>
       </svg>
+      <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Section tabs */}
       <div style={{ display: "flex", gap: 8, marginBottom: 20, background: T.surface, borderRadius: 12, padding: 4, border: `1px solid ${T.border}` }}>
         {[{ id: "notes", label: "📓 Anotações" }, { id: "agenda", label: "📅 Agenda" }].map(s => (
@@ -2362,6 +2371,7 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
           )}
         </>
       )}
+      </div>
     </div>
   );
 }
