@@ -957,9 +957,111 @@ function OnboardingScreen({ T, user, onDone }) {
 
 // ─── Explorar Tab ──────────────────────────────────────────────────────────
 const EXPLORE_TRAILS = [
-  { id: 1, title: "ChatGPT para Produtividade", desc: "Automatize tarefas do dia a dia", level: "Intermediário", lessons: 8, icon: "🤖" },
-  { id: 2, title: "Automação com IA", desc: "Crie fluxos inteligentes sem código", level: "Iniciante", lessons: 6, icon: "⚡" },
-  { id: 3, title: "IA no Trabalho", desc: "Aplique IA na sua rotina profissional", level: "Iniciante", lessons: 10, icon: "💼" },
+  {
+    id: 1, title: "ChatGPT para Produtividade", desc: "Domine o modelo mais popular do mundo e automatize tarefas do dia a dia com prompts eficientes.", level: "Intermediário", icon: "🤖", category: "produtividade",
+    modules: [
+      {
+        id: "m1", title: "Fundamentos do ChatGPT",
+        lessons: [
+          { id: "l1", title: "O que é o ChatGPT e como funciona", desc: "Entenda a arquitetura de transformers e como o modelo prevê tokens. Conheça os limites e capacidades reais do modelo.", tag: "teoria" },
+          { id: "l2", title: "Anatomia de um bom prompt", desc: "Aprenda a estrutura papel + contexto + instrução + formato. Veja exemplos antes/depois de prompts reescritos.", tag: "prática" },
+        ]
+      },
+      {
+        id: "m2", title: "Prompts para o Trabalho",
+        lessons: [
+          { id: "l3", title: "Resumos e síntese de documentos", desc: "Técnicas para resumir PDFs, e-mails e reuniões longas. Use o modo de chunking para textos acima do limite de contexto.", tag: "prática" },
+          { id: "l4", title: "Criação de e-mails e comunicações", desc: "Gere e-mails profissionais, respostas difíceis e comunicados internos. Defina tom, destinatário e objetivo em segundos.", tag: "prática" },
+          { id: "l5", title: "Automatizando relatórios com GPT", desc: "Monte um fluxo de geração de relatórios semanais via ChatGPT + planilha. Integre com Zapier ou Make para zero esforço manual.", tag: "projeto" },
+        ]
+      },
+      {
+        id: "m3", title: "Usos Avançados",
+        lessons: [
+          { id: "l6", title: "Custom Instructions e memória", desc: "Configure instruções persistentes para personalizar o comportamento do modelo. Economize tempo eliminando contexto repetido.", tag: "prática" },
+          { id: "l7", title: "GPTs personalizados (sem código)", desc: "Crie seu próprio GPT com instruções, tom e base de conhecimento. Publique e compartilhe com seu time.", tag: "projeto" },
+          { id: "l8", title: "Avaliando e refinando respostas", desc: "Técnicas de follow-up, critiques e cadeia de raciocínio para melhorar outputs automaticamente.", tag: "teoria" },
+        ]
+      },
+    ]
+  },
+  {
+    id: 2, title: "Claude — O Assistente de Raciocínio", desc: "Explore o modelo da Anthropic, ideal para análises longas, redação e raciocínio passo a passo.", level: "Iniciante", icon: "⬡", category: "produtividade",
+    modules: [
+      {
+        id: "m1", title: "Conhecendo o Claude",
+        lessons: [
+          { id: "l1", title: "Claude vs ChatGPT — diferenças reais", desc: "Compare janela de contexto, estilo de resposta e pontos fortes de cada modelo. Saiba quando usar cada um.", tag: "teoria" },
+          { id: "l2", title: "Prompts para análise e crítica", desc: "Peça ao Claude para revisar textos, detectar inconsistências e sugerir melhorias argumentativas.", tag: "prática" },
+        ]
+      },
+      {
+        id: "m2", title: "Claude no Dia a Dia",
+        lessons: [
+          { id: "l3", title: "Leitura de documentos longos", desc: "Envie contratos, artigos científicos ou relatórios extensos e peça resumos estruturados com destaques.", tag: "prática" },
+          { id: "l4", title: "Escrita colaborativa com Claude", desc: "Use o Claude como co-autor: defina estilo, faça iterações e peça variações de tom para o mesmo conteúdo.", tag: "projeto" },
+        ]
+      },
+    ]
+  },
+  {
+    id: 3, title: "Gemini — IA integrada ao Google", desc: "Use a IA do Google integrada ao Gmail, Docs e Drive para turbinar sua produtividade no ecossistema G Suite.", level: "Iniciante", icon: "🔵", category: "produtividade",
+    modules: [
+      {
+        id: "m1", title: "Gemini no Google Workspace",
+        lessons: [
+          { id: "l1", title: "Gemini no Gmail — respostas inteligentes", desc: "Ative o Gemini no Gmail para gerar rascunhos automáticos com base no histórico do e-mail.", tag: "prática" },
+          { id: "l2", title: "Gemini no Docs e Slides", desc: "Gere documentos completos, crie apresentações e melhore textos existentes diretamente no Google Docs.", tag: "prática" },
+        ]
+      },
+      {
+        id: "m2", title: "Gemini Avançado",
+        lessons: [
+          { id: "l3", title: "Multimodalidade — texto, imagem e áudio", desc: "Envie imagens e áudios para o Gemini e obtenha análises detalhadas. Ideal para revisão de layouts e transcrições.", tag: "teoria" },
+          { id: "l4", title: "Projeto integrado: relatório com Gemini + Sheets", desc: "Monte um pipeline: colete dados no Sheets, processe com Gemini e exporte um relatório no Docs automaticamente.", tag: "projeto" },
+        ]
+      },
+    ]
+  },
+  {
+    id: 4, title: "IAs de Imagem — Midjourney e DALL-E", desc: "Crie ilustrações, logotipos e arte digital com prompts visuais. Do zero ao resultado profissional.", level: "Iniciante", icon: "🎨", category: "criatividade",
+    modules: [
+      {
+        id: "m1", title: "Criando com Prompts Visuais",
+        lessons: [
+          { id: "l1", title: "Anatomia de um prompt visual", desc: "Aprenda os elementos: sujeito, estilo, iluminação, câmera, humor. Veja exemplos de prompts fracos vs. detalhados.", tag: "teoria" },
+          { id: "l2", title: "Midjourney — primeiros passos", desc: "Configure o Discord, gere suas primeiras imagens com /imagine e navegue pelos parâmetros --ar, --v e --style.", tag: "prática" },
+        ]
+      },
+      {
+        id: "m2", title: "Uso Profissional",
+        lessons: [
+          { id: "l3", title: "DALL-E no ChatGPT — criação rápida", desc: "Use o DALL-E integrado ao ChatGPT para gerar mockups de produtos, thumbnails e posts para redes sociais.", tag: "prática" },
+          { id: "l4", title: "Projeto: identidade visual com IA", desc: "Crie um conjunto coeso de imagens para uma marca fictícia: banner, avatar e post. Exporte em alta resolução.", tag: "projeto" },
+          { id: "l5", title: "Direitos e ética em imagens geradas por IA", desc: "Entenda as regras de uso comercial, atribuição e os debates éticos sobre treinamento de modelos visuais.", tag: "teoria" },
+        ]
+      },
+    ]
+  },
+  {
+    id: 5, title: "Perplexity — Pesquisa com IA", desc: "Faça pesquisas profundas com fontes citadas, monitore tópicos e substitua horas de navegação por segundos.", level: "Iniciante", icon: "🔍", category: "produtividade",
+    modules: [
+      {
+        id: "m1", title: "Pesquisa Inteligente",
+        lessons: [
+          { id: "l1", title: "Por que o Perplexity é diferente do Google", desc: "Compare buscas tradicionais com busca aumentada por IA. Entenda como o Perplexity cita fontes e evita alucinações.", tag: "teoria" },
+          { id: "l2", title: "Técnicas de busca avançada", desc: "Use operadores, mode Focus e filtragem por fonte (acadêmica, YouTube, Reddit) para resultados precisos.", tag: "prática" },
+        ]
+      },
+      {
+        id: "m2", title: "Perplexity no Fluxo de Trabalho",
+        lessons: [
+          { id: "l3", title: "Monitoramento de tópicos e alertas", desc: "Configure Spaces para acompanhar temas específicos. Receba resumos automáticos de novidades no seu setor.", tag: "prática" },
+          { id: "l4", title: "Projeto: relatório de pesquisa em 10 minutos", desc: "Use o Perplexity para compilar um relatório de mercado com fontes, dados e análise — exportado pronto para apresentar.", tag: "projeto" },
+        ]
+      },
+    ]
+  },
 ];
 
 const EXPLORE_CATEGORIES = [
@@ -974,12 +1076,78 @@ function ExploreTab({ T }) {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState(null);
   const [searchFocused, setSearchFocused] = useState(false);
+  const [selectedTrail, setSelectedTrail] = useState(null);
+
+  const totalLessons = (trail) => trail.modules.reduce((sum, m) => sum + m.lessons.length, 0);
 
   const filtered = EXPLORE_TRAILS.filter(t => {
     const q = query.toLowerCase();
     const matchesQuery = !q || t.title.toLowerCase().includes(q) || t.desc.toLowerCase().includes(q) || t.level.toLowerCase().includes(q);
-    return matchesQuery;
+    const matchesCategory = !activeCategory || t.category === activeCategory;
+    return matchesQuery && matchesCategory;
   });
+
+  const tagStyles = {
+    teoria: { bg: '#1e2a4a', color: '#60a5fa' },
+    prática: { bg: '#1a3a2a', color: '#4ade80' },
+    projeto: { bg: '#3a2a10', color: '#fbbf24' },
+  };
+
+  if (selectedTrail) {
+    let lessonCounter = 0;
+    return (
+      <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
+        <img src="/bg-explorar.svg" alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.08, pointerEvents: 'none', zIndex: 0 }} />
+        <div style={{ position: 'relative', zIndex: 1 }}>
+          <button onClick={() => setSelectedTrail(null)} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'transparent', border: 'none', color: T.accent, fontFamily: "'Nunito',sans-serif", fontSize: 14, fontWeight: 700, cursor: 'pointer', marginBottom: 18, padding: '4px 0' }}>
+            ← Voltar
+          </button>
+          <Card T={T} style={{ padding: '20px 18px', marginBottom: 20 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 12 }}>
+              <div style={{ width: 52, height: 52, borderRadius: 14, background: `linear-gradient(135deg,${T.accent},${T.accentLight || T.green})`, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, flexShrink: 0 }}>{selectedTrail.icon}</div>
+              <div>
+                <p style={{ fontWeight: 900, fontSize: 17, color: T.textPrimary, marginBottom: 4 }}>{selectedTrail.title}</p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 9px', borderRadius: 20, background: selectedTrail.level === 'Iniciante' ? T.greenDim : T.amberDim, color: selectedTrail.level === 'Iniciante' ? T.green : T.amber, fontFamily: "'JetBrains Mono',monospace" }}>{selectedTrail.level}</span>
+                  <span style={{ fontSize: 11, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>📖 {totalLessons(selectedTrail)} aulas</span>
+                </div>
+              </div>
+            </div>
+            <p style={{ fontSize: 13, color: T.textSecondary, lineHeight: 1.6 }}>{selectedTrail.desc}</p>
+          </Card>
+          {selectedTrail.modules.map(mod => (
+            <div key={mod.id} style={{ marginBottom: 20 }}>
+              <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: 'uppercase', letterSpacing: '.1em', marginBottom: 10, fontFamily: "'JetBrains Mono',monospace" }}>{mod.title}</p>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {mod.lessons.map(lesson => {
+                  lessonCounter++;
+                  const num = lessonCounter;
+                  const ts = tagStyles[lesson.tag] || tagStyles.teoria;
+                  return (
+                    <Card T={T} key={lesson.id} style={{ padding: '14px 16px' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
+                        <div style={{ width: 32, height: 32, borderRadius: '50%', background: T.accentDim, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: T.accent, flexShrink: 0, fontFamily: "'JetBrains Mono',monospace" }}>{num}</div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 5, flexWrap: 'wrap' }}>
+                            <p style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary }}>{lesson.title}</p>
+                            <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: ts.bg, color: ts.color, fontFamily: "'JetBrains Mono',monospace" }}>{lesson.tag}</span>
+                          </div>
+                          <p style={{ fontSize: 12, color: T.textSecondary, lineHeight: 1.6, marginBottom: lesson.tag === 'prática' ? 8 : 0 }}>{lesson.desc}</p>
+                          {lesson.tag === 'prática' && (
+                            <span style={{ fontSize: 11, fontWeight: 700, color: T.green }}>✨ Exercício prático</span>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
@@ -1030,11 +1198,11 @@ function ExploreTab({ T }) {
                   <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 8, lineHeight: 1.5 }}>{trail.desc}</p>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, background: trail.level === "Iniciante" ? T.greenDim : T.amberDim, color: trail.level === "Iniciante" ? T.green : T.amber, fontFamily: "'JetBrains Mono',monospace" }}>{trail.level}</span>
-                    <span style={{ fontSize: 11, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>📖 {trail.lessons} aulas</span>
+                    <span style={{ fontSize: 11, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>📖 {totalLessons(trail)} aulas</span>
                   </div>
                 </div>
               </div>
-              <button style={{ marginTop: 14, width: "100%", padding: "10px 0", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 10, color: T.accent, fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", transition: "all .15s" }}
+              <button onClick={() => setSelectedTrail(trail)} style={{ marginTop: 14, width: "100%", padding: "10px 0", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 10, color: T.accent, fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", transition: "all .15s" }}
                 onMouseEnter={e => { e.currentTarget.style.background = T.accent; e.currentTarget.style.color = "#fff"; }}
                 onMouseLeave={e => { e.currentTarget.style.background = T.accentDim; e.currentTarget.style.color = T.accent; }}>
                 Ver trilha →
