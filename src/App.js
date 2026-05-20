@@ -1734,7 +1734,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
     <div style={{ animation: "fadeUp .4s ease" }}>
       {/* Floating tutor button — only when panel is closed */}
       {!showTrailTutor && (
-        <button onClick={() => setShowTrailTutor(true)} style={{ position: "fixed", bottom: 90, right: 18, zIndex: 110, background: "#6C4DFF", border: "none", borderRadius: 22, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", boxShadow: "0 4px 20px #6C4DFF55", display: "flex", alignItems: "center", gap: 7 }}>
+        <button onClick={() => setShowTrailTutor(true)} style={{ position: "fixed", bottom: 80, right: 20, zIndex: 100, background: "#6C4DFF", border: "none", borderRadius: 22, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", boxShadow: "0 4px 20px #6C4DFF55", display: "flex", alignItems: "center", gap: 7 }}>
           <span style={{ fontSize: 16 }}>💬</span> Tutor
         </button>
       )}
