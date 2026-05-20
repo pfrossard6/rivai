@@ -982,8 +982,8 @@ function ExploreTab({ T }) {
   });
 
   return (
-    <div style={{ animation: "fadeUp .4s ease", background: 'radial-gradient(ellipse at center, rgba(108,77,255,0.10) 0%, transparent 60%)', minHeight: '100vh' }}>
-      <img src="/bg-explorar.svg" style={{ position: 'fixed', bottom: '60px', right: 0, width: '50%', maxWidth: '400px', opacity: 0.1, pointerEvents: 'none', zIndex: 0 }} alt="" />
+    <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
+      <img src="/bg-explorar.svg" alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.08, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Search bar */}
       <div style={{ position: "relative", marginBottom: 22 }}>
@@ -1071,8 +1071,8 @@ const MEDALS = ["🥇", "🥈", "🥉"];
 
 function CommunityTab({ T }) {
   return (
-    <div style={{ animation: "fadeUp .4s ease", background: 'linear-gradient(to right, rgba(108,77,255,0.08) 0%, transparent 40%)', minHeight: '100vh' }}>
-      <img src="/bg-comunidade.svg" style={{ position: 'fixed', bottom: '60px', right: 0, width: '50%', maxWidth: '400px', opacity: 0.1, pointerEvents: 'none', zIndex: 0 }} alt="" />
+    <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
+      <img src="/bg-comunidade.svg" alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.08, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
 
       {/* Ranking da semana */}
@@ -1378,8 +1378,8 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
   const studyPct = Math.min(100, Math.round((studySec / 900) * 100));
 
   return (
-    <div style={{ animation: "fadeUp .4s ease", background: 'radial-gradient(ellipse at top right, rgba(108,77,255,0.15) 0%, transparent 60%)', minHeight: '100vh' }}>
-      <img src="/bg-inicio.svg" style={{ position: 'fixed', bottom: '60px', right: 0, width: '50%', maxWidth: '400px', opacity: 0.1, pointerEvents: 'none', zIndex: 0 }} alt="" />
+    <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
+      <img src="/bg-inicio.svg" alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.08, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
 
       {/* Header */}
@@ -1832,8 +1832,8 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const progressPct = Math.round((completedTopics.length / totalTopics) * 100);
 
   return (
-    <div style={{ animation: "fadeUp .4s ease", background: 'linear-gradient(to top, rgba(138,43,226,0.12) 0%, transparent 50%)', minHeight: '100vh' }}>
-      <img src="/bg-trilhas.svg" style={{ position: 'fixed', bottom: '60px', right: 0, width: '50%', maxWidth: '400px', opacity: 0.1, pointerEvents: 'none', zIndex: 0 }} alt="" />
+    <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
+      <img src="/bg-trilhas.svg" alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.08, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Floating tutor button — rendered via Portal directly in document.body */}
       {tutorBtnMounted && !showTrailTutor && ReactDOM.createPortal(
@@ -2213,8 +2213,8 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   }
 
   return (
-    <div style={{ animation: "fadeUp .4s ease", background: 'radial-gradient(ellipse at bottom left, rgba(138,43,226,0.12) 0%, transparent 50%)', minHeight: '100vh' }}>
-      <img src="/bg-notas.svg" style={{ position: 'fixed', bottom: '60px', right: 0, width: '50%', maxWidth: '400px', opacity: 0.1, pointerEvents: 'none', zIndex: 0 }} alt="" />
+    <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
+      <img src="/bg-notas.svg" alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.08, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Section tabs */}
       <div style={{ display: "flex", gap: 8, marginBottom: 20, background: T.surface, borderRadius: 12, padding: 4, border: `1px solid ${T.border}` }}>
