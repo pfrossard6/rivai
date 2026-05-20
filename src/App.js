@@ -657,6 +657,7 @@ export default function App() {
   const [toasts, setToasts] = useState([]);
   const [xpPops, setXpPops] = useState([]);
   const [themeKey, setThemeKey] = useState(() => localStorage.getItem("aprendia_theme") || "dark");
+  const [showSplash, setShowSplash] = useState(true);
   const T = THEMES[themeKey];
 
   const toggleTheme = () => { const n = themeKey === "dark" ? "light" : "dark"; setThemeKey(n); localStorage.setItem("aprendia_theme", n); };
@@ -691,6 +692,11 @@ export default function App() {
       return updated;
     });
   }, [addToast]);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const email = getSession();
@@ -731,52 +737,127 @@ export default function App() {
     @keyframes xpPop{0%{opacity:0;transform:translateY(0) scale(.5)}30%{opacity:1;transform:translateY(-22px) scale(1.2)}100%{opacity:0;transform:translateY(-54px)}}
     @keyframes modalIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
     @keyframes overlayIn{from{opacity:0}to{opacity:1}}
+    @keyframes splashIn{0%{opacity:0;transform:scale(.8)}100%{opacity:1;transform:scale(1)}}
+    @keyframes splashOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.04)}}
   `;
 
   return (
     <>
       <style>{GS}</style>
-      <div style={{ position: "fixed", bottom: 85, right: 16, zIndex: 9999, pointerEvents: "none" }}>
-        {xpPops.map(p => <div key={p.id} style={{ fontSize: 15, fontWeight: 900, color: T.amber, animation: "xpPop 1.4s ease forwards", fontFamily: "'JetBrains Mono',monospace" }}>+{p.amount} XP</div>)}
-      </div>
-      <div style={{ position: "fixed", top: 12, right: 12, zIndex: 9998, display: "flex", flexDirection: "column", gap: 7 }}>
-        {toasts.map(t => <div key={t.id} style={{ background: T.card, border: `1px solid ${t.type === "achievement" ? T.accent : T.green}`, borderRadius: 13, padding: "10px 15px", fontSize: 13, fontWeight: 700, color: T.textPrimary, animation: "toastIn .35s ease", boxShadow: `0 4px 20px ${T.accentGlow}`, maxWidth: 270 }}>{t.msg}</div>)}
-      </div>
-      {screen === "login" && <AuthScreen T={T} mode="login" onSubmit={handleLogin} onSwitch={() => { setAuthError(""); setScreen("register"); }} error={authError} setError={setAuthError} themeKey={themeKey} toggleTheme={toggleTheme} />}
-      {screen === "register" && <AuthScreen T={T} mode="register" onSubmit={handleRegister} onSwitch={() => { setAuthError(""); setScreen("login"); }} error={authError} setError={setAuthError} themeKey={themeKey} toggleTheme={toggleTheme} />}
-      {screen === "onboarding" && <OnboardingScreen T={T} user={user} onDone={handleProfileSaved} />}
-      {screen === "dashboard" && <Dashboard T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} onLogout={() => { clearSession(); setUser(null); setScreen("login"); }} onRestart={() => setScreen("onboarding")} themeKey={themeKey} toggleTheme={toggleTheme} />}
+      {showSplash && <SplashScreen />}
+      {!showSplash && <>
+        <div style={{ position: "fixed", bottom: 85, right: 16, zIndex: 9999, pointerEvents: "none" }}>
+          {xpPops.map(p => <div key={p.id} style={{ fontSize: 15, fontWeight: 900, color: T.amber, animation: "xpPop 1.4s ease forwards", fontFamily: "'JetBrains Mono',monospace" }}>+{p.amount} XP</div>)}
+        </div>
+        <div style={{ position: "fixed", top: 12, right: 12, zIndex: 9998, display: "flex", flexDirection: "column", gap: 7 }}>
+          {toasts.map(t => <div key={t.id} style={{ background: T.card, border: `1px solid ${t.type === "achievement" ? T.accent : T.green}`, borderRadius: 13, padding: "10px 15px", fontSize: 13, fontWeight: 700, color: T.textPrimary, animation: "toastIn .35s ease", boxShadow: `0 4px 20px ${T.accentGlow}`, maxWidth: 270 }}>{t.msg}</div>)}
+        </div>
+        {screen === "login" && <AuthScreen T={T} mode="login" onSubmit={handleLogin} onSwitch={() => { setAuthError(""); setScreen("register"); }} error={authError} setError={setAuthError} themeKey={themeKey} toggleTheme={toggleTheme} />}
+        {screen === "register" && <AuthScreen T={T} mode="register" onSubmit={handleRegister} onSwitch={() => { setAuthError(""); setScreen("login"); }} error={authError} setError={setAuthError} themeKey={themeKey} toggleTheme={toggleTheme} />}
+        {screen === "onboarding" && <OnboardingScreen T={T} user={user} onDone={handleProfileSaved} />}
+        {screen === "dashboard" && <Dashboard T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} onLogout={() => { clearSession(); setUser(null); setScreen("login"); }} onRestart={() => setScreen("onboarding")} themeKey={themeKey} toggleTheme={toggleTheme} />}
+      </>}
     </>
+  );
+}
+
+// ─── Splash Screen ─────────────────────────────────────────────────────────
+function SplashScreen() {
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "#0F0F1A", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", animation: "splashIn .6s cubic-bezier(.22,.8,.44,1) forwards" }}>
+      <div style={{ textAlign: "center" }}>
+        <div style={{ fontSize: 56, fontWeight: 900, letterSpacing: "-1px", marginBottom: 16, lineHeight: 1 }}>
+          <span style={{ color: "#ffffff" }}>Riv</span><span style={{ color: "#6C4DFF" }}>AI</span>
+        </div>
+        <p style={{ fontSize: 17, fontWeight: 600, color: "#6C4DFF", letterSpacing: ".02em" }}>Seu ritmo, amplificado.</p>
+      </div>
+    </div>
   );
 }
 
 // ─── Auth ──────────────────────────────────────────────────────────────────
 function AuthScreen({ T, mode, onSubmit, onSwitch, error, setError, themeKey, toggleTheme }) {
-  const [name, setName] = useState(""); const [email, setEmail] = useState(""); const [pw, setPw] = useState("");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [pw, setPw] = useState("");
+  const [emailFocus, setEmailFocus] = useState(false);
+  const [pwFocus, setPwFocus] = useState(false);
+  const [nameFocus, setNameFocus] = useState(false);
+  const [btnHover, setBtnHover] = useState(false);
   const isLogin = mode === "login";
   function submit() { isLogin ? onSubmit(email, pw) : onSubmit(email, pw, name); }
+
+  const fieldStyle = (focused) => ({
+    width: "100%", background: "#0F0F1A", border: `1px solid ${focused ? "#6C4DFF" : "#2D2D3F"}`,
+    borderRadius: 12, color: "#ffffff", fontFamily: "'Nunito', sans-serif", fontSize: 14,
+    padding: "13px 14px", outline: "none", marginBottom: 12, transition: "border .2s",
+    boxShadow: focused ? "0 0 0 3px rgba(108,77,255,.18)" : "none", boxSizing: "border-box",
+  });
+
   return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", padding: 20, background: T.bg, position: "relative" }}>
-      <div style={{ position: "absolute", inset: 0, backgroundImage: `radial-gradient(ellipse at 25% 25%, ${T.accent}12 0%, transparent 55%), radial-gradient(ellipse at 75% 75%, ${T.green}0e 0%, transparent 55%)`, pointerEvents: "none" }} />
-      <button onClick={toggleTheme} style={{ position: "absolute", top: 16, right: 16, background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, padding: "7px 11px", cursor: "pointer", fontSize: 16 }}>{themeKey === "dark" ? "☀️" : "🌙"}</button>
-      <div style={{ width: "100%", maxWidth: 400, animation: "fadeUp .5s ease" }}>
-        <div style={{ textAlign: "center", marginBottom: 26 }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 9, marginBottom: 5 }}>
-            <div style={{ width: 38, height: 38, borderRadius: 11, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, animation: "float 3s ease-in-out infinite" }}>⬡</div>
-            <span style={{ fontSize: 21, fontWeight: 900, color: T.textPrimary }}>Riv.<span style={{ color: T.accent }}>IA</span></span>
-          </div>
-          <p style={{ fontSize: 13, color: T.textSecondary }}>Seu tutor de IA personalizado</p>
+    <div style={{ minHeight: "100vh", background: "#0F0F1A", position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center" }}>
+      {/* Radial gradient */}
+      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "700px", height: "700px", background: "radial-gradient(ellipse at center, rgba(108,77,255,.18) 0%, transparent 65%)", pointerEvents: "none" }} />
+
+      {/* Theme toggle */}
+      <button onClick={toggleTheme} style={{ position: "absolute", top: 16, right: 16, background: "rgba(255,255,255,.06)", border: "1px solid #2D2D3F", borderRadius: 10, padding: "7px 11px", cursor: "pointer", fontSize: 16, zIndex: 10 }}>{themeKey === "dark" ? "☀️" : "🌙"}</button>
+
+      {/* Logo + waves section */}
+      <div style={{ width: "100%", maxWidth: 420, padding: "56px 24px 0", textAlign: "center", position: "relative", zIndex: 1 }}>
+        {/* SVG waves decorativas */}
+        <svg width="100%" height="48" viewBox="0 0 420 48" fill="none" style={{ marginBottom: 8, opacity: .22 }}>
+          <path d="M0 32 Q52 8 105 28 T210 28 T315 28 T420 28 L420 48 L0 48 Z" fill="#6C4DFF" />
+          <path d="M0 38 Q70 18 140 34 T280 34 T420 34 L420 48 L0 48 Z" fill="#8A2BE2" opacity=".6" />
+        </svg>
+        <div style={{ fontSize: 48, fontWeight: 900, letterSpacing: "-1px", marginBottom: 10, lineHeight: 1, animation: "fadeUp .5s ease" }}>
+          <span style={{ color: "#ffffff" }}>Riv</span><span style={{ color: "#6C4DFF" }}>AI</span>
         </div>
-        <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 20, padding: "30px 26px", boxShadow: T.card === "#ffffff" ? "0 4px 24px #0002" : "none" }}>
-          <h2 style={{ fontSize: 19, fontWeight: 800, color: T.textPrimary, marginBottom: 4 }}>{isLogin ? "Bem-vindo de volta 👋" : "Criar sua conta 🎯"}</h2>
-          <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 20 }}>{isLogin ? "Continue sua jornada" : "Vamos montar seu curso personalizado"}</p>
-          {!isLogin && <TInput T={T} placeholder="Seu nome" value={name} onChange={e => { setName(e.target.value); setError(""); }} />}
-          <TInput T={T} placeholder="E-mail" type="email" value={email} onChange={e => { setEmail(e.target.value); setError(""); }} />
-          <TInput T={T} placeholder="Senha" type="password" value={pw} onChange={e => { setPw(e.target.value); setError(""); }} />
-          {error && <p style={{ color: T.red, fontSize: 13, marginBottom: 10 }}>{error}</p>}
-          <BtnPrimary T={T} onClick={submit}>{isLogin ? "Entrar →" : "Criar conta grátis →"}</BtnPrimary>
-          <p style={{ textAlign: "center", fontSize: 13, color: T.textSecondary, marginTop: 16, cursor: "pointer" }} onClick={onSwitch}>
-            {isLogin ? "Novo por aqui? " : "Já tem conta? "}<span style={{ color: T.accent, fontWeight: 700 }}>{isLogin ? "Criar conta grátis" : "Entrar"}</span>
+        <p style={{ fontSize: 16, fontWeight: 700, color: "#6C4DFF", marginBottom: 6, animation: "fadeUp .55s ease" }}>Seu ritmo, amplificado.</p>
+        <p style={{ fontSize: 13, color: "#9CA3AF", marginBottom: 32, animation: "fadeUp .6s ease" }}>O tutor de IA que se adapta a você</p>
+      </div>
+
+      {/* Login card */}
+      <div style={{ width: "100%", maxWidth: 420, padding: "0 16px 40px", position: "relative", zIndex: 1, animation: "fadeUp .65s ease" }}>
+        <div style={{ background: "#1B1B24", borderRadius: 16, padding: "28px 24px", boxShadow: "0 8px 40px rgba(0,0,0,.5)" }}>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: "#ffffff", marginBottom: 4 }}>{isLogin ? "Bem-vindo de volta 👋" : "Criar sua conta 🎯"}</h2>
+          <p style={{ color: "#9CA3AF", fontSize: 13, marginBottom: 20 }}>{isLogin ? "Continue sua jornada" : "Vamos montar seu curso personalizado"}</p>
+
+          {!isLogin && (
+            <input
+              type="text" placeholder="Seu nome" value={name}
+              onChange={e => { setName(e.target.value); setError(""); }}
+              onFocus={() => setNameFocus(true)} onBlur={() => setNameFocus(false)}
+              style={fieldStyle(nameFocus)}
+            />
+          )}
+          <input
+            type="email" placeholder="E-mail" value={email}
+            onChange={e => { setEmail(e.target.value); setError(""); }}
+            onFocus={() => setEmailFocus(true)} onBlur={() => setEmailFocus(false)}
+            style={fieldStyle(emailFocus)}
+          />
+          <input
+            type="password" placeholder="Senha" value={pw}
+            onChange={e => { setPw(e.target.value); setError(""); }}
+            onFocus={() => setPwFocus(true)} onBlur={() => setPwFocus(false)}
+            style={{ ...fieldStyle(pwFocus), marginBottom: error ? 8 : 20 }}
+            onKeyDown={e => e.key === "Enter" && submit()}
+          />
+
+          {error && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 14 }}>{error}</p>}
+
+          <button
+            onClick={submit}
+            onMouseEnter={() => setBtnHover(true)}
+            onMouseLeave={() => setBtnHover(false)}
+            style={{ width: "100%", padding: "14px 20px", background: btnHover ? "#8A2BE2" : "#6C4DFF", color: "#ffffff", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: "'Nunito', sans-serif", transition: "background .2s", boxShadow: "0 4px 20px rgba(108,77,255,.4)" }}
+          >
+            {isLogin ? "Entrar →" : "Criar conta grátis →"}
+          </button>
+
+          <p style={{ textAlign: "center", fontSize: 13, color: "#9CA3AF", marginTop: 18, cursor: "pointer" }} onClick={onSwitch}>
+            {isLogin ? "Novo por aqui? " : "Já tem conta? "}
+            <span style={{ color: "#6C4DFF", fontWeight: 700 }}>{isLogin ? "Criar conta grátis" : "Entrar"}</span>
           </p>
         </div>
       </div>
