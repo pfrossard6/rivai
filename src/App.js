@@ -982,7 +982,7 @@ function ExploreTab({ T }) {
   });
 
   return (
-    <div style={{ animation: "fadeUp .4s ease", background: 'linear-gradient(180deg, #0F0F1A 40%, #0d1628 100%)', minHeight: '100vh' }}>
+    <div style={{ animation: "fadeUp .4s ease", background: 'radial-gradient(ellipse at center, rgba(108,77,255,0.10) 0%, transparent 60%)', minHeight: '100vh' }}>
       {/* Search bar */}
       <div style={{ position: "relative", marginBottom: 22 }}>
         <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 15, pointerEvents: "none" }}>🔍</span>
@@ -1068,7 +1068,7 @@ const MEDALS = ["🥇", "🥈", "🥉"];
 
 function CommunityTab({ T }) {
   return (
-    <div style={{ animation: "fadeUp .4s ease", background: 'linear-gradient(180deg, #0F0F1A 50%, #1a0f2e 100%)', minHeight: '100vh' }}>
+    <div style={{ animation: "fadeUp .4s ease", background: 'linear-gradient(to right, rgba(108,77,255,0.08) 0%, transparent 40%)', minHeight: '100vh' }}>
 
       {/* Ranking da semana */}
       <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 12, fontFamily: "'JetBrains Mono',monospace" }}>Ranking da semana</p>
@@ -1372,7 +1372,7 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
   const studyPct = Math.min(100, Math.round((studySec / 900) * 100));
 
   return (
-    <div style={{ animation: "fadeUp .4s ease", background: 'linear-gradient(180deg, #0F0F1A 60%, #1a0f2e 100%)', minHeight: '100vh' }}>
+    <div style={{ animation: "fadeUp .4s ease", background: 'radial-gradient(ellipse at top right, rgba(108,77,255,0.15) 0%, transparent 60%)', minHeight: '100vh' }}>
 
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22 }}>
@@ -1823,7 +1823,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const progressPct = Math.round((completedTopics.length / totalTopics) * 100);
 
   return (
-    <div style={{ animation: "fadeUp .4s ease", background: 'linear-gradient(135deg, #0F0F1A 50%, #160d28 100%)', minHeight: '100vh' }}>
+    <div style={{ animation: "fadeUp .4s ease", background: 'linear-gradient(to top, rgba(138,43,226,0.12) 0%, transparent 50%)', minHeight: '100vh' }}>
       {/* Floating tutor button — rendered via Portal directly in document.body */}
       {tutorBtnMounted && !showTrailTutor && ReactDOM.createPortal(
         <button onClick={() => setShowTrailTutor(true)} style={{ position: 'fixed', bottom: '90px', right: '20px', zIndex: 9999, background: "#6C4DFF", border: "none", borderRadius: 22, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", boxShadow: "0 4px 20px #6C4DFF55", display: "flex", alignItems: "center", gap: 7 }}>
@@ -2201,7 +2201,7 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   }
 
   return (
-    <div style={{ animation: "fadeUp .4s ease", background: 'linear-gradient(135deg, #0F0F1A 60%, #0f1a1a 100%)', minHeight: '100vh' }}>
+    <div style={{ animation: "fadeUp .4s ease", background: 'radial-gradient(ellipse at bottom left, rgba(138,43,226,0.12) 0%, transparent 50%)', minHeight: '100vh' }}>
       {/* Section tabs */}
       <div style={{ display: "flex", gap: 8, marginBottom: 20, background: T.surface, borderRadius: 12, padding: 4, border: `1px solid ${T.border}` }}>
         {[{ id: "notes", label: "📓 Anotações" }, { id: "agenda", label: "📅 Agenda" }].map(s => (
