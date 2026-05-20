@@ -1648,6 +1648,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const [openPrompts, setOpenPrompts] = useState(new Set());
   const [showTrailTutor, setShowTrailTutor] = useState(false);
   const [moduleQuiz, setModuleQuiz] = useState(null); // {phaseIdx} or null
+  const [tutorBtnMounted, setTutorBtnMounted] = useState(false);
   const studySecRef = useRef(0);
   if (studySecRef.current === 0) {
     try {
@@ -1665,6 +1666,11 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
     }, 1000);
     return () => clearInterval(iv);
   }, [completeMission]);
+
+  useEffect(() => {
+    const t = setTimeout(() => setTutorBtnMounted(true), 100);
+    return () => clearTimeout(t);
+  }, []);
 
   function togglePrompt(key, e) {
     e.stopPropagation();
@@ -1732,9 +1738,9 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
-      {/* Floating tutor button — only when panel is closed */}
-      {!showTrailTutor && (
-        <button onClick={() => setShowTrailTutor(true)} style={{ position: "fixed", bottom: 80, right: 20, zIndex: 100, background: "#6C4DFF", border: "none", borderRadius: 22, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", boxShadow: "0 4px 20px #6C4DFF55", display: "flex", alignItems: "center", gap: 7 }}>
+      {/* Floating tutor button — only when panel is closed and component mounted */}
+      {tutorBtnMounted && !showTrailTutor && (
+        <button onClick={() => setShowTrailTutor(true)} style={{ position: "fixed", bottom: window.innerWidth <= 768 ? 90 : 80, right: 20, zIndex: 999, background: "#6C4DFF", border: "none", borderRadius: 22, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", boxShadow: "0 4px 20px #6C4DFF55", display: "flex", alignItems: "center", gap: 7 }}>
           <span style={{ fontSize: 16 }}>💬</span> Tutor
         </button>
       )}
