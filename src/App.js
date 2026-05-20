@@ -983,6 +983,21 @@ function ExploreTab({ T }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
+      {/* BG illustration: pessoa com binóculos */}
+      <svg style={{ position: "fixed", bottom: 56, right: 0, width: 150, opacity: 0.10, zIndex: 0, pointerEvents: "none" }} viewBox="0 0 140 160" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="70" cy="36" r="12" fill="#6C4DFF"/>
+        <path d="M55 55 Q70 46 85 55 L88 95 L52 95 Z" fill="#6C4DFF" opacity="0.9"/>
+        <line x1="55" y1="95" x2="50" y2="130" stroke="#6C4DFF" strokeWidth="6" strokeLinecap="round"/>
+        <line x1="85" y1="95" x2="90" y2="130" stroke="#6C4DFF" strokeWidth="6" strokeLinecap="round"/>
+        <line x1="55" y1="63" x2="42" y2="75" stroke="#6C4DFF" strokeWidth="4" strokeLinecap="round"/>
+        <line x1="85" y1="63" x2="98" y2="75" stroke="#6C4DFF" strokeWidth="4" strokeLinecap="round"/>
+        <rect x="30" y="71" width="24" height="15" rx="5" fill="#8A2BE2"/>
+        <rect x="86" y="71" width="24" height="15" rx="5" fill="#8A2BE2"/>
+        <rect x="52" y="75" width="22" height="7" rx="3" fill="#6C4DFF"/>
+        <circle cx="42" cy="78" r="5" fill="#6C4DFF" opacity="0.5"/>
+        <circle cx="98" cy="78" r="5" fill="#6C4DFF" opacity="0.5"/>
+        <line x1="5" y1="138" x2="135" y2="138" stroke="#8A2BE2" strokeWidth="2" opacity="0.5"/>
+      </svg>
       {/* Search bar */}
       <div style={{ position: "relative", marginBottom: 22 }}>
         <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 15, pointerEvents: "none" }}>🔍</span>
@@ -1069,6 +1084,23 @@ const MEDALS = ["🥇", "🥈", "🥉"];
 function CommunityTab({ T }) {
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
+      {/* BG illustration: rede de pessoas conectadas */}
+      <svg style={{ position: "fixed", top: 0, left: 0, width: "100%", height: "100%", opacity: 0.07, zIndex: 0, pointerEvents: "none" }} viewBox="0 0 390 700" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+        <line x1="75" y1="160" x2="200" y2="290" stroke="#6C4DFF" strokeWidth="1.5"/>
+        <line x1="200" y1="290" x2="325" y2="185" stroke="#6C4DFF" strokeWidth="1.5"/>
+        <line x1="75" y1="160" x2="325" y2="185" stroke="#8A2BE2" strokeWidth="1"/>
+        <line x1="200" y1="290" x2="145" y2="440" stroke="#8A2BE2" strokeWidth="1.5"/>
+        <line x1="325" y1="185" x2="345" y2="370" stroke="#6C4DFF" strokeWidth="1.5"/>
+        <line x1="145" y1="440" x2="345" y2="370" stroke="#8A2BE2" strokeWidth="1"/>
+        <line x1="45" y1="360" x2="145" y2="440" stroke="#6C4DFF" strokeWidth="1.5"/>
+        <line x1="75" y1="160" x2="45" y2="360" stroke="#8A2BE2" strokeWidth="1"/>
+        <circle cx="75" cy="148" r="8" fill="#6C4DFF"/><path d="M63 165 Q75 157 87 165 L89 188 L61 188 Z" fill="#6C4DFF"/>
+        <circle cx="200" cy="278" r="8" fill="#8A2BE2"/><path d="M188 295 Q200 287 212 295 L214 318 L186 318 Z" fill="#8A2BE2"/>
+        <circle cx="325" cy="173" r="8" fill="#6C4DFF"/><path d="M313 190 Q325 182 337 190 L339 213 L311 213 Z" fill="#6C4DFF"/>
+        <circle cx="145" cy="428" r="8" fill="#8A2BE2"/><path d="M133 445 Q145 437 157 445 L159 468 L131 468 Z" fill="#8A2BE2"/>
+        <circle cx="345" cy="358" r="8" fill="#6C4DFF"/><path d="M333 375 Q345 367 357 375 L359 398 L331 398 Z" fill="#6C4DFF"/>
+        <circle cx="45" cy="348" r="8" fill="#8A2BE2"/><path d="M33 365 Q45 357 57 365 L59 388 L31 388 Z" fill="#8A2BE2"/>
+      </svg>
 
       {/* Ranking da semana */}
       <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 12, fontFamily: "'JetBrains Mono',monospace" }}>Ranking da semana</p>
@@ -1373,6 +1405,12 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
 
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
+      {/* BG illustration: onda roxa de ritmo */}
+      <svg style={{ position: "fixed", bottom: 56, left: 0, width: "100%", opacity: 0.09, zIndex: 0, pointerEvents: "none" }} viewBox="0 0 390 110" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 55 C55 25 110 75 165 50 C220 25 275 70 330 45 C355 33 375 50 390 42 L390 110 L0 110 Z" fill="#6C4DFF"/>
+        <path d="M0 72 C70 48 140 82 210 62 C270 45 330 78 390 60 L390 110 L0 110 Z" fill="#8A2BE2" opacity="0.65"/>
+        <path d="M0 88 C80 72 160 96 240 84 C300 74 355 92 390 84 L390 110 L0 110 Z" fill="#6C4DFF" opacity="0.45"/>
+      </svg>
 
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22 }}>
@@ -1824,6 +1862,18 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
+      {/* BG illustration: montanha com figura humana */}
+      <svg style={{ position: "fixed", bottom: 56, right: 0, width: 210, opacity: 0.10, zIndex: 0, pointerEvents: "none" }} viewBox="0 0 210 190" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="105,12 195,165 15,165" fill="#6C4DFF"/>
+        <polygon points="48,88 108,165 0,165" fill="#8A2BE2" opacity="0.6"/>
+        <polygon points="160,68 210,165 118,165" fill="#8A2BE2" opacity="0.45"/>
+        <circle cx="105" cy="5" r="6" fill="#8A2BE2"/>
+        <rect x="102" y="11" width="6" height="13" rx="2" fill="#8A2BE2"/>
+        <line x1="102" y1="16" x2="93" y2="23" stroke="#8A2BE2" strokeWidth="2.5" strokeLinecap="round"/>
+        <line x1="108" y1="16" x2="117" y2="23" stroke="#8A2BE2" strokeWidth="2.5" strokeLinecap="round"/>
+        <line x1="102" y1="24" x2="97" y2="33" stroke="#8A2BE2" strokeWidth="2.5" strokeLinecap="round"/>
+        <line x1="108" y1="24" x2="113" y2="33" stroke="#8A2BE2" strokeWidth="2.5" strokeLinecap="round"/>
+      </svg>
       {/* Floating tutor button — rendered via Portal directly in document.body */}
       {tutorBtnMounted && !showTrailTutor && ReactDOM.createPortal(
         <button onClick={() => setShowTrailTutor(true)} style={{ position: 'fixed', bottom: '90px', right: '20px', zIndex: 9999, background: "#6C4DFF", border: "none", borderRadius: 22, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", boxShadow: "0 4px 20px #6C4DFF55", display: "flex", alignItems: "center", gap: 7 }}>
@@ -2202,6 +2252,22 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
+      {/* BG illustration: pessoa escrevendo à beira de um rio */}
+      <svg style={{ position: "fixed", bottom: 56, left: 0, width: "100%", opacity: 0.09, zIndex: 0, pointerEvents: "none" }} viewBox="0 0 390 115" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 72 C50 55 100 80 150 65 C200 50 250 75 300 62 C340 52 368 68 390 60 L390 115 L0 115 Z" fill="#6C4DFF" opacity="0.6"/>
+        <path d="M0 85 C65 70 130 92 195 78 C255 65 315 88 375 76 L390 78 L390 115 L0 115 Z" fill="#8A2BE2" opacity="0.5"/>
+        <path d="M0 98 C80 86 160 102 240 93 C300 85 352 100 390 93 L390 115 L0 115 Z" fill="#6C4DFF" opacity="0.4"/>
+        {/* Person sitting */}
+        <circle cx="62" cy="55" r="9" fill="#6C4DFF"/>
+        <path d="M53 64 Q62 57 72 64 L76 79 L50 79 Z" fill="#6C4DFF"/>
+        {/* Arm + pen */}
+        <line x1="72" y1="68" x2="93" y2="65" stroke="#6C4DFF" strokeWidth="3.5" strokeLinecap="round"/>
+        <line x1="93" y1="65" x2="100" y2="60" stroke="#8A2BE2" strokeWidth="2" strokeLinecap="round"/>
+        {/* Paper/notebook */}
+        <rect x="78" y="67" width="20" height="15" rx="2" fill="#8A2BE2" opacity="0.85"/>
+        <line x1="82" y1="72" x2="94" y2="72" stroke="#6C4DFF" strokeWidth="1.5"/>
+        <line x1="82" y1="76" x2="94" y2="76" stroke="#6C4DFF" strokeWidth="1.5"/>
+      </svg>
       {/* Section tabs */}
       <div style={{ display: "flex", gap: 8, marginBottom: 20, background: T.surface, borderRadius: 12, padding: 4, border: `1px solid ${T.border}` }}>
         {[{ id: "notes", label: "📓 Anotações" }, { id: "agenda", label: "📅 Agenda" }].map(s => (
