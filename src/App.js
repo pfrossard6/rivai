@@ -1066,7 +1066,7 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
     <div style={{ minHeight: "100vh", background: T.bg, paddingBottom: 70 }}>
       {/* Navbar */}
       <div style={{ background: T.navBg, borderBottom: `1px solid ${T.border}`, padding: "10px 16px", display: "flex", alignItems: "center", gap: 10, position: "sticky", top: 0, zIndex: 100, backdropFilter: "blur(16px)" }}>
-        <span style={{ fontSize: 16, fontWeight: 900, color: T.textPrimary }}>Riv.<span style={{ color: T.accent }}>IA</span></span>
+        <span style={{ fontSize: 16, fontWeight: 700, color: "#F2F3F7", fontFamily: "'Inter', sans-serif" }}>Riv<span style={{ color: "#6C4DFF", fontWeight: 900 }}>.IA</span></span>
         <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8 }}>
           {(() => { const { lvl, pct } = getLevel(user.xp || 0); return <>
             <div style={{ background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 800, color: "#fff" }}>L{lvl}</div>
