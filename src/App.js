@@ -117,6 +117,14 @@ const HOME_MISSIONS_DEF = [
 ];
 const TRAIL_STUDY_KEY = "rivai_trail_study";
 const getTodayStr = () => new Date().toDateString();
+const HEATMAP_KEY = "rivai_study_heatmap";
+const getHeatmap = () => { try { return JSON.parse(localStorage.getItem(HEATMAP_KEY) || "{}"); } catch { return {}; } };
+const addHeatmapMinutes = (mins) => {
+  const map = getHeatmap();
+  const today = new Date().toISOString().slice(0, 10);
+  map[today] = (map[today] || 0) + mins;
+  localStorage.setItem(HEATMAP_KEY, JSON.stringify(map));
+};
 
 // ─── Tutorial ──────────────────────────────────────────────────────────────
 const TUTORIAL_KEY = "rivai_tutorial_v1";
@@ -1402,6 +1410,60 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
 }
 
 // ─── Profile Modal ─────────────────────────────────────────────────────────
+function StudyHeatmap({ T }) {
+  const heatmap = getHeatmap();
+  const today = new Date();
+  const currentYear = today.getFullYear();
+
+  const days = [];
+  for (let i = 364; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const key = d.toISOString().slice(0, 10);
+    days.push({ key, mins: heatmap[key] || 0, date: d });
+  }
+
+  const studyDays = days.filter(d => d.mins > 0).length;
+
+  const getColor = (mins) => {
+    if (mins === 0) return '#1B1B24';
+    if (mins <= 15) return '#3D2B6B';
+    if (mins <= 30) return '#5B3D9E';
+    if (mins <= 60) return '#7C4DFF';
+    return '#A78BFA';
+  };
+
+  const startDow = days[0].date.getDay();
+  const padded = [...Array(startDow).fill(null), ...days];
+
+  return (
+    <div style={{ marginBottom: 18 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+        <p style={{ fontSize: 11, fontWeight: 800, color: '#A78BFA', textTransform: 'uppercase', letterSpacing: '.1em', fontFamily: "'JetBrains Mono',monospace" }}>Sua consistência</p>
+        <span style={{ fontSize: 11, fontWeight: 700, color: T.accent, fontFamily: "'JetBrains Mono',monospace" }}>{studyDays} dias em {currentYear}</span>
+      </div>
+      <div style={{ overflowX: 'auto', paddingBottom: 4 }}>
+        <div style={{ display: 'grid', gridTemplateRows: 'repeat(7, 10px)', gridAutoFlow: 'column', gap: 2, width: 'max-content' }}>
+          {padded.map((day, i) => (
+            <div
+              key={i}
+              title={day ? `${day.mins} min estudados em ${day.date.toLocaleDateString('pt-BR')}` : ''}
+              style={{ width: 10, height: 10, borderRadius: 2, background: day ? getColor(day.mins) : 'transparent' }}
+            />
+          ))}
+        </div>
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6, justifyContent: 'flex-end' }}>
+        <span style={{ fontSize: 10, color: T.textDim }}>Menos</span>
+        {['#1B1B24', '#3D2B6B', '#5B3D9E', '#7C4DFF', '#A78BFA'].map(c => (
+          <div key={c} style={{ width: 10, height: 10, borderRadius: 2, background: c }} />
+        ))}
+        <span style={{ fontSize: 10, color: T.textDim }}>Mais</span>
+      </div>
+    </div>
+  );
+}
+
 function ProfileModal({ T, user, updateUser, onLogout, onRestart, addToast, onClose }) {
   const [name, setName] = useState(user.name || "");
   const [nickname, setNickname] = useState(user.settings?.nickname || "");
@@ -1470,6 +1532,7 @@ function ProfileModal({ T, user, updateUser, onLogout, onRestart, addToast, onCl
             </div>
           ))}
         </div>
+        <StudyHeatmap T={T} />
         <BtnPrimary T={T} onClick={save} style={{ marginBottom: 10 }}>Salvar alterações</BtnPrimary>
         <button onClick={onRestart} style={{ width: "100%", padding: "12px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 12, color: T.accent, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Nunito',sans-serif", marginBottom: 8 }}>🔄 Gerar novo curso</button>
         <button onClick={onLogout} style={{ width: "100%", padding: "12px", background: T.redDim, border: `1px solid ${T.red}33`, borderRadius: 12, color: T.red, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Nunito',sans-serif" }}>Sair da conta</button>
@@ -1925,6 +1988,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
       const next = studySecRef.current + 1;
       studySecRef.current = next;
       localStorage.setItem(TRAIL_STUDY_KEY, JSON.stringify({ date: getTodayStr(), sec: next }));
+      if (next % 60 === 0) addHeatmapMinutes(1);
       if (next === 900) completeMission("home_study_15");
     }, 1000);
     return () => clearInterval(iv);
@@ -1945,6 +2009,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   function concludeLesson(phaseIdx, dayIdx) {
     const key = `${phaseIdx}_${dayIdx}`;
     if (completedTopics.includes(key)) { setLessonView(null); return; }
+    addHeatmapMinutes(10);
     const newCompleted = [...completedTopics, key];
     updateUser({ ...user, completedTopics: newCompleted });
     addXP(20); addToast("✓ Aula concluída! +20 XP");
