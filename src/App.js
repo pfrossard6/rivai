@@ -983,6 +983,8 @@ function ExploreTab({ T }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease", background: 'radial-gradient(ellipse at center, rgba(108,77,255,0.10) 0%, transparent 60%)', minHeight: '100vh' }}>
+      <img src="/bg-explorar.svg" style={{ position: 'fixed', bottom: '60px', right: 0, width: '50%', maxWidth: '400px', opacity: 0.1, pointerEvents: 'none', zIndex: 0 }} alt="" />
+      <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Search bar */}
       <div style={{ position: "relative", marginBottom: 22 }}>
         <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 15, pointerEvents: "none" }}>🔍</span>
@@ -1041,6 +1043,7 @@ function ExploreTab({ T }) {
           ))}
         </div>
       )}
+      </div>
     </div>
   );
 }
@@ -1069,6 +1072,8 @@ const MEDALS = ["🥇", "🥈", "🥉"];
 function CommunityTab({ T }) {
   return (
     <div style={{ animation: "fadeUp .4s ease", background: 'linear-gradient(to right, rgba(108,77,255,0.08) 0%, transparent 40%)', minHeight: '100vh' }}>
+      <img src="/bg-comunidade.svg" style={{ position: 'fixed', bottom: '60px', right: 0, width: '50%', maxWidth: '400px', opacity: 0.1, pointerEvents: 'none', zIndex: 0 }} alt="" />
+      <div style={{ position: 'relative', zIndex: 1 }}>
 
       {/* Ranking da semana */}
       <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 12, fontFamily: "'JetBrains Mono',monospace" }}>Ranking da semana</p>
@@ -1114,6 +1119,7 @@ function CommunityTab({ T }) {
             </div>
           </Card>
         ))}
+      </div>
       </div>
     </div>
   );
@@ -1373,6 +1379,8 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
 
   return (
     <div style={{ animation: "fadeUp .4s ease", background: 'radial-gradient(ellipse at top right, rgba(108,77,255,0.15) 0%, transparent 60%)', minHeight: '100vh' }}>
+      <img src="/bg-inicio.svg" style={{ position: 'fixed', bottom: '60px', right: 0, width: '50%', maxWidth: '400px', opacity: 0.1, pointerEvents: 'none', zIndex: 0 }} alt="" />
+      <div style={{ position: 'relative', zIndex: 1 }}>
 
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22 }}>
@@ -1503,6 +1511,7 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }
@@ -1824,6 +1833,8 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease", background: 'linear-gradient(to top, rgba(138,43,226,0.12) 0%, transparent 50%)', minHeight: '100vh' }}>
+      <img src="/bg-trilhas.svg" style={{ position: 'fixed', bottom: '60px', right: 0, width: '50%', maxWidth: '400px', opacity: 0.1, pointerEvents: 'none', zIndex: 0 }} alt="" />
+      <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Floating tutor button — rendered via Portal directly in document.body */}
       {tutorBtnMounted && !showTrailTutor && ReactDOM.createPortal(
         <button onClick={() => setShowTrailTutor(true)} style={{ position: 'fixed', bottom: '90px', right: '20px', zIndex: 9999, background: "#6C4DFF", border: "none", borderRadius: 22, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", boxShadow: "0 4px 20px #6C4DFF55", display: "flex", alignItems: "center", gap: 7 }}>
@@ -1921,6 +1932,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
             </div>
           );
         })}
+      </div>
       </div>
     </div>
   );
@@ -2202,6 +2214,8 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease", background: 'radial-gradient(ellipse at bottom left, rgba(138,43,226,0.12) 0%, transparent 50%)', minHeight: '100vh' }}>
+      <img src="/bg-notas.svg" style={{ position: 'fixed', bottom: '60px', right: 0, width: '50%', maxWidth: '400px', opacity: 0.1, pointerEvents: 'none', zIndex: 0 }} alt="" />
+      <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Section tabs */}
       <div style={{ display: "flex", gap: 8, marginBottom: 20, background: T.surface, borderRadius: 12, padding: 4, border: `1px solid ${T.border}` }}>
         {[{ id: "notes", label: "📓 Anotações" }, { id: "agenda", label: "📅 Agenda" }].map(s => (
@@ -2296,6 +2310,7 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
           )}
         </>
       )}
+      </div>
     </div>
   );
 }
