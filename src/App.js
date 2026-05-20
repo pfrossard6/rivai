@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from "react";
+import ReactDOM from "react-dom";
 import { supabase } from "./supabase";
 
 // ─── Storage (Supabase) ────────────────────────────────────────────────────
@@ -1738,11 +1739,12 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
-      {/* Floating tutor button — only when panel is closed and component mounted */}
-      {tutorBtnMounted && !showTrailTutor && (
-        <button onClick={() => setShowTrailTutor(true)} style={{ position: "fixed", bottom: window.innerWidth <= 768 ? 90 : 80, right: 20, zIndex: 999, background: "#6C4DFF", border: "none", borderRadius: 22, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", boxShadow: "0 4px 20px #6C4DFF55", display: "flex", alignItems: "center", gap: 7 }}>
+      {/* Floating tutor button — rendered via Portal directly in document.body */}
+      {tutorBtnMounted && !showTrailTutor && ReactDOM.createPortal(
+        <button onClick={() => setShowTrailTutor(true)} style={{ position: 'fixed', bottom: '90px', right: '20px', zIndex: 9999, background: "#6C4DFF", border: "none", borderRadius: 22, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", boxShadow: "0 4px 20px #6C4DFF55", display: "flex", alignItems: "center", gap: 7 }}>
           <span style={{ fontSize: 16 }}>💬</span> Tutor
-        </button>
+        </button>,
+        document.body
       )}
       {showTrailTutor && <TutorPanel T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} lessonContext={null} onClose={() => setShowTrailTutor(false)} />}
 
