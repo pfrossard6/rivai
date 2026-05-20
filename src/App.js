@@ -984,7 +984,7 @@ function ExploreTab({ T }) {
   return (
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', overflow: 'hidden' }}>
       {/* BG illustration: pessoa com binóculos */}
-      <svg style={{ position: 'absolute', bottom: 0, right: 0, width: 300, height: 'auto', opacity: 0.08, zIndex: 0, pointerEvents: 'none' }} viewBox="0 0 140 160" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+      <svg style={{ position: 'absolute', bottom: 0, right: 0, width: 300, height: 343, opacity: 0.12, zIndex: 0, pointerEvents: 'none' }} viewBox="0 0 140 160" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
         <circle cx="70" cy="36" r="12" fill="#6C4DFF"/>
         <path d="M55 55 Q70 46 85 55 L88 95 L52 95 Z" fill="#6C4DFF" opacity="0.9"/>
         <line x1="55" y1="95" x2="50" y2="130" stroke="#6C4DFF" strokeWidth="6" strokeLinecap="round"/>
@@ -1087,7 +1087,7 @@ function CommunityTab({ T }) {
   return (
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', overflow: 'hidden' }}>
       {/* BG illustration: rede de pessoas conectadas */}
-      <svg style={{ position: 'absolute', bottom: 0, right: 0, width: 300, height: 'auto', opacity: 0.08, zIndex: 0, pointerEvents: 'none' }} viewBox="0 0 390 700" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+      <svg style={{ position: 'absolute', bottom: 0, right: 0, width: 300, height: 538, opacity: 0.12, zIndex: 0, pointerEvents: 'none' }} viewBox="0 0 390 700" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
         <line x1="75" y1="160" x2="200" y2="290" stroke="#6C4DFF" strokeWidth="1.5"/>
         <line x1="200" y1="290" x2="325" y2="185" stroke="#6C4DFF" strokeWidth="1.5"/>
         <line x1="75" y1="160" x2="325" y2="185" stroke="#8A2BE2" strokeWidth="1"/>
@@ -1410,7 +1410,7 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
   return (
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', overflow: 'hidden' }}>
       {/* BG illustration: onda roxa de ritmo */}
-      <svg style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: 'auto', opacity: 0.08, zIndex: 0, pointerEvents: 'none' }} viewBox="0 0 390 110" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+      <svg style={{ position: 'absolute', bottom: 0, left: 0, width: '100%', height: 120, opacity: 0.12, zIndex: 0, pointerEvents: 'none' }} viewBox="0 0 390 110" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
         <path d="M0 55 C55 25 110 75 165 50 C220 25 275 70 330 45 C355 33 375 50 390 42 L390 110 L0 110 Z" fill="#6C4DFF"/>
         <path d="M0 72 C70 48 140 82 210 62 C270 45 330 78 390 60 L390 110 L0 110 Z" fill="#8A2BE2" opacity="0.65"/>
         <path d="M0 88 C80 72 160 96 240 84 C300 74 355 92 390 84 L390 110 L0 110 Z" fill="#6C4DFF" opacity="0.45"/>
@@ -1869,7 +1869,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   return (
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', overflow: 'hidden' }}>
       {/* BG illustration: montanha com figura humana */}
-      <svg style={{ position: 'absolute', bottom: 0, right: 0, width: 300, height: 'auto', opacity: 0.08, zIndex: 0, pointerEvents: 'none' }} viewBox="0 0 210 190" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+      <svg style={{ position: 'absolute', bottom: 0, right: 0, width: 300, height: 271, opacity: 0.12, zIndex: 0, pointerEvents: 'none' }} viewBox="0 0 210 190" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
         <polygon points="105,12 195,165 15,165" fill="#6C4DFF"/>
         <polygon points="48,88 108,165 0,165" fill="#8A2BE2" opacity="0.6"/>
         <polygon points="160,68 210,165 118,165" fill="#8A2BE2" opacity="0.45"/>
@@ -2261,7 +2261,7 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   return (
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', overflow: 'hidden' }}>
       {/* BG illustration: pessoa escrevendo à beira de um rio */}
-      <svg style={{ position: 'absolute', bottom: 0, right: 0, width: 300, height: 'auto', opacity: 0.08, zIndex: 0, pointerEvents: 'none' }} viewBox="0 0 390 115" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
+      <svg style={{ position: 'absolute', bottom: 0, right: 0, width: 300, height: 88, opacity: 0.12, zIndex: 0, pointerEvents: 'none' }} viewBox="0 0 390 115" preserveAspectRatio="xMidYMax meet" xmlns="http://www.w3.org/2000/svg">
         <path d="M0 72 C50 55 100 80 150 65 C200 50 250 75 300 62 C340 52 368 68 390 60 L390 115 L0 115 Z" fill="#6C4DFF" opacity="0.6"/>
         <path d="M0 85 C65 70 130 92 195 78 C255 65 315 88 375 76 L390 78 L390 115 L0 115 Z" fill="#8A2BE2" opacity="0.5"/>
         <path d="M0 98 C80 86 160 102 240 93 C300 85 352 100 390 93 L390 115 L0 115 Z" fill="#6C4DFF" opacity="0.4"/>
