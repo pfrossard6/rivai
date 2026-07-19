@@ -191,6 +191,7 @@ const newUser = (email, pw, name) => ({
 // ─── Theme ─────────────────────────────────────────────────────────────────
 const THEMES = {
   dark: {
+    isDark: true,
     bg: "#121214", surface: "#19191c", card: "#1c1c1f", border: "#2b2b2f",
     accent: "#6459E0", accentLight: "#8177E8", accentDim: "#6459E01c", accentGlow: "#6459E01c",
     green: "#22A35E", greenDim: "#22A35E18", amber: "#C77C22", amberDim: "#C77C2218",
@@ -199,6 +200,7 @@ const THEMES = {
     btnText: "#fff", navBg: "#19191cf0",
   },
   light: {
+    isDark: false,
     bg: "#FAFAFA", surface: "#ffffff", card: "#ffffff", border: "#E4E4E7",
     accent: "#5A4FCF", accentLight: "#7267DB", accentDim: "#5A4FCF10", accentGlow: "#5A4FCF10",
     green: "#188A4C", greenDim: "#188A4C12", amber: "#B4650F", amberDim: "#B4650F12",
@@ -318,6 +320,84 @@ function pickModuleIcon(title = "", pi = 0) {
   if (/estratég|visão|planej/.test(t)) return "compass";
   if (/fundament|introdu|base/.test(t)) return "book";
   return MODULE_ICON_ORDER[pi % MODULE_ICON_ORDER.length];
+}
+
+// ─── Page backgrounds — subtle, theme-aware scene art per page ────────────
+function hexToRgb(hex) {
+  const h = hex.replace("#", "");
+  const full = h.length === 3 ? h.split("").map(c => c + c).join("") : h;
+  const n = parseInt(full, 16);
+  return `${(n >> 16) & 255},${(n >> 8) & 255},${n & 255}`;
+}
+
+function PageBackground({ T, scene }) {
+  const dark = !!T.isDark;
+  const accentRGB = hexToRgb(T.accent);
+  const blobOpacity = dark ? 0.18 : 0.12;
+  const lineOpacity = dark ? 0.30 : 0.20;
+  const dotOpacity = dark ? 0.26 : 0.17;
+  const stroke = `rgba(${accentRGB},${lineOpacity})`;
+  const strokeSoft = `rgba(${accentRGB},${lineOpacity * 0.7})`;
+  const dotFill = `rgba(${accentRGB},${dotOpacity})`;
+
+  let sceneChildren;
+  if (scene === "trilhas") {
+    // winding trail through hills, with a marker flag
+    sceneChildren = (
+      <>
+        <path d="M 0 900 C 300 820, 500 860, 780 800 C 1050 740, 1300 780, 1920 700 L 1920 1080 L 0 1080 Z" fill={`rgba(${accentRGB},${blobOpacity * 0.7})`} />
+        <path d="M 0 980 C 260 930, 600 970, 900 920 C 1200 870, 1500 940, 1920 880 L 1920 1080 L 0 1080 Z" fill={`rgba(${accentRGB},${blobOpacity})`} />
+        <path d="M 60 1000 C 220 900, 260 820, 420 780 C 600 736, 640 640, 820 600 C 1000 560, 1060 480, 1260 440 C 1440 404, 1520 320, 1700 260" fill="none" stroke={stroke} strokeWidth="4" strokeDasharray="2 22" strokeLinecap="round" />
+        <circle cx="420" cy="780" r="6" fill={dotFill} />
+        <circle cx="820" cy="600" r="6" fill={dotFill} />
+        <path d="M 1700 260 L 1700 190" stroke={stroke} strokeWidth="3" />
+        <path d="M 1700 190 L 1740 205 L 1700 220 Z" fill={strokeSoft} />
+      </>
+    );
+  } else if (scene === "explorar") {
+    // minimal figure with binoculars beside a river, fishing line into the water
+    sceneChildren = (
+      <>
+        <path d="M -50 760 C 300 700, 500 820, 850 760 C 1150 706, 1350 780, 1750 720 C 1850 706, 1900 720, 1970 700" fill="none" stroke={strokeSoft} strokeWidth="3" />
+        <path d="M -50 840 C 320 790, 560 890, 900 840 C 1180 796, 1400 860, 1750 810" fill="none" stroke={strokeSoft} strokeWidth="2" />
+        <circle cx="1560" cy="470" r="20" fill="none" stroke={stroke} strokeWidth="3" />
+        <path d="M 1560 490 L 1560 600 M 1560 600 L 1530 700 M 1560 600 L 1590 700" fill="none" stroke={stroke} strokeWidth="3" strokeLinecap="round" />
+        <path d="M 1560 520 L 1520 470" fill="none" stroke={stroke} strokeWidth="3" strokeLinecap="round" />
+        <path d="M 1560 520 L 1600 470" fill="none" stroke={stroke} strokeWidth="3" strokeLinecap="round" />
+        <rect x="1500" y="452" width="22" height="16" rx="4" fill="none" stroke={stroke} strokeWidth="3" />
+        <rect x="1526" y="452" width="22" height="16" rx="4" fill="none" stroke={stroke} strokeWidth="3" />
+        <path d="M 1590 620 L 1660 560" fill="none" stroke={strokeSoft} strokeWidth="2.5" strokeLinecap="round" />
+        <path d="M 1660 560 C 1680 630, 1700 700, 1690 780" fill="none" stroke={strokeSoft} strokeWidth="1.5" strokeDasharray="1 8" />
+        <circle cx="1690" cy="780" r="5" fill={dotFill} />
+      </>
+    );
+  } else {
+    // início: a river flowing across, with small AI network-node accents along the bank
+    const nodes = [[520, 300], [640, 360], [560, 460], [700, 520]];
+    sceneChildren = (
+      <>
+        <path d="M 1980 40 C 1650 120, 1600 240, 1400 320 C 1180 408, 1120 300, 900 380 C 700 452, 660 600, 420 660 C 240 706, 120 660, -40 740" fill="none" stroke={stroke} strokeWidth="5" />
+        <path d="M 1980 100 C 1660 180, 1630 290, 1440 370 C 1220 458, 1170 350, 950 430 C 750 502, 710 640, 470 700" fill="none" stroke={strokeSoft} strokeWidth="2.5" />
+        {nodes.map((p, i) => <circle key={i} cx={p[0]} cy={p[1]} r="5" fill={dotFill} />)}
+        <path d={`M ${nodes[0][0]} ${nodes[0][1]} L ${nodes[1][0]} ${nodes[1][1]} L ${nodes[3][0]} ${nodes[3][1]} L ${nodes[2][0]} ${nodes[2][1]} L ${nodes[0][0]} ${nodes[0][1]}`} fill="none" stroke={strokeSoft} strokeWidth="1.2" />
+      </>
+    );
+  }
+
+  const dots = [];
+  const cols = 8, rows = 5;
+  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if ((r * 13 + c * 7) % 5 === 0) dots.push({ x: (c / (cols - 1)) * 100, y: (r / (rows - 1)) * 100 });
+
+  return (
+    <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
+      <div style={{ position: "absolute", top: -220, right: -180, width: 780, height: 780, borderRadius: "50%", background: `radial-gradient(circle, rgba(${accentRGB},${blobOpacity}) 0%, rgba(${accentRGB},0) 70%)`, animation: "bgDrift 40s ease-in-out infinite alternate" }} />
+      <div style={{ position: "absolute", bottom: -260, left: -200, width: 820, height: 820, borderRadius: "50%", background: `radial-gradient(circle, rgba(${accentRGB},${blobOpacity * 0.85}) 0%, rgba(${accentRGB},0) 70%)`, animation: "bgDrift 46s ease-in-out infinite alternate-reverse" }} />
+      <svg width="100%" height="100%" viewBox="0 0 1920 1080" preserveAspectRatio="none" style={{ position: "absolute", inset: 0 }}>
+        {sceneChildren}
+      </svg>
+      {dots.map((d, i) => <div key={i} style={{ position: "absolute", left: d.x + "%", top: d.y + "%", width: 6, height: 6, borderRadius: "50%", background: dotFill }} />)}
+    </div>
+  );
 }
 
 // ─── Shared UI ─────────────────────────────────────────────────────────────
@@ -859,12 +939,12 @@ export default function App() {
   }
 
   const GS = `
-    @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
     body{background:${T.bg};color:${T.textPrimary};font-family:'Source Serif 4',serif;transition:background .3s,color .3s;}
     ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:${T.border};border-radius:2px}
     @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
     @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes bgDrift{0%{transform:translate(0,0) rotate(0deg)}100%{transform:translate(-24px,18px) rotate(3deg)}}
     @keyframes pop{0%{transform:scale(.85);opacity:0}70%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
     @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
     @keyframes pulse{0%,100%{opacity:.4;transform:scale(.95)}50%{opacity:1;transform:scale(1.05)}}
@@ -1743,7 +1823,7 @@ function ExploreTab({ T }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
-      <img src="/bg-explorar.svg" alt="" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', objectFit: 'cover', opacity: 0.07, pointerEvents: 'none', zIndex: 0 }} />
+      <PageBackground T={T} scene="explorar" />
       <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Toggle: Trilhas / Prompts prontos */}
       <div style={{ display: "flex", gap: 6, marginBottom: 20, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 11, padding: 4, width: "fit-content" }}>
@@ -2111,7 +2191,7 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
-      <img src="/bg-inicio.svg" alt="" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', objectFit: 'cover', opacity: 0.07, pointerEvents: 'none', zIndex: 0 }} />
+      <PageBackground T={T} scene="inicio" />
       <div style={{ position: 'relative', zIndex: 1 }}>
 
       {/* Header */}
@@ -2374,7 +2454,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
     const days = phase.days || [];
     return (
       <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
-      <img src="/bg-trilhas.svg" alt="" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', objectFit: 'cover', opacity: 0.07, pointerEvents: 'none', zIndex: 0 }} />
+      <PageBackground T={T} scene="trilhas" />
       <div style={{ animation: "fadeUp .4s ease", flex: 1, minWidth: 0, position: 'relative', zIndex: 1 }}>
         {showTrailTutor && <TutorPanel T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} lessonContext={null} onClose={() => setShowTrailTutor(false)} />}
         <button onClick={() => setOpenPhase(-1)} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Source Serif 4',serif", marginBottom: 18 }}>← Voltar aos módulos</button>
@@ -2441,7 +2521,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   return (
     <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden', flex: 1, minWidth: 0 }}>
-      <img src="/bg-trilhas.svg" alt="" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', objectFit: 'cover', opacity: 0.07, pointerEvents: 'none', zIndex: 0 }} />
+      <PageBackground T={T} scene="trilhas" />
       <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Floating tutor button (mobile only) — rendered via Portal directly in document.body */}
       {tutorBtnMounted && !showTrailTutor && ReactDOM.createPortal(
@@ -2525,7 +2605,7 @@ function TutorTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease", position: "relative" }}>
-      <img src="/bg-tutor.svg" alt="" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', objectFit: 'cover', opacity: 0.07, pointerEvents: 'none', zIndex: 0 }} />
+      <img src="/bg-tutor.svg" alt="" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.07, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: "relative", zIndex: 1 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 12 }}>
         <div style={{ width: 40, height: 40, borderRadius: 12, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, boxShadow: `0 0 16px ${T.accentGlow}` }}>⬡</div>
@@ -2638,7 +2718,7 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
-      <img src="/bg-notas.svg" alt="" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', objectFit: 'cover', opacity: 0.07, pointerEvents: 'none', zIndex: 0 }} />
+      <img src="/bg-notas.svg" alt="" style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.07, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Section tabs */}
       <div style={{ display: "flex", gap: 8, marginBottom: 20, background: T.surface, borderRadius: 12, padding: 4, border: `1px solid ${T.border}` }}>
