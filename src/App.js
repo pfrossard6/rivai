@@ -323,12 +323,14 @@ function pickModuleIcon(title = "", pi = 0) {
 }
 
 // ─── Page backgrounds — real illustrated photos, per page, responsive ─────
-function PageBackground({ scene }) {
+function PageBackground({ T, scene }) {
   const base = `/bg-${scene}`;
+  const dark = !!T.isDark;
   return (
     <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
       <img src={`${base}-mobile.jpg`} alt="" className="rv-bg-mobile" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
       <img src={`${base}-desktop.jpg`} alt="" className="rv-bg-desktop" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+      <div style={{ position: "absolute", inset: 0, background: T.bg, opacity: dark ? 0.72 : 0.4 }} />
     </div>
   );
 }
@@ -1887,7 +1889,7 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
   return (
     <div className="rv-shell-root" style={{ minHeight: "100vh", background: T.bg }}>
       {(tab === "home" || tab === "trail" || tab === "explore") && (
-        <PageBackground scene={tab === "home" ? "inicio" : tab === "trail" ? "trilhas" : "explorar"} />
+        <PageBackground T={T} scene={tab === "home" ? "inicio" : tab === "trail" ? "trilhas" : "explorar"} />
       )}
       {/* Navbar */}
       <div style={{ background: T.navBg, borderBottom: `1px solid ${T.border}`, padding: "10px 16px", display: "flex", alignItems: "center", gap: 10, position: "sticky", top: 0, zIndex: 100, backdropFilter: "blur(16px)" }}>
@@ -2469,13 +2471,15 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
       {showTrailTutor && <TutorPanel T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} lessonContext={null} onClose={() => setShowTrailTutor(false)} />}
 
       {/* Header */}
-      <h2 style={{ fontSize: 19, fontWeight: 700, color: T.textPrimary, marginBottom: 4 }}>{course.headline || "Sua trilha"}</h2>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
-        <p style={{ fontSize: 13, color: T.textSecondary }}>Seu progresso:</p>
-        <span style={{ fontSize: 13, fontWeight: 700, color: T.textPrimary, fontFamily: "'JetBrains Mono',monospace" }}>{progressPct}%</span>
-      </div>
-      <div style={{ height: 6, background: T.border, borderRadius: 4, overflow: "hidden", marginBottom: 22 }}>
-        <div style={{ height: 6, background: T.accent, width: progressPct + "%", borderRadius: 4, transition: "width .6s ease" }} />
+      <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 14, padding: "16px 18px", marginBottom: 22 }}>
+        <h2 style={{ fontSize: 19, fontWeight: 700, color: T.textPrimary, marginBottom: 4 }}>{course.headline || "Sua trilha"}</h2>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+          <p style={{ fontSize: 13, color: T.textSecondary }}>Seu progresso:</p>
+          <span style={{ fontSize: 13, fontWeight: 700, color: T.textPrimary, fontFamily: "'JetBrains Mono',monospace" }}>{progressPct}%</span>
+        </div>
+        <div style={{ height: 6, background: T.border, borderRadius: 4, overflow: "hidden" }}>
+          <div style={{ height: 6, background: T.accent, width: progressPct + "%", borderRadius: 4, transition: "width .6s ease" }} />
+        </div>
       </div>
 
       {/* Módulos — capas de caderno */}
@@ -2491,9 +2495,9 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
           const isAccessible = status !== "locked";
           const s = { done: { label: "Concluído", color: T.green }, inProgress: { label: `${done}/${total}`, color: T.amber }, next: { label: "Começar", color: T.textSecondary }, locked: { label: "Bloqueado", color: T.textDim } }[status];
           return (
-            <div key={pi} onClick={() => isAccessible && setOpenPhase(pi)} style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${col.border}`, cursor: isAccessible ? "pointer" : "default", opacity: isAccessible ? 1 : 0.5 }}>
+            <div key={pi} onClick={() => isAccessible && setOpenPhase(pi)} style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${col.border}`, cursor: isAccessible ? "pointer" : "default", opacity: isAccessible ? 1 : 0.5, boxShadow: "0 2px 10px rgba(0,0,0,.08)" }}>
               <div style={{ height: 5, background: col.dot }} />
-              <div style={{ background: col.bg, padding: "14px 12px" }}>
+              <div style={{ background: T.card, padding: "14px 12px" }}>
                 <div style={{ width: 34, height: 34, borderRadius: 9, background: T.card, border: `1px solid ${col.border}`, display: "flex", alignItems: "center", justifyContent: "center", color: col.text, marginBottom: 10 }}>
                   <ModuleIcon name={icon} size={17} color={col.text} />
                 </div>
