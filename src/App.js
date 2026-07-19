@@ -132,6 +132,7 @@ const NAV_ITEMS = [
   { id: "home", icon: "🏠", label: "Início" },
   { id: "trail", icon: "📚", label: "Trilhas" },
   { id: "explore", icon: "🔍", label: "Explorar" },
+  { id: "oficina", icon: "🛠️", label: "Oficina" },
 ];
 const getTodayStr = () => new Date().toDateString();
 const HEATMAP_KEY = "rivai_study_heatmap";
@@ -279,7 +280,9 @@ Regras: 3-4 cards de conteúdo real (nada de "use o tutor para aprofundar" — e
 }
 
 async function askTutor(messages, profile, lessonContext = null) {
-  const lessonLine = lessonContext
+  const lessonLine = lessonContext?.workshop
+    ? `\nModo Oficina: o aluno colou uma tarefa real do trabalho dele e quer ajuda direta. Resolva o problema prático na hora — entregue o texto pronto, o prompt pronto, ou o passo a passo aplicável, em vez de explicar a teoria por trás.`
+    : lessonContext
     ? `\nContexto da aula atual: "${lessonContext.dayTitle}" (fase: ${lessonContext.phaseTitle}). Priorize respostas relacionadas a este conteúdo quando pertinente.`
     : "";
   const system = `Você é um tutor de IA especializado e personalizado. Estilo: direto, empolgante, didático mas descontraído.
@@ -1628,9 +1631,43 @@ const PROMPT_LIBRARY = [
   },
 ];
 
-function ExploreTab({ T }) {
-  const [view, setView] = useState("trilhas"); // trilhas | prompts
+// ─── Prompts prontos (aba própria) ─────────────────────────────────────────
+function PromptsTab({ T }) {
   const [copiedPrompt, setCopiedPrompt] = useState(null);
+  function copyPrompt(text, id) {
+    navigator.clipboard?.writeText(text);
+    setCopiedPrompt(id);
+    setTimeout(() => setCopiedPrompt(null), 1800);
+  }
+  return (
+    <div style={{ animation: "fadeUp .4s ease" }}>
+      <h2 style={{ fontSize: 19, fontWeight: 700, color: T.textPrimary, marginBottom: 4 }}>Prompts prontos</h2>
+      <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 20 }}>Prompts testados, organizados por categoria — copie e adapte pro seu contexto.</p>
+      {PROMPT_LIBRARY.map(group => (
+        <div key={group.category} style={{ marginBottom: 22 }}>
+          <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 10, fontFamily: "'JetBrains Mono',monospace" }}>{group.category}</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {group.prompts.map((p, i) => {
+              const id = group.category + i;
+              const isCopied = copiedPrompt === id;
+              return (
+                <Card T={T} key={id} style={{ padding: "14px 16px" }}>
+                  <p style={{ fontWeight: 700, fontSize: 14, color: T.textPrimary, marginBottom: 8 }}>{p.title}</p>
+                  <p style={{ fontSize: 13, color: T.textSecondary, lineHeight: 1.6, marginBottom: 10, fontStyle: "italic" }}>"{p.prompt}"</p>
+                  <button onClick={() => copyPrompt(p.prompt, id)} style={{ padding: "7px 14px", background: isCopied ? T.green : T.accentDim, border: `1px solid ${isCopied ? T.green : T.accent + "33"}`, borderRadius: 8, color: isCopied ? "#fff" : T.accent, fontSize: 12, fontWeight: 600, fontFamily: "'Source Serif 4',serif", cursor: "pointer" }}>
+                    {isCopied ? "Copiado!" : "Copiar prompt"}
+                  </button>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ExploreTab({ T }) {
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState(null);
   const [searchFocused, setSearchFocused] = useState(false);
@@ -1638,12 +1675,6 @@ function ExploreTab({ T }) {
   const [openLesson, setOpenLesson] = useState(null); // { trailId, lesson } or null
   const [flipped, setFlipped] = useState(new Set());
   useEffect(() => { window.scrollTo(0, 0); }, [selectedTrail, openLesson]);
-
-  function copyPrompt(text, id) {
-    navigator.clipboard?.writeText(text);
-    setCopiedPrompt(id);
-    setTimeout(() => setCopiedPrompt(null), 1800);
-  }
 
   const totalLessons = (trail) => trail.modules.reduce((sum, m) => sum + m.lessons.length, 0);
 
@@ -1764,37 +1795,6 @@ function ExploreTab({ T }) {
   return (
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
       <div style={{ position: 'relative', zIndex: 1 }}>
-      {/* Toggle: Trilhas / Prompts prontos */}
-      <div style={{ display: "flex", gap: 6, marginBottom: 20, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 11, padding: 4, width: "fit-content" }}>
-        <button onClick={() => setView("trilhas")} style={{ padding: "7px 16px", border: "none", borderRadius: 8, background: view === "trilhas" ? T.accent : "transparent", color: view === "trilhas" ? "#fff" : T.textSecondary, fontSize: 13, fontWeight: 600, fontFamily: "'Source Serif 4',serif", cursor: "pointer" }}>Trilhas</button>
-        <button onClick={() => setView("prompts")} style={{ padding: "7px 16px", border: "none", borderRadius: 8, background: view === "prompts" ? T.accent : "transparent", color: view === "prompts" ? "#fff" : T.textSecondary, fontSize: 13, fontWeight: 600, fontFamily: "'Source Serif 4',serif", cursor: "pointer" }}>Prompts prontos</button>
-      </div>
-
-      {view === "prompts" ? (
-        <div>
-          {PROMPT_LIBRARY.map(group => (
-            <div key={group.category} style={{ marginBottom: 22 }}>
-              <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 10, fontFamily: "'JetBrains Mono',monospace" }}>{group.category}</p>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {group.prompts.map((p, i) => {
-                  const id = group.category + i;
-                  const isCopied = copiedPrompt === id;
-                  return (
-                    <Card T={T} key={id} style={{ padding: "14px 16px" }}>
-                      <p style={{ fontWeight: 700, fontSize: 14, color: T.textPrimary, marginBottom: 8 }}>{p.title}</p>
-                      <p style={{ fontSize: 13, color: T.textSecondary, lineHeight: 1.6, marginBottom: 10, fontStyle: "italic" }}>"{p.prompt}"</p>
-                      <button onClick={() => copyPrompt(p.prompt, id)} style={{ padding: "7px 14px", background: isCopied ? T.green : T.accentDim, border: `1px solid ${isCopied ? T.green : T.accent + "33"}`, borderRadius: 8, color: isCopied ? "#fff" : T.accent, fontSize: 12, fontWeight: 600, fontFamily: "'Source Serif 4',serif", cursor: "pointer" }}>
-                        {isCopied ? "Copiado!" : "Copiar prompt"}
-                      </button>
-                    </Card>
-                  );
-                })}
-              </div>
-            </div>
-          ))}
-        </div>
-      ) : (
-      <>
       {/* Search bar */}
       <div data-tour="explore-search" style={{ position: "relative", marginBottom: 22 }}>
         <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 15, pointerEvents: "none" }}>🔍</span>
@@ -1853,8 +1853,6 @@ function ExploreTab({ T }) {
           ))}
         </div>
       )}
-      </>
-      )}
       </div>
     </div>
   );
@@ -1912,6 +1910,8 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
         {tab === "home" && <HomeTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} navTo={navTo} />}
         {tab === "trail" && <TrailTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
         {tab === "explore" && <ExploreTab T={T} />}
+        {tab === "oficina" && <OficinaTab T={T} user={user} />}
+        {tab === "prompts" && <PromptsTab T={T} />}
         {tab === "notes" && <NotesTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
         {tab === "estudar" && <EstudarTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
         {tab === "tutor" && <TutorTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
@@ -1927,6 +1927,15 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
             <span style={{ fontSize: 13, fontWeight: tab === item.id ? 700 : 500, color: tab === item.id ? T.accent : T.textSecondary }}>{item.label}</span>
           </button>
         ))}
+        <div style={{ height: 1, background: T.border, margin: "10px 8px" }} />
+        <button onClick={() => setTab("prompts")} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 10px", borderRadius: 8, background: tab === "prompts" ? T.accentDim : "transparent", border: "none", cursor: "pointer", textAlign: "left", marginBottom: 2 }}>
+          <span style={{ fontSize: 16, opacity: tab === "prompts" ? 1 : 0.55 }}>✨</span>
+          <span style={{ fontSize: 13, fontWeight: tab === "prompts" ? 700 : 500, color: tab === "prompts" ? T.accent : T.textSecondary }}>Prompts prontos</span>
+        </button>
+        <button onClick={() => setShowProfile(true)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 10px", borderRadius: 8, background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}>
+          <span style={{ fontSize: 16, opacity: 0.55 }}>⚙️</span>
+          <span style={{ fontSize: 13, fontWeight: 500, color: T.textSecondary }}>Configurações</span>
+        </button>
       </div>
 
       {/* Bottom nav (mobile) */}
@@ -2519,6 +2528,83 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 }
 
 // ─── Tutor Tab ─────────────────────────────────────────────────────────────
+// ─── Oficina Rápida ────────────────────────────────────────────────────────
+function OficinaTab({ T, user }) {
+  const [task, setTask] = useState("");
+  const [msgs, setMsgs] = useState([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [started, setStarted] = useState(false);
+  const endRef = useRef(null);
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs]);
+
+  async function submitTask() {
+    if (!task.trim() || loading) return;
+    setStarted(true);
+    const userMsg = { role: "user", content: task };
+    setMsgs([userMsg]); setLoading(true);
+    try {
+      const reply = await askTutor([userMsg], user.profile || {}, { workshop: true });
+      setMsgs([userMsg, { role: "assistant", content: reply }]);
+    } catch (e) { setMsgs([userMsg, { role: "assistant", content: "Não consegui responder agora: " + e.message }]); }
+    finally { setLoading(false); }
+  }
+
+  async function sendFollowup() {
+    const msg = input;
+    if (!msg.trim() || loading) return;
+    const userMsg = { role: "user", content: msg };
+    const newMsgs = [...msgs, userMsg];
+    setMsgs(newMsgs); setInput(""); setLoading(true);
+    try {
+      const reply = await askTutor(newMsgs.map(m => ({ role: m.role, content: m.content })), user.profile || {}, { workshop: true });
+      setMsgs([...newMsgs, { role: "assistant", content: reply }]);
+    } catch (e) { /* noop */ }
+    finally { setLoading(false); }
+  }
+
+  function reset() {
+    setTask(""); setMsgs([]); setStarted(false); setInput("");
+  }
+
+  if (!started) {
+    return (
+      <div style={{ animation: "fadeUp .4s ease" }}>
+        <h2 style={{ fontSize: 19, fontWeight: 700, color: T.textPrimary, marginBottom: 4 }}>Oficina Rápida</h2>
+        <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 18, lineHeight: 1.6 }}>Cole uma tarefa, e-mail, texto ou problema real do seu trabalho e receba ajuda direta e pronta pra usar — sem precisar abrir nenhuma aula antes.</p>
+        <textarea rows={7} value={task} onChange={e => setTask(e.target.value)} placeholder="Ex: preciso responder um cliente insatisfeito porque o pedido atrasou..." style={{ width: "100%", background: T.card, border: `1px solid ${T.border}`, borderRadius: 14, color: T.textPrimary, fontFamily: "'Source Serif 4',serif", fontSize: 14, padding: "14px 16px", outline: "none", resize: "none", lineHeight: 1.7, marginBottom: 12 }} onFocus={e => e.target.style.borderColor = T.accent} onBlur={e => e.target.style.borderColor = T.border} />
+        <BtnPrimary T={T} onClick={submitTask} disabled={!task.trim()}>Pedir ajuda →</BtnPrimary>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ animation: "fadeUp .4s ease" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+        <button onClick={reset} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Source Serif 4',serif" }}>← Nova tarefa</button>
+        <h2 style={{ fontSize: 15, fontWeight: 700, color: T.textPrimary }}>Oficina Rápida</h2>
+      </div>
+      <Card T={T} style={{ marginBottom: 10 }}>
+        <div style={{ height: 420, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
+          {msgs.map((msg, i) => (
+            <div key={i} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start", animation: "fadeUp .25s ease" }}>
+              <div style={{ maxWidth: "88%", padding: "10px 14px", borderRadius: msg.role === "user" ? "15px 15px 4px 15px" : "15px 15px 15px 4px", background: msg.role === "user" ? T.accent : T.surface, border: msg.role === "user" ? "none" : `1px solid ${T.border}`, fontSize: 13, lineHeight: 1.7, color: msg.role === "user" ? "#fff" : T.textPrimary, whiteSpace: "pre-wrap" }}>{msg.content}</div>
+            </div>
+          ))}
+          {loading && <div style={{ display: "flex", gap: 5, padding: "10px 14px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: "15px 15px 15px 4px", width: "fit-content" }}>
+            {[0, 1, 2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: T.accent, animation: `pulse 1s ease-in-out ${i * .15}s infinite` }} />)}
+          </div>}
+          <div ref={endRef} />
+        </div>
+      </Card>
+      <div style={{ display: "flex", gap: 8 }}>
+        <input placeholder="Continue a conversa..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && !e.shiftKey && sendFollowup()} style={{ flex: 1, background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, color: T.textPrimary, fontFamily: "'Source Serif 4',serif", fontSize: 14, padding: "12px 14px", outline: "none" }} onFocus={e => e.target.style.borderColor = T.accent} onBlur={e => e.target.style.borderColor = T.border} />
+        <BtnPrimary T={T} style={{ width: 48, padding: 0, fontSize: 17, borderRadius: 12, flexShrink: 0 }} onClick={sendFollowup} disabled={loading}>→</BtnPrimary>
+      </div>
+    </div>
+  );
+}
+
 function TutorTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const [msgs, setMsgs] = useState(user.chatHistory || []);
   const [input, setInput] = useState("");
