@@ -1562,13 +1562,68 @@ const EXPLORE_CATEGORIES = [
   { id: "dados", label: "Dados", icon: "📊" },
 ];
 
+// Biblioteca de prompts prontos — conteúdo estático, escrito uma vez, sem custo de IA.
+const PROMPT_LIBRARY = [
+  {
+    category: "E-mail e comunicação",
+    prompts: [
+      { title: "Responder um cliente insatisfeito", prompt: "Você é um atendente experiente e empático. Um cliente está insatisfeito porque [descreva o problema]. Escreva uma resposta que reconheça o problema, assuma responsabilidade sem ser dramático, e proponha uma solução concreta em até 120 palavras." },
+      { title: "Cobrar um prazo sem soar estressado", prompt: "Escreva um e-mail educado mas direto cobrando uma atualização sobre [assunto/tarefa], pendente desde [data]. Tom profissional, sem soar passivo-agressivo, no máximo 80 palavras." },
+      { title: "Resumir uma thread de e-mail longa", prompt: "Aqui está uma thread de e-mail longa: [cole a thread]. Resuma em tópicos: o que foi decidido, o que ainda está pendente, e quem é responsável por cada próximo passo." },
+      { title: "Recusar um pedido educadamente", prompt: "Preciso recusar [pedido/solicitação] de forma educada mas firme, sem deixar margem pra insistência, mantendo a relação profissional. Contexto: [explique a situação]." },
+    ],
+  },
+  {
+    category: "Análise e dados",
+    prompts: [
+      { title: "Explicar uma planilha em linguagem simples", prompt: "Aqui estão os dados: [cole ou descreva]. Explique em linguagem simples as 3 tendências mais importantes, como se fosse pra alguém que não trabalha com números no dia a dia." },
+      { title: "Gerar hipóteses para um problema", prompt: "Nossos números de [métrica] caíram X% no último mês. Liste 5 hipóteses possíveis, ordenadas da mais provável pra menos provável, considerando que atuamos em [contexto/setor]." },
+      { title: "Montar uma fórmula de planilha", prompt: "Preciso de uma fórmula para [Google Sheets/Excel] que faça [descreva a lógica, ex: alerte quando estoque < 50]. Explique a fórmula depois de me dar ela." },
+      { title: "Transformar dados em narrativa", prompt: "Transforme estes números em uma narrativa de 3 parágrafos pra apresentar à liderança: [cole os dados/resumo]. Foque no 'e daí' — por que isso importa pro negócio." },
+    ],
+  },
+  {
+    category: "Planejamento e produtividade",
+    prompts: [
+      { title: "Quebrar um projeto grande em etapas", prompt: "Tenho um projeto grande: [descreva]. Quebre em etapas semanais realistas, considerando que tenho [X horas por semana] disponíveis, e aponte quais etapas dependem de outras." },
+      { title: "Priorizar uma lista de tarefas", prompt: "Aqui está minha lista de tarefas da semana: [cole a lista]. Me ajude a priorizar considerando urgência e impacto, e sugira o que pode ser adiado ou delegado." },
+      { title: "Preparar uma reunião difícil", prompt: "Vou ter uma reunião sobre [assunto delicado] com [quem]. Me ajude a preparar: 3 pontos principais que preciso passar, e 2 perguntas difíceis que podem surgir, com sugestões de resposta." },
+      { title: "Criar uma rotina de estudo", prompt: "Quero aprender [tema] tendo apenas [X minutos] por dia disponíveis. Monte um plano de 4 semanas, do mais básico ao mais aplicado." },
+    ],
+  },
+  {
+    category: "Criativo e conteúdo",
+    prompts: [
+      { title: "Gerar ideias de posts", prompt: "Sou [profissão/negócio]. Gere 10 ideias de posts para [rede social] sobre [tema], variando entre educativo, bastidores e engajamento direto (perguntas, enquetes)." },
+      { title: "Reescrever um texto em outro tom", prompt: "Reescreva este texto: [cole o texto] em um tom mais [casual/formal/inspirador], mantendo as informações principais." },
+      { title: "Criar um roteiro de vídeo curto", prompt: "Crie um roteiro de 60 segundos para um vídeo sobre [tema], com gancho nos primeiros 3 segundos, um ponto principal, e uma chamada pra ação no final." },
+    ],
+  },
+  {
+    category: "Código e tecnologia",
+    prompts: [
+      { title: "Explicar um erro de código", prompt: "Estou recebendo este erro: [cole o erro/mensagem]. Explique o que provavelmente está causando isso e sugira 2 formas de resolver, em linguagem simples." },
+      { title: "Comentar e documentar um código", prompt: "Aqui está este código: [cole o código]. Adicione comentários explicando o que cada parte faz, e escreva um resumo de 2 linhas sobre o que a função inteira faz." },
+      { title: "Aprender um conceito técnico com analogia", prompt: "Explique [conceito técnico, ex: API, banco de dados relacional] usando uma analogia do dia a dia, como se eu não tivesse nenhum conhecimento técnico prévio." },
+    ],
+  },
+];
+
 function ExploreTab({ T }) {
+  const [view, setView] = useState("trilhas"); // trilhas | prompts
+  const [copiedPrompt, setCopiedPrompt] = useState(null);
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState(null);
   const [searchFocused, setSearchFocused] = useState(false);
   const [selectedTrail, setSelectedTrail] = useState(null);
   const [openLesson, setOpenLesson] = useState(null); // { trailId, lesson } or null
   const [flipped, setFlipped] = useState(new Set());
+
+  function copyPrompt(text, id) {
+    navigator.clipboard?.writeText(text);
+    setCopiedPrompt(id);
+    setTimeout(() => setCopiedPrompt(null), 1800);
+  }
 
   const totalLessons = (trail) => trail.modules.reduce((sum, m) => sum + m.lessons.length, 0);
 
@@ -1638,7 +1693,6 @@ function ExploreTab({ T }) {
     let lessonCounter = 0;
     return (
       <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
-        <img src="/bg-explorar.svg" alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.08, pointerEvents: 'none', zIndex: 0 }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
           <button onClick={() => setSelectedTrail(null)} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'transparent', border: 'none', color: T.accent, fontFamily: "'Source Serif 4',serif", fontSize: 14, fontWeight: 700, cursor: 'pointer', marginBottom: 18, padding: '4px 0' }}>
             ← Voltar
@@ -1689,8 +1743,38 @@ function ExploreTab({ T }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
-      <img src="/bg-explorar.svg" alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.08, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
+      {/* Toggle: Trilhas / Prompts prontos */}
+      <div style={{ display: "flex", gap: 6, marginBottom: 20, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 11, padding: 4, width: "fit-content" }}>
+        <button onClick={() => setView("trilhas")} style={{ padding: "7px 16px", border: "none", borderRadius: 8, background: view === "trilhas" ? T.accent : "transparent", color: view === "trilhas" ? "#fff" : T.textSecondary, fontSize: 13, fontWeight: 600, fontFamily: "'Source Serif 4',serif", cursor: "pointer" }}>Trilhas</button>
+        <button onClick={() => setView("prompts")} style={{ padding: "7px 16px", border: "none", borderRadius: 8, background: view === "prompts" ? T.accent : "transparent", color: view === "prompts" ? "#fff" : T.textSecondary, fontSize: 13, fontWeight: 600, fontFamily: "'Source Serif 4',serif", cursor: "pointer" }}>Prompts prontos</button>
+      </div>
+
+      {view === "prompts" ? (
+        <div>
+          {PROMPT_LIBRARY.map(group => (
+            <div key={group.category} style={{ marginBottom: 22 }}>
+              <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 10, fontFamily: "'JetBrains Mono',monospace" }}>{group.category}</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {group.prompts.map((p, i) => {
+                  const id = group.category + i;
+                  const isCopied = copiedPrompt === id;
+                  return (
+                    <Card T={T} key={id} style={{ padding: "14px 16px" }}>
+                      <p style={{ fontWeight: 700, fontSize: 14, color: T.textPrimary, marginBottom: 8 }}>{p.title}</p>
+                      <p style={{ fontSize: 13, color: T.textSecondary, lineHeight: 1.6, marginBottom: 10, fontStyle: "italic" }}>"{p.prompt}"</p>
+                      <button onClick={() => copyPrompt(p.prompt, id)} style={{ padding: "7px 14px", background: isCopied ? T.green : T.accentDim, border: `1px solid ${isCopied ? T.green : T.accent + "33"}`, borderRadius: 8, color: isCopied ? "#fff" : T.accent, fontSize: 12, fontWeight: 600, fontFamily: "'Source Serif 4',serif", cursor: "pointer" }}>
+                        {isCopied ? "Copiado!" : "Copiar prompt"}
+                      </button>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+      <>
       {/* Search bar */}
       <div data-tour="explore-search" style={{ position: "relative", marginBottom: 22 }}>
         <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 15, pointerEvents: "none" }}>🔍</span>
@@ -1749,6 +1833,8 @@ function ExploreTab({ T }) {
           ))}
         </div>
       )}
+      </>
+      )}
       </div>
     </div>
   );
@@ -1799,7 +1885,7 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
       </div>
 
       <div className="rv-shell-content" style={{ margin: "0 auto", padding: "18px 14px" }}>
-        {tab === "home" && <HomeTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} navTo={navTo} onProfileClick={() => setShowMiniMenu(m => !m)} />}
+        {tab === "home" && <HomeTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} navTo={navTo} />}
         {tab === "trail" && <TrailTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
         {tab === "explore" && <ExploreTab T={T} />}
         {tab === "notes" && <NotesTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
@@ -1990,7 +2076,7 @@ function ProfileModal({ T, user, updateUser, onLogout, onRestart, addToast, onCl
 }
 
 // ─── Home Tab ──────────────────────────────────────────────────────────────
-function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }) {
+function HomeTab({ T, user, updateUser, addXP, addToast, navTo }) {
   const completedTopics = user.completedTopics || [];
   const displayName = user.settings?.nickname || user.name?.split(" ")[0] || "Estudante";
 
@@ -2024,21 +2110,12 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
 
   return (
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
-      <img src="/bg-inicio.svg" alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.08, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
 
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22 }}>
-        <div>
-          <h1 style={{ fontSize: 21, fontWeight: 700, color: T.textPrimary, marginBottom: 3 }}>Olá, {displayName}</h1>
-          <p style={{ fontSize: 13, color: T.textSecondary }}>{subtitle}</p>
-        </div>
-        <button onClick={onProfileClick} style={{ width: 40, height: 40, borderRadius: 10, background: T.surface, border: `1px solid ${T.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: user.settings?.avatarType === "photo" || !user.settings?.avatar ? 14 : 18, fontWeight: 700, color: T.textPrimary, cursor: "pointer", flexShrink: 0, overflow: "hidden" }}>
-          {user.settings?.avatarType === "photo" && getProfilePhoto()
-            ? <img src={getProfilePhoto()} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
-            : (user.settings?.avatarType === "emoji" ? user.settings.avatar : (user.settings?.avatar || (user.name || "?")[0].toUpperCase()))
-          }
-        </button>
+      <div style={{ marginBottom: 22 }}>
+        <h1 style={{ fontSize: 21, fontWeight: 700, color: T.textPrimary, marginBottom: 3 }}>Olá, {displayName}</h1>
+        <p style={{ fontSize: 13, color: T.textSecondary }}>{subtitle}</p>
       </div>
 
       {/* Card "Sua trilha" */}
@@ -2361,7 +2438,6 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   return (
     <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden', flex: 1, minWidth: 0 }}>
-      <img src="/bg-trilhas.svg" alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.08, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Floating tutor button (mobile only) — rendered via Portal directly in document.body */}
       {tutorBtnMounted && !showTrailTutor && ReactDOM.createPortal(
