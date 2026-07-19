@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1400" fill="none">
+  <path d="M 720 60 C 560 220, 780 420, 560 580 C 380 720, 640 900, 420 1080 C 260 1210, 480 1300, 360 1400"
+        stroke="#8B7FFF" stroke-width="5" stroke-linecap="round" stroke-dasharray="2 22"/>
+
+  <g transform="translate(700,40)">
+    <circle cx="0" cy="0" r="22" stroke="#8B7FFF" stroke-width="4"/>
+    <path d="M -16 14 L 0 46 L 16 14 Z" stroke="#8B7FFF" stroke-width="4" stroke-linejoin="round"/>
+    <circle cx="0" cy="0" r="7" stroke="#8B7FFF" stroke-width="3"/>
+  </g>
+
+  <g transform="translate(590,430) scale(1.1)">
+    <line x1="0" y1="30" x2="0" y2="55" stroke="#8B7FFF" stroke-width="4"/>
+    <path d="M 0 -40 L 24 6 L -24 6 Z" stroke="#8B7FFF" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M 0 -12 L 30 30 L -30 30 Z" stroke="#8B7FFF" stroke-width="4" stroke-linejoin="round"/>
+  </g>
+
+  <g transform="translate(340,760) scale(0.9)">
+    <line x1="0" y1="30" x2="0" y2="55" stroke="#8B7FFF" stroke-width="4"/>
+    <path d="M 0 -40 L 24 6 L -24 6 Z" stroke="#8B7FFF" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M 0 -12 L 30 30 L -30 30 Z" stroke="#8B7FFF" stroke-width="4" stroke-linejoin="round"/>
+  </g>
+
+  <g transform="translate(470,1030) scale(1.05)">
+    <line x1="0" y1="30" x2="0" y2="55" stroke="#8B7FFF" stroke-width="4"/>
+    <path d="M 0 -40 L 24 6 L -24 6 Z" stroke="#8B7FFF" stroke-width="4" stroke-linejoin="round"/>
+    <path d="M 0 -12 L 30 30 L -30 30 Z" stroke="#8B7FFF" stroke-width="4" stroke-linejoin="round"/>
+  </g>
+
+  <circle cx="180" cy="150" r="4" fill="#8B7FFF"/>
+  <circle cx="760" cy="300" r="3" fill="#8B7FFF"/>
+  <circle cx="120" cy="520" r="3" fill="#8B7FFF"/>
+  <circle cx="640" cy="900" r="4" fill="#8B7FFF"/>
+  <circle cx="200" cy="1250" r="3" fill="#8B7FFF"/>
+</svg>

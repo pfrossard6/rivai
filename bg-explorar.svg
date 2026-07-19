@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1400" fill="none">
+  <g transform="translate(180,1120)">
+    <circle cx="0" cy="0" r="150" stroke="#8B7FFF" stroke-width="4"/>
+    <circle cx="0" cy="0" r="118" stroke="#8B7FFF" stroke-width="2"/>
+    <line x1="0" y1="-150" x2="0" y2="-134" stroke="#8B7FFF" stroke-width="4"/>
+    <line x1="0" y1="150" x2="0" y2="134" stroke="#8B7FFF" stroke-width="4"/>
+    <line x1="-150" y1="0" x2="-134" y2="0" stroke="#8B7FFF" stroke-width="4"/>
+    <line x1="150" y1="0" x2="134" y2="0" stroke="#8B7FFF" stroke-width="4"/>
+    <path d="M 0 -95 L 26 0 L 0 95 L -26 0 Z" stroke="#8B7FFF" stroke-width="4" stroke-linejoin="round"/>
+    <circle cx="0" cy="0" r="10" fill="#8B7FFF"/>
+    <text x="0" y="-168" text-anchor="middle" font-size="22" fill="#8B7FFF" font-family="serif">N</text>
+  </g>
+
+  <path d="M 620 200 C 700 260, 660 340, 740 380" stroke="#8B7FFF" stroke-width="4" stroke-linecap="round" stroke-dasharray="2 18"/>
+  <circle cx="620" cy="200" r="6" fill="#8B7FFF"/>
+  <circle cx="740" cy="380" r="6" fill="#8B7FFF"/>
+
+  <circle cx="500" cy="620" r="4" fill="#8B7FFF"/>
+  <circle cx="760" cy="700" r="3" fill="#8B7FFF"/>
+  <circle cx="420" cy="120" r="3" fill="#8B7FFF"/>
+  <circle cx="130" cy="700" r="4" fill="#8B7FFF"/>
+</svg>
