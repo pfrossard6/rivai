@@ -73,6 +73,20 @@ const AREAS = [
   { id: "design", label: "Design / Criativo" }, { id: "hr", label: "RH / Pessoas" },
   { id: "law", label: "Direito / Compliance" }, { id: "other", label: "Outra área" },
 ];
+const AREA_CONTEXT_EXAMPLES = {
+  operations: "sou analista de logística numa fábrica de alimentos, cuido do estoque e da distribuição para 12 lojas",
+  business: "sou gerente administrativo numa clínica odontológica, cuido de contratos e fornecedores",
+  engineering: "sou engenheiro civil, trabalho em obras residenciais e faço orçamentos e cronogramas",
+  marketing: "sou social media de uma loja de roupas, crio conteúdo e cuido dos anúncios no Instagram",
+  sales: "sou vendedor de planos de saúde, faço prospecção e follow-up de clientes todo dia",
+  education: "sou professora de matemática no ensino médio, também corrijo provas e monto material de aula",
+  health: "sou enfermeira de UTI, trabalho em plantões de 12h e cuido de prontuários e escalas",
+  finance: "sou analista financeiro numa construtora, faço fluxo de caixa e relatórios mensais",
+  design: "sou designer freelancer, crio identidade visual e posts pra pequenos negócios",
+  hr: "sou analista de RH numa indústria, cuido de recrutamento e folha de pagamento",
+  law: "sou advogado trabalhista, atendo clientes e monto petições",
+  other: "conte o que você faz no dia a dia, seus projetos e desafios reais",
+};
 const LEVELS = [
   { id: "never", label: "Nunca usei IA de verdade", icon: "🌱" },
   { id: "curious", label: "Usei algumas vezes", icon: "🔍" },
@@ -99,7 +113,6 @@ const ACHIEVEMENTS = [
   { id: "streak_3", icon: "🔥", title: "Em Chamas", desc: "3 dias seguidos", xp: 200, color: "#ef4444" },
   { id: "streak_7", icon: "💥", title: "Imparável", desc: "7 dias seguidos", xp: 500, color: "#ef4444" },
   { id: "chat_5", icon: "💬", title: "Curioso", desc: "5 perguntas ao tutor", xp: 100, color: "#6c63ff" },
-  { id: "quiz_5", icon: "🎯", title: "Quiz Master", desc: "5 quizzes completos", xp: 150, color: "#f59e0b" },
   { id: "notes_10", icon: "📓", title: "Anotador", desc: "10 anotações criadas", xp: 100, color: "#00d4aa" },
   { id: "progress_50", icon: "⭐", title: "Meio Caminho", desc: "50% da trilha concluída", xp: 300, color: "#f59e0b" },
   { id: "xp_2000", icon: "💎", title: "Diamante", desc: "2000 XP acumulados", xp: 500, color: "#00d4aa" },
@@ -107,15 +120,21 @@ const ACHIEVEMENTS = [
 const DAILY_MISSIONS = [
   { id: "study_30", icon: "⏱️", title: "Sessão de 30min", desc: "Estude por pelo menos 30 minutos", xp: 50 },
   { id: "ask_tutor", icon: "💬", title: "Pergunte ao Tutor", desc: "Faça uma pergunta ao tutor", xp: 40 },
-  { id: "do_quiz", icon: "🎯", title: "Quiz do Dia", desc: "Complete o quiz diário", xp: 60 },
   { id: "take_note", icon: "📓", title: "Faça uma Anotação", desc: "Escreva uma anotação de estudo", xp: 30 },
 ];
 const HOME_MISSIONS_DEF = [
   { id: "home_study_15", xp: 30 },
-  { id: "home_quiz",     xp: 50 },
+  { id: "home_review",   xp: 50 },
   { id: "home_tutor",    xp: 20 },
 ];
 const TRAIL_STUDY_KEY = "rivai_trail_study";
+const NAV_ITEMS = [
+  { id: "home", icon: "🏠", label: "Início" },
+  { id: "trail", icon: "📚", label: "Trilhas" },
+  { id: "explore", icon: "🔍", label: "Explorar" },
+  { id: "community", icon: "👥", label: "Comunidade" },
+  { id: "notes", icon: "📓", label: "Notas" },
+];
 const getTodayStr = () => new Date().toDateString();
 const HEATMAP_KEY = "rivai_study_heatmap";
 const getHeatmap = () => { try { return JSON.parse(localStorage.getItem(HEATMAP_KEY) || "{}"); } catch { return {}; } };
@@ -181,20 +200,20 @@ const newUser = (email, pw, name) => ({
 // ─── Theme ─────────────────────────────────────────────────────────────────
 const THEMES = {
   dark: {
-    bg: "#080810", surface: "#0e0e1a", card: "#12121e", border: "#1e1e32",
-    accent: "#6c63ff", accentLight: "#8b84ff", accentDim: "#6c63ff18", accentGlow: "#6c63ff40",
-    green: "#00d4aa", greenDim: "#00d4aa18", amber: "#f59e0b", amberDim: "#f59e0b18",
-    red: "#ef4444", redDim: "#ef444418",
-    textPrimary: "#eeeeff", textSecondary: "#8888bb", textDim: "#3a3a5c",
-    btnText: "#fff", navBg: "#0e0e1af0",
+    bg: "#121214", surface: "#19191c", card: "#1c1c1f", border: "#2b2b2f",
+    accent: "#6459E0", accentLight: "#8177E8", accentDim: "#6459E01c", accentGlow: "#6459E01c",
+    green: "#22A35E", greenDim: "#22A35E18", amber: "#C77C22", amberDim: "#C77C2218",
+    red: "#D14F4F", redDim: "#D14F4F18",
+    textPrimary: "#EDEDEF", textSecondary: "#A0A0A8", textDim: "#5C5C64",
+    btnText: "#fff", navBg: "#19191cf0",
   },
   light: {
-    bg: "#f0f7f4", surface: "#ffffff", card: "#ffffff", border: "#cce8df",
-    accent: "#0a7c59", accentLight: "#0fa374", accentDim: "#0a7c5912", accentGlow: "#0a7c5930",
-    green: "#0a7c59", greenDim: "#0a7c5912", amber: "#d97706", amberDim: "#d9770615",
-    red: "#dc2626", redDim: "#dc262615",
-    textPrimary: "#0d2b20", textSecondary: "#3d6b58", textDim: "#9bbcb0",
-    btnText: "#fff", navBg: "#f0f7f4f0",
+    bg: "#FAFAFA", surface: "#ffffff", card: "#ffffff", border: "#E4E4E7",
+    accent: "#5A4FCF", accentLight: "#7267DB", accentDim: "#5A4FCF10", accentGlow: "#5A4FCF10",
+    green: "#188A4C", greenDim: "#188A4C12", amber: "#B4650F", amberDim: "#B4650F12",
+    red: "#C43D3D", redDim: "#C43D3D12",
+    textPrimary: "#18181B", textSecondary: "#52525B", textDim: "#A1A1AA",
+    btnText: "#fff", navBg: "#FAFAFAF0",
   },
 };
 
@@ -236,14 +255,33 @@ async function generateCourse(profile) {
 - Ferramentas: ${profile.tools.join(", ") || "nenhuma"}
 - Desafios: ${profile.challenges.join(", ")}
 - Horas/dia: ${profile.hours}h
-- Contexto: ${profile.context || "não informado"}
+- Contexto pessoal (a parte mais importante — use isso em CADA fase, não só no resumo geral): ${profile.context || "não informado"}
 
 Retorne este JSON exato (substitua os valores):
 {"headline":"frase motivacional curta máx 8 palavras","overview":"2-3 frases específicas para este perfil","phases":[{"number":1,"title":"nome da fase","duration":"3 semanas","color":"violet","focus":"foco principal","days":[{"period":"dia 1-2","title":"título do tópico","description":"descrição concreta e específica para este perfil","tag":"prática"}]}],"first_prompt":"prompt detalhado que o aluno deve usar para começar o dia 1 com o tutor IA"}
 
-Regras: 3 fases (fase1=violet, fase2=emerald, fase3=amber), 3-4 dias por fase, tags: prática/teoria/projeto/ferramenta/análise/automação, seja muito específico para o perfil real.`;
+Regras: 3 fases (fase1=violet, fase2=emerald, fase3=amber), 3-4 dias por fase, tags: prática/teoria/projeto/ferramenta/análise/automação. O contexto pessoal do aluno precisa aparecer de forma concreta no título ou foco de CADA fase e na descrição de CADA dia — não apenas no overview inicial. Nunca gere títulos ou descrições genéricas que serviriam pra qualquer pessoa; um aluno da saúde e um da logística devem receber fases visivelmente diferentes.`;
 
   const raw = await callAPI([{ role: "user", content }], system, 2500);
+  return JSON.parse(extractJSON(raw));
+}
+
+async function generateLessonContent(profile, phase, day) {
+  const system = `Você é um especialista em educação que ensina IA aplicada de forma prática e específica. Gere APENAS JSON válido, sem texto antes ou depois, sem markdown.`;
+  const content = `Crie o conteúdo completo de uma aula para:
+- Aluno: ${profile?.name || "Estudante"}
+- Área/profissão: ${profile?.areas?.join(", ") || "geral"}
+- Nível: ${profile?.level || "iniciante"}
+- Contexto pessoal (use isso para exemplos reais, é o mais importante): ${profile?.context || "não informado"}
+- Módulo: ${phase?.title || ""}
+- Aula: ${day?.title || ""} — ${day?.description || ""}
+
+Retorne este JSON exato:
+{"cards":[{"icon":"nome curto do conceito","title":"título do card","body":"explicação real e específica, 3-5 frases, com exemplo concreto ligado ao contexto do aluno"}],"flashcards":[{"front":"pergunta ou termo curto","back":"resposta curta e direta"}],"exercise":{"title":"título do exercício prático","instructions":"instrução de uma tarefa real que o aluno faz agora, usando um prompt ou ferramenta de IA, ligada ao contexto dele"}}
+
+Regras: 3-4 cards de conteúdo real (nada de "use o tutor para aprofundar" — ensine de verdade aqui), 4-5 flashcards de revisão, 1 exercício prático específico para o contexto do aluno. Sempre em português.`;
+
+  const raw = await callAPI([{ role: "user", content }], system, 2000);
   return JSON.parse(extractJSON(raw));
 }
 
@@ -257,38 +295,6 @@ Regras: máx 4 parágrafos curtos, use exemplos concretos da área do aluno, sej
   return await callAPI(messages, system, 900);
 }
 
-async function generateQuiz(profile, course) {
-  const system = `Você é um especialista em educação. Gere APENAS JSON válido, sem texto antes ou depois, sem markdown.`;
-  const phase = course?.phases?.[0];
-  const content = `Gere um quiz de 5 perguntas sobre IA para:
-- Área: ${profile?.areas?.join(", ") || "geral"}
-- Nível: ${profile?.level || "iniciante"}
-- Fase atual do curso: ${phase?.title || "fundamentos"}
-- Contexto: ${profile?.context || "não informado"}
-
-JSON exato:
-{"title":"título do quiz","questions":[{"q":"pergunta","options":["A) opção","B) opção","C) opção","D) opção"],"answer":0,"explanation":"explicação curta"}]}
-
-answer é o índice da opção correta (0-3). 5 perguntas específicas para o perfil.`;
-
-  const raw = await callAPI([{ role: "user", content }], system, 1200);
-  return JSON.parse(extractJSON(raw));
-}
-
-async function generateModuleQuiz(profile, phase) {
-  const system = `Você é um especialista em educação. Gere APENAS JSON válido, sem texto antes ou depois, sem markdown.`;
-  const topics = (phase?.days || []).map(d => d.title).join(", ");
-  const content = `Gere um quiz de 5 perguntas sobre o módulo "${phase?.title}" abrangendo os tópicos: ${topics}.
-Perfil do aluno: área ${profile?.areas?.join(", ") || "geral"}, nível ${profile?.level || "iniciante"}.
-
-JSON exato:
-{"title":"Quiz: ${phase?.title}","questions":[{"q":"pergunta","options":["A) opção","B) opção","C) opção","D) opção"],"answer":0,"explanation":"explicação curta"}]}
-
-answer é o índice correto (0-3). 5 perguntas cobrindo os tópicos do módulo.`;
-  const raw = await callAPI([{ role: "user", content }], system, 1200);
-  return JSON.parse(extractJSON(raw));
-}
-
 // ─── Phase colors ──────────────────────────────────────────────────────────
 const getPC = (c, T) => ({
   violet: { bg: T.accent + "18", border: T.accent + "44", text: T.accentLight || T.accent, dot: T.accent },
@@ -296,10 +302,37 @@ const getPC = (c, T) => ({
   amber: { bg: T.amber + "18", border: T.amber + "44", text: T.amber, dot: T.amber },
 }[c] || { bg: T.accent + "18", border: T.accent + "44", text: T.accent, dot: T.accent });
 
+// ─── Module cover icons (simple outline set, no emoji) ─────────────────────
+const MODULE_ICON_PATHS = {
+  book: "M4 5.5C4 4.67 4.67 4 5.5 4H12V19H5.5C4.67 19 4 18.33 4 17.5V5.5Z M12 4H18.5C19.33 4 20 4.67 20 5.5V17.5C20 18.33 19.33 19 18.5 19H12",
+  chart: "M4 20V10 M10 20V4 M16 20V13 M4 20H20",
+  gear: "M12 15.5A3.5 3.5 0 1 0 12 8.5A3.5 3.5 0 0 0 12 15.5Z M12 3V5.5 M12 18.5V21 M4.2 7.2L6 9 M18 15L19.8 16.8 M3 12H5.5 M18.5 12H21 M4.2 16.8L6 15 M18 9L19.8 7.2",
+  compass: "M12 21A9 9 0 1 0 12 3A9 9 0 0 0 12 21Z M14.5 9.5L13 13L9.5 14.5L11 11L14.5 9.5Z",
+  users: "M8 11A3 3 0 1 0 8 5A3 3 0 0 0 8 11Z M2.5 19C2.5 15.5 4.9 13.5 8 13.5C11.1 13.5 13.5 15.5 13.5 19 M16 8A2.5 2.5 0 1 0 16 3A2.5 2.5 0 0 0 16 8Z M14.5 13.2C17.2 13.6 19 15.4 19 18.5",
+  target: "M12 21A9 9 0 1 0 12 3A9 9 0 0 0 12 21Z M12 16A4 4 0 1 0 12 8A4 4 0 0 0 12 16Z M12 13A1 1 0 1 0 12 11A1 1 0 0 0 12 13Z",
+};
+function ModuleIcon({ name, size = 20, color = "currentColor" }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d={MODULE_ICON_PATHS[name] || MODULE_ICON_PATHS.book} />
+    </svg>
+  );
+}
+const MODULE_ICON_ORDER = ["book", "gear", "chart", "compass", "users", "target"];
+function pickModuleIcon(title = "", pi = 0) {
+  const t = title.toLowerCase();
+  if (/dado|métric|analytic/.test(t)) return "chart";
+  if (/automa|processo|ferramenta/.test(t)) return "gear";
+  if (/gestão|pessoa|equipe|time|lideran/.test(t)) return "users";
+  if (/estratég|visão|planej/.test(t)) return "compass";
+  if (/fundament|introdu|base/.test(t)) return "book";
+  return MODULE_ICON_ORDER[pi % MODULE_ICON_ORDER.length];
+}
+
 // ─── Shared UI ─────────────────────────────────────────────────────────────
 function Card({ T, children, style = {}, glow, onClick }) {
   return (
-    <div onClick={onClick} style={{ background: T.card, border: `1px solid ${glow ? T.accent + "55" : T.border}`, borderRadius: 18, padding: "18px", boxShadow: glow ? `0 0 20px ${T.accentGlow}` : (T.card === "#ffffff" ? "0 2px 10px #0001" : "none"), cursor: onClick ? "pointer" : "default", ...style }}>
+    <div onClick={onClick} style={{ background: T.card, border: `1px solid ${glow ? T.accent + "40" : T.border}`, borderRadius: 14, padding: "18px", boxShadow: T.card === "#ffffff" ? "0 1px 3px #0000000a" : "none", cursor: onClick ? "pointer" : "default", ...style }}>
       {children}
     </div>
   );
@@ -307,7 +340,7 @@ function Card({ T, children, style = {}, glow, onClick }) {
 
 function BtnPrimary({ T, children, onClick, disabled, style = {} }) {
   return (
-    <button onClick={onClick} disabled={disabled} style={{ padding: "13px 20px", background: disabled ? T.textDim : `linear-gradient(135deg, ${T.accent}, ${T.accentLight || T.green})`, color: T.btnText, border: "none", borderRadius: 12, fontSize: 14, fontWeight: 800, cursor: disabled ? "not-allowed" : "pointer", fontFamily: "'Nunito', sans-serif", transition: "all 0.2s", boxShadow: disabled ? "none" : `0 4px 16px ${T.accentGlow}`, width: "100%", ...style }}>
+    <button onClick={onClick} disabled={disabled} style={{ padding: "13px 20px", background: disabled ? T.textDim : T.accent, color: T.btnText, border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: disabled ? "not-allowed" : "pointer", fontFamily: "'Nunito', sans-serif", transition: "background 0.15s", width: "100%", ...style }}>
       {children}
     </button>
   );
@@ -335,8 +368,7 @@ function TutorialOverlay({ T, onDone }) {
     { icon: "🏠", tab: "Início", title: "Bem-vindo ao Riv.IA!", desc: "Aqui você vê suas missões do dia, progresso da trilha e a próxima aula recomendada. É seu ponto de partida diário." },
     { icon: "🗺️", tab: "Trilha", title: "Sua jornada de aprendizado", desc: "A trilha mostra seu curso personalizado em fases, dias e tópicos. Clique em qualquer tópico para abrir a aula completa." },
     { icon: "⏱️", tab: "Estudar", title: "Acompanhe seu tempo", desc: "Use o cronômetro para medir suas sessões e atingir a meta diária. Complete 30 minutos para ganhar XP extra!" },
-    { icon: "⬡", tab: "Tutor", title: "Seu tutor personalizado", desc: "Tire dúvidas com um tutor de IA especializado no seu perfil. Quanto mais você pergunta, mais personalizado fica." },
-    { icon: "🎯", tab: "Quiz", title: "Teste seu conhecimento", desc: "Faça quizzes gerados por IA. Clique numa resposta para ver imediatamente se acertou (verde) ou errou (vermelho) com explicação!" },
+    { icon: "⬡", tab: "Tutor", title: "Seu tutor personalizado", desc: "Tire dúvidas e peça revisões com um tutor de IA especializado no seu perfil. Quanto mais você pergunta, mais personalizado fica." },
     { icon: "📓", tab: "Notas", title: "Registre o que aprende", desc: "Anote insights e aprendizados. Escrever ajuda a fixar o conteúdo — e você ganha XP por cada nota criada!" },
   ];
   const s = STEPS[step];
@@ -364,7 +396,7 @@ function TutorialOverlay({ T, onDone }) {
 }
 
 // ─── Lesson Screen ─────────────────────────────────────────────────────────
-function TutorPanel({ T, user, updateUser, addXP, addToast, completeMission, lessonContext, onClose }) {
+function TutorPanel({ T, user, updateUser, addXP, addToast, completeMission, lessonContext, onClose, dock }) {
   const [msgs, setMsgs] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -390,56 +422,58 @@ function TutorPanel({ T, user, updateUser, addXP, addToast, completeMission, les
     finally { setLoading(false); }
   }
 
-  const WELCOME = "Olá! Sou seu tutor de IA. Pode me perguntar qualquer coisa — sobre as aulas, sobre IA em geral, ou sobre como aplicar no seu dia a dia. 🚀";
+  const WELCOME = "Olá! Sou seu tutor de IA. Pode me perguntar qualquer coisa — sobre as aulas, sobre IA em geral, ou sobre como aplicar no seu dia a dia.";
 
-  return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}>
-      {/* Backdrop */}
-      <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,.55)", backdropFilter: "blur(3px)" }} />
+  const panel = (
+    <div style={{ position: dock ? "static" : "relative", background: dock ? T.card : T.bg, border: dock ? `1px solid ${T.border}` : "none", borderRadius: 16, padding: "0 0 16px", width: dock ? "100%" : "min(420px, calc(100% - 40px))", height: dock ? "100%" : "80vh", display: "flex", flexDirection: "column", boxShadow: dock ? "none" : "0 8px 40px rgba(0,0,0,.45)", animation: dock ? "none" : "fadeUp .28s ease", margin: dock ? 0 : "0 20px 20px 0" }}>
 
-      {/* Panel */}
-      <div style={{ position: "relative", background: T.bg, borderRadius: 16, padding: "0 0 16px", width: "min(420px, calc(100% - 40px))", height: "80vh", display: "flex", flexDirection: "column", boxShadow: "0 8px 40px rgba(0,0,0,.45)", animation: "fadeUp .28s ease", margin: "0 20px 20px 0" }}>
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 18px 12px", borderBottom: `1px solid ${T.border}` }}>
+        <div style={{ width: 30, height: 30, borderRadius: 9, background: T.accentDim, border: `1px solid ${T.accent}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: T.accent, flexShrink: 0 }}>⬡</div>
+        <p style={{ flex: 1, fontWeight: 700, fontSize: 14, color: T.textPrimary }}>Tutor personalizado</p>
+        {!dock && <button onClick={onClose} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "6px 11px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Nunito',sans-serif", flexShrink: 0 }}>✕</button>}
+      </div>
 
-        {/* Header */}
-        <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 18px 12px", borderBottom: `1px solid ${T.border}` }}>
-          <div style={{ width: 34, height: 34, borderRadius: 10, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16, boxShadow: `0 0 12px ${T.accentGlow}`, flexShrink: 0 }}>⬡</div>
-          <p style={{ flex: 1, fontWeight: 900, fontSize: 14, color: T.textPrimary }}>Tutor Personalizado</p>
-          <button onClick={onClose} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "6px 11px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Nunito',sans-serif", flexShrink: 0 }}>✕</button>
+      {/* Messages */}
+      <div style={{ flex: 1, overflowY: "auto", padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10, minHeight: 0 }}>
+        {/* Welcome message always shown */}
+        <div style={{ display: "flex", justifyContent: "flex-start", animation: "fadeUp .25s ease" }}>
+          <div style={{ width: 22, height: 22, borderRadius: 6, background: T.accentDim, border: `1px solid ${T.accent}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: T.accent, flexShrink: 0, marginRight: 7, marginTop: 2 }}>⬡</div>
+          <div style={{ maxWidth: "82%", padding: "9px 13px", borderRadius: "14px 14px 14px 4px", background: T.surface, border: `1px solid ${T.border}`, fontSize: 13, lineHeight: 1.7, color: T.textPrimary }}>{WELCOME}</div>
         </div>
-
-        {/* Messages */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "14px 16px", display: "flex", flexDirection: "column", gap: 10, minHeight: 0 }}>
-          {/* Welcome message always shown */}
-          <div style={{ display: "flex", justifyContent: "flex-start", animation: "fadeUp .25s ease" }}>
-            <div style={{ width: 22, height: 22, borderRadius: 6, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, flexShrink: 0, marginRight: 7, marginTop: 2 }}>⬡</div>
-            <div style={{ maxWidth: "82%", padding: "9px 13px", borderRadius: "14px 14px 14px 4px", background: T.surface, border: `1px solid ${T.border}`, fontSize: 13, lineHeight: 1.7, color: T.textPrimary }}>{WELCOME}</div>
+        {msgs.map((msg, i) => (
+          <div key={i} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start", animation: "fadeUp .25s ease" }}>
+            {msg.role === "assistant" && <div style={{ width: 22, height: 22, borderRadius: 6, background: T.accentDim, border: `1px solid ${T.accent}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, color: T.accent, flexShrink: 0, marginRight: 7, marginTop: 2 }}>⬡</div>}
+            <div style={{ maxWidth: "82%", padding: "9px 13px", borderRadius: msg.role === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px", background: msg.role === "user" ? T.accent : T.surface, border: msg.role === "user" ? "none" : `1px solid ${T.border}`, fontSize: 13, lineHeight: 1.7, color: msg.role === "user" ? "#fff" : T.textPrimary, whiteSpace: "pre-wrap" }}>{msg.content}</div>
           </div>
-          {msgs.map((msg, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: msg.role === "user" ? "flex-end" : "flex-start", animation: "fadeUp .25s ease" }}>
-              {msg.role === "assistant" && <div style={{ width: 22, height: 22, borderRadius: 6, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, flexShrink: 0, marginRight: 7, marginTop: 2 }}>⬡</div>}
-              <div style={{ maxWidth: "82%", padding: "9px 13px", borderRadius: msg.role === "user" ? "14px 14px 4px 14px" : "14px 14px 14px 4px", background: msg.role === "user" ? `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})` : T.surface, border: msg.role === "user" ? "none" : `1px solid ${T.border}`, fontSize: 13, lineHeight: 1.7, color: msg.role === "user" ? "#fff" : T.textPrimary, whiteSpace: "pre-wrap" }}>{msg.content}</div>
-            </div>
-          ))}
-          {loading && <div style={{ display: "flex", gap: 5, padding: "9px 13px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: "14px 14px 14px 4px", width: "fit-content", marginLeft: 29 }}>
-            {[0,1,2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: T.accent, animation: `pulse 1s ease-in-out ${i*.15}s infinite` }} />)}
-          </div>}
-          <div ref={endRef} />
-        </div>
+        ))}
+        {loading && <div style={{ display: "flex", gap: 5, padding: "9px 13px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: "14px 14px 14px 4px", width: "fit-content", marginLeft: 29 }}>
+          {[0,1,2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: "50%", background: T.accent, animation: `pulse 1s ease-in-out ${i*.15}s infinite` }} />)}
+        </div>}
+        <div ref={endRef} />
+      </div>
 
-        {/* Input */}
-        <div style={{ display: "flex", gap: 8, padding: "10px 16px 0" }}>
-          <input
-            placeholder="Me pergunte qualquer coisa sobre IA..."
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && !e.shiftKey && send()}
+      {/* Input */}
+      <div style={{ display: "flex", gap: 8, padding: "10px 16px 0" }}>
+        <input
+          placeholder="Me pergunte qualquer coisa sobre IA..."
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && !e.shiftKey && send()}
             style={{ flex: 1, background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, color: T.textPrimary, fontFamily: "'Nunito',sans-serif", fontSize: 14, padding: "13px 15px", outline: "none", minHeight: 48 }}
             onFocus={e => e.target.style.borderColor = T.accent}
             onBlur={e => e.target.style.borderColor = T.border}
           />
           <BtnPrimary T={T} style={{ width: 46, padding: 0, fontSize: 16, borderRadius: 12, flexShrink: 0 }} onClick={() => send()} disabled={loading}>→</BtnPrimary>
         </div>
-      </div>
+    </div>
+  );
+
+  if (dock) return panel;
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 200, display: "flex", alignItems: "flex-end", justifyContent: "flex-end" }}>
+      <div onClick={onClose} style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,.55)", backdropFilter: "blur(3px)" }} />
+      {panel}
     </div>
   );
 }
@@ -584,11 +618,27 @@ function LessonScreen({ T, phaseIdx, dayIdx, course, completedTopics, onConclude
   const isDone = completedTopics.includes(key);
   const col = getPC(phase?.color, T);
   const fixedContent = LESSON_CONTENT_FIXED[key];
-  const cards = fixedContent?.cards || [
-    { icon: "📖", title: day?.title || "Tópico", body: day?.description || "" },
-    { icon: "🏷️", title: "Categoria: " + (day?.tag || ""), body: "Use o Tutor para aprofundar este conteúdo e tirar dúvidas específicas sobre este tema com o seu assistente de IA personalizado." },
-    { icon: "⚡", title: "Aplique agora", body: `Abra a aba Tutor e pergunte: "Como posso aplicar ${day?.title || "este conceito"} na minha área de atuação?"` },
-  ];
+  const cachedContent = day?.content;
+  const [genContent, setGenContent] = useState(null);
+  const [genLoading, setGenLoading] = useState(false);
+  const [genErr, setGenErr] = useState("");
+  const [flipped, setFlipped] = useState(new Set());
+  const content = fixedContent || cachedContent || genContent;
+
+  useEffect(() => {
+    if (content || genLoading) return;
+    setGenLoading(true); setGenErr("");
+    generateLessonContent(user.profile, phase, day)
+      .then(c => {
+        setGenContent(c);
+        const newPhases = user.course.phases.map((p, pi) => pi !== phaseIdx ? p : {
+          ...p, days: p.days.map((d, di) => di !== dayIdx ? d : { ...d, content: c }),
+        });
+        updateUser({ ...user, course: { ...user.course, phases: newPhases } });
+      })
+      .catch(e => setGenErr("Não foi possível gerar o conteúdo desta aula: " + e.message))
+      .finally(() => setGenLoading(false));
+  }, [key]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (isDone) return;
@@ -599,11 +649,15 @@ function LessonScreen({ T, phaseIdx, dayIdx, course, completedTopics, onConclude
   const pad = n => String(n).padStart(2, "0");
   const mins = Math.floor(elapsed / 60), secs = elapsed % 60;
 
+  function toggleFlip(i) {
+    setFlipped(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; });
+  }
+
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
       {/* Floating tutor button */}
-      <button onClick={() => setShowTutor(true)} style={{ position: "fixed", bottom: 82, right: 18, zIndex: 110, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, border: "none", borderRadius: 22, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", boxShadow: `0 4px 20px ${T.accentGlow}`, display: "flex", alignItems: "center", gap: 7 }}>
-        <span style={{ fontSize: 16 }}>💬</span> Perguntar ao Tutor
+      <button onClick={() => setShowTutor(true)} style={{ position: "fixed", bottom: 82, right: 18, zIndex: 110, background: T.accent, border: "none", borderRadius: 10, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 700, fontFamily: "'Nunito',sans-serif", cursor: "pointer" }}>
+        Perguntar ao Tutor
       </button>
 
       {showTutor && (
@@ -622,35 +676,75 @@ function LessonScreen({ T, phaseIdx, dayIdx, course, completedTopics, onConclude
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
         <button onClick={onBack} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Nunito',sans-serif", flexShrink: 0 }}>← Voltar</button>
         <div style={{ flex: 1, minWidth: 0 }}>
-          <p style={{ fontSize: 10, color: col.text, fontWeight: 700, fontFamily: "'JetBrains Mono',monospace", marginBottom: 1 }}>{phase?.title} · {day?.period}</p>
-          <h2 style={{ fontSize: 15, fontWeight: 900, color: T.textPrimary, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{day?.title}</h2>
+          <p style={{ fontSize: 10, color: col.text, fontWeight: 700, marginBottom: 1 }}>{phase?.title}</p>
+          <h2 style={{ fontSize: 15, fontWeight: 700, color: T.textPrimary, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{day?.title}</h2>
         </div>
         {!isDone && (
           <div style={{ background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 10, padding: "6px 12px", textAlign: "center", flexShrink: 0 }}>
             <p style={{ fontSize: 9, color: T.textDim, marginBottom: 1, textTransform: "uppercase", letterSpacing: ".06em" }}>tempo</p>
-            <p style={{ fontSize: 14, fontWeight: 900, color: T.accent, fontFamily: "'JetBrains Mono',monospace" }}>{pad(mins)}:{pad(secs)}</p>
+            <p style={{ fontSize: 14, fontWeight: 700, color: T.accent, fontFamily: "'JetBrains Mono',monospace" }}>{pad(mins)}:{pad(secs)}</p>
           </div>
         )}
       </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
-        {cards.map((card, i) => (
-          <Card T={T} key={i} style={{ animation: `fadeUp .4s ease ${i * .08}s both` }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-              <span style={{ fontSize: 22 }}>{card.icon}</span>
-              <p style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary }}>{card.title}</p>
+
+      {genLoading && (
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "40px 0", gap: 10 }}>
+          <div style={{ width: 26, height: 26, border: `2.5px solid ${T.border}`, borderTopColor: T.accent, borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+          <p style={{ fontSize: 13, color: T.textSecondary }}>Preparando o conteúdo desta aula...</p>
+        </div>
+      )}
+      {genErr && (
+        <div style={{ padding: 16, background: T.redDim, border: `1px solid ${T.red}44`, borderRadius: 12, marginBottom: 16 }}>
+          <p style={{ fontSize: 13, color: T.red }}>{genErr}</p>
+        </div>
+      )}
+
+      {content && (
+        <>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
+            {content.cards?.map((card, i) => (
+              <Card T={T} key={i} style={{ animation: `fadeUp .4s ease ${i * .08}s both` }}>
+                <p style={{ fontWeight: 700, fontSize: 14, color: T.textPrimary, marginBottom: 8 }}>{card.title}</p>
+                <p style={{ fontSize: 13, color: T.textSecondary, lineHeight: 1.8, whiteSpace: "pre-line" }}>{card.body}</p>
+              </Card>
+            ))}
+          </div>
+
+          {content.flashcards?.length > 0 && (
+            <div style={{ marginBottom: 20 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: T.textSecondary, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 10 }}>Flashcards de revisão</p>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {content.flashcards.map((fc, i) => {
+                  const isFlipped = flipped.has(i);
+                  return (
+                    <div key={i} onClick={() => toggleFlip(i)} style={{ background: isFlipped ? T.accentDim : T.card, border: `1px solid ${isFlipped ? T.accent + "44" : T.border}`, borderRadius: 12, padding: "14px 16px", cursor: "pointer" }}>
+                      <p style={{ fontSize: 10, fontWeight: 700, color: isFlipped ? T.accent : T.textDim, textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 6 }}>{isFlipped ? "Resposta" : "Pergunta"}</p>
+                      <p style={{ fontSize: 13, color: T.textPrimary, lineHeight: 1.6 }}>{isFlipped ? fc.back : fc.front}</p>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-            <p style={{ fontSize: 13, color: T.textSecondary, lineHeight: 1.8, whiteSpace: "pre-line" }}>{card.body}</p>
-          </Card>
-        ))}
-      </div>
+          )}
+
+          {content.exercise && (
+            <div style={{ background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 14, padding: "16px", marginBottom: 20 }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: T.accent, textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 8 }}>Exercício prático</p>
+              <p style={{ fontWeight: 700, fontSize: 14, color: T.textPrimary, marginBottom: 6 }}>{content.exercise.title}</p>
+              <p style={{ fontSize: 13, color: T.textSecondary, lineHeight: 1.7 }}>{content.exercise.instructions}</p>
+            </div>
+          )}
+        </>
+      )}
+
       {isDone ? (
         <div style={{ padding: "16px", background: T.greenDim, border: `1px solid ${T.green}44`, borderRadius: 14, textAlign: "center" }}>
-          <p style={{ fontSize: 15, fontWeight: 800, color: T.green }}>✓ Aula concluída</p>
+          <p style={{ fontSize: 15, fontWeight: 700, color: T.green }}>Aula concluída</p>
           <p style={{ fontSize: 12, color: T.textDim, marginTop: 4 }}>Você já completou esta aula. Boa revisão!</p>
         </div>
       ) : (
         <BtnPrimary T={T} onClick={() => onConclude(phaseIdx, dayIdx)}>
-          ✓ Concluir aula · {pad(mins)}:{pad(secs)} estudados
+          Concluir aula · {pad(mins)}:{pad(secs)} estudados
         </BtnPrimary>
       )}
     </div>
@@ -737,6 +831,7 @@ export default function App() {
     body{background:${T.bg};color:${T.textPrimary};font-family:'Nunito',sans-serif;transition:background .3s,color .3s;}
     ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:${T.border};border-radius:2px}
     @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
     @keyframes pop{0%{transform:scale(.85);opacity:0}70%{transform:scale(1.04)}100%{transform:scale(1);opacity:1}}
     @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
     @keyframes pulse{0%,100%{opacity:.4;transform:scale(.95)}50%{opacity:1;transform:scale(1.05)}}
@@ -747,6 +842,19 @@ export default function App() {
     @keyframes overlayIn{from{opacity:0}to{opacity:1}}
     @keyframes splashIn{0%{opacity:0;transform:scale(.8)}100%{opacity:1;transform:scale(1)}}
     @keyframes splashOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.04)}}
+    .rv-tutor-dock{display:none}
+    .rv-tutor-float-btn{display:flex}
+    .rv-sidebar{display:none}
+    .rv-bottomnav{display:flex}
+    .rv-shell-root{padding-bottom:70px}
+    @media (min-width:880px){
+      .rv-tutor-dock{display:block}
+      .rv-tutor-float-btn{display:none}
+      .rv-sidebar{display:flex}
+      .rv-bottomnav{display:none}
+      .rv-shell-content{margin-left:196px}
+      .rv-shell-root{padding-bottom:0}
+    }
   `;
 
   return (
@@ -881,16 +989,18 @@ function OnboardingScreen({ T, user, onDone }) {
   const [challenges, setChallenges] = useState([]); const [hours, setHours] = useState(1);
   const [context, setContext] = useState(""); const [loading, setLoading] = useState(false);
   const [loadMsg, setLoadMsg] = useState(""); const [err, setErr] = useState("");
-  const TOTAL = 6;
+  const TOTAL = 7;
   const toggle = (arr, set, id) => set(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
   const stepInfo = [
     { label: "Objetivos", q: "O que você quer alcançar com IA?" },
     { label: "Área", q: "Onde você atua profissionalmente?" },
+    { label: "Contexto", q: "Conte sobre o seu dia a dia" },
     { label: "Nível", q: "Qual é sua experiência com IA?" },
     { label: "Ferramentas", q: "Quais ferramentas você já conhece?" },
     { label: "Desafios", q: "O que te trava com IA hoje?" },
-    { label: "Detalhes", q: "Informações finais para personalizar" },
+    { label: "Detalhes", q: "Última coisa" },
   ];
+  const contextPlaceholder = "ex: " + (AREA_CONTEXT_EXAMPLES[areas[0]] || AREA_CONTEXT_EXAMPLES.other);
 
   async function finish() {
     setErr(""); setLoading(true);
@@ -936,10 +1046,15 @@ function OnboardingScreen({ T, user, onDone }) {
           <h2 style={{ fontSize: 20, fontWeight: 900, marginBottom: 18, color: T.textPrimary }}>{stepInfo[step].q}</h2>
           {step === 0 && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 22 }}>{GOALS.map(g => <Chip key={g.id} T={T} label={g.label} active={goals.includes(g.id)} onClick={() => toggle(goals, setGoals, g.id)} />)}</div>}
           {step === 1 && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 22 }}>{AREAS.map(a => <Chip key={a.id} T={T} label={a.label} active={areas.includes(a.id)} onClick={() => toggle(areas, setAreas, a.id)} />)}</div>}
-          {step === 2 && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 22 }}>{LEVELS.map(l => <Chip key={l.id} T={T} label={l.label} icon={l.icon} active={level === l.id} onClick={() => setLevel(l.id)} radio />)}</div>}
-          {step === 3 && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 22 }}>{TOOLS.map(t => <Chip key={t.id} T={T} label={t.label} active={tools.includes(t.id)} onClick={() => toggle(tools, setTools, t.id)} />)}</div>}
-          {step === 4 && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 22 }}>{CHALLENGES.map(c => <Chip key={c.id} T={T} label={c.label} active={challenges.includes(c.id)} onClick={() => toggle(challenges, setChallenges, c.id)} />)}</div>}
-          {step === 5 && <>
+          {step === 2 && <>
+            <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 12, lineHeight: 1.6 }}>Essa é a parte que mais importa pra gente montar uma trilha de verdade sua — não genérica. Quanto mais específico, melhor.</p>
+            <textarea rows={5} value={context} onChange={e => setContext(e.target.value)} placeholder={contextPlaceholder} style={{ width: "100%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, color: T.textPrimary, fontFamily: "'Nunito',sans-serif", fontSize: 14, padding: "12px 14px", outline: "none", resize: "none", marginBottom: 8 }} onFocus={e => e.target.style.borderColor = T.accent} onBlur={e => e.target.style.borderColor = T.border} />
+            <p style={{ fontSize: 11, color: T.textDim }}>{context.trim().length < 15 ? "Escreva pelo menos uma frase com detalhe real." : "Ótimo, isso ajuda bastante."}</p>
+          </>}
+          {step === 3 && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 22 }}>{LEVELS.map(l => <Chip key={l.id} T={T} label={l.label} icon={l.icon} active={level === l.id} onClick={() => setLevel(l.id)} radio />)}</div>}
+          {step === 4 && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 22 }}>{TOOLS.map(t => <Chip key={t.id} T={T} label={t.label} active={tools.includes(t.id)} onClick={() => toggle(tools, setTools, t.id)} />)}</div>}
+          {step === 5 && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 22 }}>{CHALLENGES.map(c => <Chip key={c.id} T={T} label={c.label} active={challenges.includes(c.id)} onClick={() => toggle(challenges, setChallenges, c.id)} />)}</div>}
+          {step === 6 && <>
             <div style={{ marginBottom: 18 }}>
               <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
                 <p style={{ fontSize: 14, fontWeight: 700, color: T.textPrimary }}>Horas de estudo por dia</p>
@@ -947,14 +1062,12 @@ function OnboardingScreen({ T, user, onDone }) {
               </div>
               <input type="range" min={1} max={5} step={1} value={hours} onChange={e => setHours(Number(e.target.value))} style={{ width: "100%", accentColor: T.accent, background: "transparent", border: "none", padding: 0, cursor: "pointer" }} />
             </div>
-            <p style={{ fontSize: 14, fontWeight: 700, color: T.textPrimary, marginBottom: 6 }}>Conte sobre você <span style={{ color: T.textDim, fontWeight: 500, fontSize: 13 }}>(opcional mas melhora muito)</span></p>
-            <textarea rows={4} value={context} onChange={e => setContext(e.target.value)} placeholder="ex: trabalho com operações numa empresa de café, cuido de estoque e logística, tenho um projeto universitário chamado Produção 360..." style={{ width: "100%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, color: T.textPrimary, fontFamily: "'Nunito',sans-serif", fontSize: 14, padding: "12px 14px", outline: "none", resize: "none", marginBottom: 4 }} onFocus={e => e.target.style.borderColor = T.accent} onBlur={e => e.target.style.borderColor = T.border} />
             {err && <p style={{ color: T.red, fontSize: 13, marginTop: 8, marginBottom: -4 }}>{err}</p>}
           </>}
           <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
             {step > 0 && <button onClick={() => setStep(s => s - 1)} style={{ padding: "13px 18px", background: "transparent", border: `1px solid ${T.border}`, borderRadius: 12, color: T.textSecondary, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Nunito',sans-serif" }}>←</button>}
-            <BtnPrimary T={T} disabled={step === 0 ? !goals.length : step === 1 ? !areas.length : step === 2 ? !level : false} style={{ flex: 1 }} onClick={step === 5 ? finish : () => setStep(s => s + 1)}>
-              {step === 5 ? "✦ Gerar meu curso" : "Próximo →"}
+            <BtnPrimary T={T} disabled={step === 0 ? !goals.length : step === 1 ? !areas.length : step === 2 ? context.trim().length < 15 : step === 3 ? !level : false} style={{ flex: 1 }} onClick={step === 6 ? finish : () => setStep(s => s + 1)}>
+              {step === 6 ? "✦ Gerar meu curso" : "Próximo →"}
             </BtnPrimary>
           </div>
         </div>
@@ -1330,7 +1443,7 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
   }, [updateUser, addXP, addToast]);
 
   return (
-    <div style={{ minHeight: "100vh", background: T.bg, paddingBottom: 70 }}>
+    <div className="rv-shell-root" style={{ minHeight: "100vh", background: T.bg }}>
       {/* Navbar */}
       <div style={{ background: T.navBg, borderBottom: `1px solid ${T.border}`, padding: "10px 16px", display: "flex", alignItems: "center", gap: 10, position: "sticky", top: 0, zIndex: 100, backdropFilter: "blur(16px)" }}>
         <span style={{ fontSize: 16, fontWeight: 700, color: "#F2F3F7", fontFamily: "'Inter', sans-serif" }}>Riv<span style={{ color: "#6C4DFF", fontWeight: 900 }}>.IA</span></span>
@@ -1357,7 +1470,7 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
         </div>
       </div>
 
-      <div style={{ maxWidth: 720, margin: "0 auto", padding: "18px 14px" }}>
+      <div className="rv-shell-content" style={{ maxWidth: 720, margin: "0 auto", padding: "18px 14px" }}>
         {tab === "home" && <HomeTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} navTo={navTo} onProfileClick={() => setShowMiniMenu(m => !m)} />}
         {tab === "trail" && <TrailTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
         {tab === "explore" && <ExploreTab T={T} />}
@@ -1365,19 +1478,23 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
         {tab === "notes" && <NotesTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
         {tab === "estudar" && <EstudarTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
         {tab === "tutor" && <TutorTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
-        {tab === "quiz" && <QuizTab T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} />}
         {tab === "rank" && <RankTab T={T} user={user} />}
       </div>
 
-      {/* Bottom nav */}
-      <div style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: themeKey === "dark" ? "#1B1B24" : T.navBg, borderTop: `1px solid ${T.border}`, display: "flex", zIndex: 100, backdropFilter: "blur(16px)" }}>
-        {[
-          { id: "home", icon: "🏠", label: "Início" },
-          { id: "trail", icon: "📚", label: "Trilhas" },
-          { id: "explore", icon: "🔍", label: "Explorar" },
-          { id: "community", icon: "👥", label: "Comunidade" },
-          { id: "notes", icon: "📓", label: "Notas" },
-        ].map(item => (
+      {/* Sidebar nav (desktop) */}
+      <div className="rv-sidebar" style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: 196, background: T.surface, borderRight: `1px solid ${T.border}`, flexDirection: "column", padding: "18px 10px", zIndex: 90 }}>
+        <p style={{ fontSize: 15, fontWeight: 700, color: T.textPrimary, padding: "0 8px", marginBottom: 22 }}>Riv<span style={{ color: T.accent }}>.IA</span></p>
+        {NAV_ITEMS.map(item => (
+          <button key={item.id} onClick={() => setTab(item.id)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 10px", borderRadius: 8, background: tab === item.id ? T.accentDim : "transparent", border: "none", cursor: "pointer", textAlign: "left", marginBottom: 2 }}>
+            <span style={{ fontSize: 16, opacity: tab === item.id ? 1 : 0.55 }}>{item.icon}</span>
+            <span style={{ fontSize: 13, fontWeight: tab === item.id ? 700 : 500, color: tab === item.id ? T.accent : T.textSecondary }}>{item.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Bottom nav (mobile) */}
+      <div className="rv-bottomnav" style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: themeKey === "dark" ? "#1B1B24" : T.navBg, borderTop: `1px solid ${T.border}`, zIndex: 100, backdropFilter: "blur(16px)" }}>
+        {NAV_ITEMS.map(item => (
           <button key={item.id} onClick={() => setTab(item.id)} style={{ flex: 1, padding: "8px 0 9px", background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2, fontFamily: "'Nunito',sans-serif" }}>
             <span style={{ fontSize: 18, filter: tab === item.id ? "none" : "grayscale(80%) opacity(.45)", transform: tab === item.id ? "scale(1.16)" : "scale(1)", transition: "all .15s", color: tab === item.id && item.id === "tutor" ? T.accent : undefined }}>{item.icon}</span>
             <span style={{ fontSize: 9, fontWeight: tab === item.id ? 800 : 500, color: tab === item.id ? (themeKey === "dark" ? "#6C4DFF" : T.accent) : (themeKey === "dark" ? "#9CA3AF" : T.textDim) }}>{item.label}</span>
@@ -1566,9 +1683,7 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
     (p.days || []).every((_, di) => completedTopics.includes(`${pi}_${di}`))
   ).length;
 
-  const avgScore = user.quizHistory?.length > 0
-    ? Math.round(user.quizHistory.reduce((s, h) => s + (h.score / h.total * 100), 0) / user.quizHistory.length)
-    : null;
+  const tutorQuestions = user.chatHistory?.filter(m => m.role === "user").length || 0;
 
   const [rank, setRank] = useState(null);
   useEffect(() => {
@@ -1594,7 +1709,7 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
 
   const HOME_MISSIONS = [
     { id: "home_study_15", icon: "📚", label: "Estudar por 15 min",    xp: 30, hint: "Vá para a aba Trilhas e estude" },
-    { id: "home_quiz",     icon: "🧠", label: "Fazer o quiz do dia",   xp: 50, hint: "Complete um quiz na aba Quiz" },
+    { id: "home_review",   icon: "💬", label: "Revisar com o tutor",   xp: 50, hint: "Peça uma revisão de um tema no Tutor" },
     { id: "home_tutor",    icon: "💬", label: "Perguntar ao tutor",    xp: 20, hint: "Envie uma mensagem ao Tutor" },
   ];
 
@@ -1616,10 +1731,10 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 22 }}>
         <div>
-          <h1 style={{ fontSize: 22, fontWeight: 900, color: T.textPrimary, marginBottom: 3 }}>Olá, {displayName}! 👋</h1>
+          <h1 style={{ fontSize: 21, fontWeight: 700, color: T.textPrimary, marginBottom: 3 }}>Olá, {displayName}</h1>
           <p style={{ fontSize: 13, color: T.textSecondary }}>{subtitle}</p>
         </div>
-        <button onClick={onProfileClick} style={{ width: 44, height: 44, borderRadius: 13, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, border: "none", display: "flex", alignItems: "center", justifyContent: "center", fontSize: user.settings?.avatarType === "photo" || !user.settings?.avatar ? 16 : 20, fontWeight: 900, color: "#fff", cursor: "pointer", flexShrink: 0, overflow: "hidden" }}>
+        <button onClick={onProfileClick} style={{ width: 40, height: 40, borderRadius: 10, background: T.surface, border: `1px solid ${T.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: user.settings?.avatarType === "photo" || !user.settings?.avatar ? 14 : 18, fontWeight: 700, color: T.textPrimary, cursor: "pointer", flexShrink: 0, overflow: "hidden" }}>
           {user.settings?.avatarType === "photo" && getProfilePhoto()
             ? <img src={getProfilePhoto()} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
             : (user.settings?.avatarType === "emoji" ? user.settings.avatar : (user.settings?.avatar || (user.name || "?")[0].toUpperCase()))
@@ -1627,42 +1742,29 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
         </button>
       </div>
 
-      {/* Card "Sua jornada" */}
+      {/* Card "Sua trilha" */}
       {user.course && (
-        <Card T={T} glow style={{ marginBottom: 14 }}>
-          <p style={{ fontSize: 11, fontWeight: 800, color: T.accent, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 6, fontFamily: "'JetBrains Mono',monospace" }}>Sua jornada</p>
-          <p style={{ fontWeight: 900, fontSize: 16, color: T.textPrimary, marginBottom: 12 }}>{user.course.headline || user.course.title || "Trilha atual"}</p>
+        <Card T={T} style={{ marginBottom: 14 }}>
+          <p style={{ fontSize: 11, fontWeight: 700, color: T.textSecondary, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Sua trilha</p>
+          <p style={{ fontWeight: 700, fontSize: 16, color: T.textPrimary, marginBottom: 12 }}>{user.course.headline || user.course.title || "Trilha atual"}</p>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
             <span style={{ fontSize: 12, color: T.textSecondary }}>{completedTopics.length} de {totalTopics} aulas</span>
-            <span style={{ fontSize: 14, fontWeight: 900, color: T.accent, fontFamily: "'JetBrains Mono',monospace" }}>{progressPct}%</span>
+            <span style={{ fontSize: 13, fontWeight: 700, color: T.textPrimary, fontFamily: "'JetBrains Mono',monospace" }}>{progressPct}%</span>
           </div>
-          <div style={{ height: 8, background: T.border, borderRadius: 6, overflow: "hidden", marginBottom: 14 }}>
-            <div style={{ height: 8, background: allDone ? `linear-gradient(90deg,${T.green},#00ffcc)` : "linear-gradient(90deg,#6C4DFF,#8b84ff)", width: progressPct + "%", borderRadius: 6, transition: "width .6s ease" }} />
+          <div style={{ height: 6, background: T.border, borderRadius: 4, overflow: "hidden", marginBottom: 14 }}>
+            <div style={{ height: 6, background: allDone ? T.green : T.accent, width: progressPct + "%", borderRadius: 4, transition: "width .6s ease" }} />
           </div>
           <button onClick={() => navTo("trail")}
-            onMouseEnter={e => e.currentTarget.style.opacity = ".85"}
-            onMouseLeave={e => e.currentTarget.style.opacity = "1"}
-            style={{ width: "100%", padding: "12px 0", background: "linear-gradient(135deg,#6C4DFF,#8b84ff)", border: "none", borderRadius: 11, color: "#fff", fontSize: 14, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", transition: "opacity .15s" }}>
-            {allDone ? "🎉 Trilha concluída!" : "Continuar trilha →"}
+            style={{ width: "100%", padding: "12px 0", background: allDone ? T.green : T.accent, border: "none", borderRadius: 9, color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: "'Nunito',sans-serif", cursor: "pointer" }}>
+            {allDone ? "Trilha concluída" : "Continuar trilha →"}
           </button>
         </Card>
-      )}
-
-      {/* Card streak */}
-      {(user.streak || 0) > 0 && (
-        <div style={{ display: "flex", alignItems: "center", gap: 14, padding: "13px 16px", background: T.redDim, border: `1px solid ${T.red}33`, borderRadius: 14, marginBottom: 14 }}>
-          <span style={{ fontSize: 28, flexShrink: 0 }}>🔥</span>
-          <div>
-            <p style={{ fontWeight: 900, fontSize: 14, color: T.textPrimary }}>Você está em <span style={{ color: T.red }}>{user.streak} dias seguidos!</span></p>
-            <p style={{ fontSize: 12, color: T.textSecondary, marginTop: 2 }}>Continue assim e não quebre sua sequência.</p>
-          </div>
-        </div>
       )}
 
       {/* Missões do dia */}
       <Card T={T} style={{ marginBottom: 14 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-          <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", fontFamily: "'JetBrains Mono',monospace" }}>Missões do dia</p>
+          <p style={{ fontSize: 11, fontWeight: 700, color: T.textSecondary, textTransform: "uppercase", letterSpacing: ".08em" }}>Metas de hoje</p>
           <span style={{ fontSize: 11, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>{HOME_MISSIONS.filter(m => completedMissions.includes(m.id + "_" + today)).length}/{HOME_MISSIONS.length}</span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -1670,48 +1772,45 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
             const done = completedMissions.includes(m.id + "_" + today);
             const isStudy = m.id === "home_study_15";
             return (
-              <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: done ? T.greenDim : T.surface, border: `1px solid ${done ? T.green + "44" : T.border}`, borderRadius: 11, cursor: "default", transition: "all .2s" }}>
-                <div style={{ width: 22, height: 22, borderRadius: 7, border: `2px solid ${done ? T.green : T.border}`, background: done ? T.green : "transparent", color: "#fff", fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all .2s" }}>{done ? "✓" : ""}</div>
-                <span style={{ fontSize: 16 }}>{m.icon}</span>
+              <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "default" }}>
+                <div style={{ width: 20, height: 20, borderRadius: 6, border: `1.5px solid ${done ? T.green : T.border}`, background: done ? T.green : "transparent", color: "#fff", fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{done ? "✓" : ""}</div>
                 <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontWeight: 700, fontSize: 13, color: done ? T.green : T.textPrimary, textDecoration: done ? "line-through" : "none" }}>{m.label}</p>
+                  <p style={{ fontWeight: 600, fontSize: 13, color: done ? T.textSecondary : T.textPrimary, textDecoration: done ? "line-through" : "none" }}>{m.label}</p>
                   {!done && isStudy && (
                     <div style={{ marginTop: 4 }}>
                       <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-                        <span style={{ fontSize: 10, color: T.textSecondary, fontFamily: "'JetBrains Mono',monospace" }}>
+                        <span style={{ fontSize: 10, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>
                           {studyMin}:{String(studySecRem).padStart(2, "0")} / 15:00
                         </span>
-                        <span style={{ fontSize: 10, color: T.accent, fontFamily: "'JetBrains Mono',monospace" }}>{studyPct}%</span>
+                        <span style={{ fontSize: 10, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>{studyPct}%</span>
                       </div>
                       <div style={{ height: 3, background: T.border, borderRadius: 3, overflow: "hidden" }}>
-                        <div style={{ height: 3, background: "linear-gradient(90deg,#6C4DFF,#8b84ff)", width: studyPct + "%", borderRadius: 3, transition: "width .5s ease" }} />
+                        <div style={{ height: 3, background: T.accent, width: studyPct + "%", borderRadius: 3, transition: "width .5s ease" }} />
                       </div>
                     </div>
                   )}
                   {!done && !isStudy && (
-                    <p style={{ fontSize: 10, color: T.textDim, marginTop: 2 }}>{m.hint}</p>
+                    <p style={{ fontSize: 11, color: T.textDim, marginTop: 2 }}>{m.hint}</p>
                   )}
                 </div>
-                <span style={{ fontSize: 11, fontWeight: 800, color: T.amber, fontFamily: "'JetBrains Mono',monospace", flexShrink: 0 }}>+{m.xp} XP</span>
               </div>
             );
           })}
         </div>
       </Card>
 
-      {/* Card "Seu desempenho" */}
+      {/* Card "Seu progresso" */}
       <Card T={T} style={{ marginBottom: 14 }}>
-        <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 12, fontFamily: "'JetBrains Mono',monospace" }}>Seu desempenho</p>
+        <p style={{ fontSize: 11, fontWeight: 700, color: T.textSecondary, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 12 }}>Seu progresso</p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
           {[
-            { icon: "🏁", value: completedPhases, suffix: "", label: "Trilhas\nconcluídas" },
-            { icon: "🎯", value: avgScore !== null ? avgScore : "—", suffix: avgScore !== null ? "%" : "", label: "Aprovei-\ntamento" },
-            { icon: "🏆", value: rank ? `#${rank}` : "—", suffix: "", label: "Posição no\nranking" },
+            { value: completedPhases, suffix: "", label: "Trilhas\nconcluídas" },
+            { value: tutorQuestions, suffix: "", label: "Perguntas\nao tutor" },
+            { value: rank ? `#${rank}` : "—", suffix: "", label: "Posição no\nranking" },
           ].map(m => (
-            <div key={m.label} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 13, padding: "13px 8px", textAlign: "center" }}>
-              <div style={{ fontSize: 19, marginBottom: 5 }}>{m.icon}</div>
-              <p style={{ fontSize: 17, fontWeight: 900, color: T.accent, fontFamily: "'JetBrains Mono',monospace", lineHeight: 1 }}>{m.value}{m.suffix}</p>
-              <p style={{ fontSize: 10, color: T.textDim, marginTop: 5, lineHeight: 1.35, whiteSpace: "pre-line" }}>{m.label}</p>
+            <div key={m.label} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, padding: "13px 8px", textAlign: "center" }}>
+              <p style={{ fontSize: 18, fontWeight: 700, color: T.textPrimary, fontFamily: "'JetBrains Mono',monospace", lineHeight: 1 }}>{m.value}{m.suffix}</p>
+              <p style={{ fontSize: 10, color: T.textDim, marginTop: 6, lineHeight: 1.35, whiteSpace: "pre-line" }}>{m.label}</p>
             </div>
           ))}
         </div>
@@ -1721,21 +1820,21 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
       {phasesToShow.length > 0 && (
         <div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
-            <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", fontFamily: "'JetBrains Mono',monospace" }}>Continuar aprendendo</p>
-            <button onClick={() => navTo("trail")} style={{ background: "none", border: "none", color: T.accent, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'Nunito',sans-serif" }}>Ver todas →</button>
+            <p style={{ fontSize: 11, fontWeight: 700, color: T.textSecondary, textTransform: "uppercase", letterSpacing: ".08em" }}>Continuar aprendendo</p>
+            <button onClick={() => navTo("trail")} style={{ background: "none", border: "none", color: T.accent, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "'Nunito',sans-serif" }}>Ver todas →</button>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {phasesToShow.map(({ phase, pi, pct }) => (
               <Card T={T} key={pi} style={{ padding: "13px 14px", cursor: "pointer" }} onClick={() => navTo("trail")}>
                 <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-                  <div style={{ width: 38, height: 38, borderRadius: 11, background: T.accentDim, border: `1px solid ${T.accent}33`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18, flexShrink: 0 }}>📚</div>
+                  <div style={{ width: 34, height: 34, borderRadius: 8, background: T.surface, border: `1px solid ${T.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 700, color: T.textSecondary, flexShrink: 0, fontFamily: "'JetBrains Mono',monospace" }}>{String(pi + 1).padStart(2, "0")}</div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <p style={{ fontWeight: 800, fontSize: 13, color: T.textPrimary, marginBottom: 6, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{phase.title}</p>
+                    <p style={{ fontWeight: 600, fontSize: 13, color: T.textPrimary, marginBottom: 6, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{phase.title}</p>
                     <div style={{ height: 4, background: T.border, borderRadius: 4, overflow: "hidden" }}>
-                      <div style={{ height: 4, background: "linear-gradient(90deg,#6C4DFF,#8b84ff)", width: pct + "%", borderRadius: 4, transition: "width .6s ease" }} />
+                      <div style={{ height: 4, background: T.accent, width: pct + "%", borderRadius: 4, transition: "width .6s ease" }} />
                     </div>
                   </div>
-                  <span style={{ fontSize: 12, fontWeight: 800, color: T.accent, fontFamily: "'JetBrains Mono',monospace", flexShrink: 0, marginLeft: 6 }}>{pct}%</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: T.textSecondary, fontFamily: "'JetBrains Mono',monospace", flexShrink: 0, marginLeft: 6 }}>{pct}%</span>
                 </div>
               </Card>
             ))}
@@ -1849,123 +1948,6 @@ function EstudarTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   );
 }
 
-// ─── Module Quiz Screen ────────────────────────────────────────────────────
-function ModuleQuizScreen({ T, user, phase, onBack, onComplete }) {
-  const [quiz, setQuiz] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [current, setCurrent] = useState(0);
-  const [selected, setSelected] = useState(null);
-  const [answered, setAnswered] = useState(false);
-  const [score, setScore] = useState(0);
-  const [finished, setFinished] = useState(false);
-  const [err, setErr] = useState("");
-
-  useEffect(() => {
-    generateModuleQuiz(user.profile, phase)
-      .then(q => setQuiz(q))
-      .catch(e => setErr("Erro ao gerar quiz: " + e.message))
-      .finally(() => setLoading(false));
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  function answer(idx) {
-    if (answered) return;
-    setSelected(idx); setAnswered(true);
-    if (idx === quiz.questions[current].answer) setScore(s => s + 1);
-  }
-
-  function next() {
-    if (current + 1 >= quiz.questions.length) {
-      setFinished(true);
-    } else {
-      setCurrent(c => c + 1); setSelected(null); setAnswered(false);
-    }
-  }
-
-  if (loading) return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 300, gap: 16, animation: "fadeUp .4s ease" }}>
-      <div style={{ fontSize: 42, animation: "pulse 1.2s ease-in-out infinite" }}>🧠</div>
-      <p style={{ fontWeight: 800, color: T.textPrimary }}>Gerando quiz do módulo...</p>
-      <p style={{ fontSize: 13, color: T.textSecondary }}>{phase?.title}</p>
-    </div>
-  );
-
-  if (err) return (
-    <div style={{ animation: "fadeUp .4s ease" }}>
-      <button onClick={onBack} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Nunito',sans-serif", marginBottom: 16 }}>← Voltar</button>
-      <p style={{ color: T.red, fontSize: 13 }}>{err}</p>
-    </div>
-  );
-
-  if (finished) return (
-    <div style={{ animation: "fadeUp .4s ease", textAlign: "center" }}>
-      <Card T={T} style={{ padding: "36px 24px" }}>
-        <div style={{ fontSize: 52, marginBottom: 12 }}>{score === quiz.questions.length ? "🏆" : score >= quiz.questions.length * 0.6 ? "⭐" : "💪"}</div>
-        <h2 style={{ fontSize: 22, fontWeight: 900, color: T.textPrimary, marginBottom: 6 }}>{score === quiz.questions.length ? "Perfeito!" : score >= quiz.questions.length * 0.6 ? "Muito bem!" : "Continue praticando!"}</h2>
-        <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 8 }}>Módulo: {phase?.title}</p>
-        <p style={{ fontSize: 32, fontWeight: 900, color: T.accent, marginBottom: 4, fontFamily: "'JetBrains Mono',monospace" }}>{score}/{quiz.questions.length}</p>
-        <p style={{ color: T.green, fontSize: 14, fontWeight: 700, marginBottom: 20 }}>+{score * 20 + 30} XP · Módulo marcado como concluído! ✓</p>
-        <BtnPrimary T={T} onClick={() => onComplete(score, quiz.questions.length)}>← Voltar à trilha</BtnPrimary>
-      </Card>
-    </div>
-  );
-
-  if (!quiz) return null;
-  const q = quiz.questions[current];
-  return (
-    <div style={{ animation: "fadeUp .4s ease" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-        <button onClick={onBack} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Nunito',sans-serif", flexShrink: 0 }}>← Voltar</button>
-        <div>
-          <p style={{ fontSize: 10, color: T.accent, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".06em" }}>Quiz do Módulo</p>
-          <p style={{ fontSize: 14, fontWeight: 900, color: T.textPrimary }}>{phase?.title}</p>
-        </div>
-      </div>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-        <span style={{ fontSize: 13, fontWeight: 800, color: T.textPrimary }}>{quiz.title}</span>
-        <span style={{ fontSize: 12, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>{current + 1}/{quiz.questions.length}</span>
-      </div>
-      <div style={{ height: 4, background: T.border, borderRadius: 4, marginBottom: 18, overflow: "hidden" }}>
-        <div style={{ height: 4, background: T.accent, width: ((current / quiz.questions.length) * 100) + "%", borderRadius: 4, transition: "width .4s ease" }} />
-      </div>
-      <Card T={T} style={{ marginBottom: 14 }}>
-        <p style={{ fontSize: 15, fontWeight: 700, color: T.textPrimary, lineHeight: 1.5 }}>{q.q}</p>
-      </Card>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
-        {q.options.map((opt, i) => {
-          const isCorrect = i === q.answer;
-          const isSelected = i === selected;
-          let bg = T.surface, border = T.border, color = T.textPrimary, fontWeight = 500;
-          if (answered) {
-            if (isCorrect) { bg = T.greenDim; border = T.green + "88"; color = T.green; fontWeight = 700; }
-            else if (isSelected) { bg = T.redDim; border = T.red + "88"; color = T.red; fontWeight = 700; }
-          } else if (isSelected) { bg = T.accentDim; border = T.accent; }
-          return (
-            <div key={i} onClick={() => answer(i)} style={{ padding: "13px 15px", background: bg, border: `2px solid ${border}`, borderRadius: 12, fontSize: 14, fontWeight, color, cursor: answered ? "default" : "pointer", transition: "all .2s", display: "flex", alignItems: "center", gap: 10 }}>
-              <span style={{ width: 24, height: 24, borderRadius: "50%", border: `2px solid ${border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 900, flexShrink: 0, background: answered && isCorrect ? T.green : answered && isSelected ? T.red : "transparent", color: answered && (isCorrect || isSelected) ? "#fff" : color }}>{answered && isCorrect ? "✓" : answered && isSelected ? "✗" : String.fromCharCode(65 + i)}</span>
-              {opt}
-            </div>
-          );
-        })}
-      </div>
-      {answered && (() => {
-        const correct = selected === q.answer;
-        return (
-          <div style={{ marginBottom: 12, borderRadius: 14, overflow: "hidden", border: `1px solid ${correct ? T.green + "55" : T.red + "55"}` }}>
-            <div style={{ padding: "10px 14px", background: correct ? T.green : T.red, display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 16 }}>{correct ? "✓" : "✗"}</span>
-              <p style={{ fontWeight: 800, fontSize: 14, color: "#fff" }}>{correct ? "Resposta correta!" : "Resposta incorreta!"}</p>
-            </div>
-            <div style={{ padding: "12px 14px", background: correct ? T.greenDim : T.redDim }}>
-              <p style={{ fontSize: 13, color: T.textPrimary, lineHeight: 1.65 }}><span style={{ fontWeight: 800, color: correct ? T.green : T.red }}>💡 </span>{q.explanation}</p>
-            </div>
-          </div>
-        );
-      })()}
-      {answered && <BtnPrimary T={T} onClick={next}>{current + 1 >= quiz.questions.length ? "Ver resultado →" : "Próxima pergunta →"}</BtnPrimary>}
-    </div>
-  );
-}
-
 // ─── Trail Tab ─────────────────────────────────────────────────────────────
 function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const [openPhase, setOpenPhase] = useState(-1);
@@ -1973,7 +1955,6 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const [lessonView, setLessonView] = useState(null); // {phaseIdx, dayIdx} or null
   const [openPrompts, setOpenPrompts] = useState(new Set());
   const [showTrailTutor, setShowTrailTutor] = useState(false);
-  const [moduleQuiz, setModuleQuiz] = useState(null); // {phaseIdx} or null
   const [tutorBtnMounted, setTutorBtnMounted] = useState(false);
   const studySecRef = useRef(0);
   if (studySecRef.current === 0) {
@@ -2005,6 +1986,11 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   }
   const course = user.course;
   const completedTopics = user.completedTopics || [];
+  const tutorDock = (
+    <div className="rv-tutor-dock" style={{ width: 320, flexShrink: 0, position: "sticky", top: 18, height: "calc(100vh - 110px)" }}>
+      <TutorPanel T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} lessonContext={null} dock />
+    </div>
+  );
 
   function concludeLesson(phaseIdx, dayIdx) {
     const key = `${phaseIdx}_${dayIdx}`;
@@ -2019,28 +2005,6 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   }
 
   if (!course) return <div style={{ textAlign: "center", padding: 40, color: T.textSecondary }}>Nenhum curso encontrado.</div>;
-
-  if (moduleQuiz) {
-    const phase = course.phases[moduleQuiz.phaseIdx];
-    return (
-      <ModuleQuizScreen
-        T={T}
-        user={user}
-        phase={phase}
-        onBack={() => setModuleQuiz(null)}
-        onComplete={(score, total) => {
-          const xpGained = score * 20 + 30;
-          const newKeys = (phase.days || []).map((_, di) => `${moduleQuiz.phaseIdx}_${di}`);
-          const newCompleted = [...new Set([...completedTopics, ...newKeys])];
-          updateUser({ ...user, completedTopics: newCompleted });
-          addXP(xpGained);
-          completeMission("do_quiz");
-          completeMission("home_quiz");
-          setModuleQuiz(null);
-        }}
-      />
-    );
-  }
 
   if (lessonView) {
     return (
@@ -2061,112 +2025,131 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
     );
   }
 
+  // ─── Module page (literal "open notebook") ───────────────────────────────
+  if (openPhase !== -1 && course.phases?.[openPhase]) {
+    const pi = openPhase;
+    const phase = course.phases[pi];
+    const col = getPC(phase.color, T);
+    const icon = pickModuleIcon(phase.title, pi);
+    const days = phase.days || [];
+    return (
+      <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+      <div style={{ animation: "fadeUp .4s ease", flex: 1, minWidth: 0 }}>
+        {showTrailTutor && <TutorPanel T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} lessonContext={null} onClose={() => setShowTrailTutor(false)} />}
+        <button onClick={() => setOpenPhase(-1)} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Nunito',sans-serif", marginBottom: 18 }}>← Voltar aos módulos</button>
+
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
+          <div style={{ width: 44, height: 44, borderRadius: 10, background: col.bg, border: `1px solid ${col.border}`, display: "flex", alignItems: "center", justifyContent: "center", color: col.text, flexShrink: 0 }}>
+            <ModuleIcon name={icon} color={col.text} />
+          </div>
+          <div>
+            <p style={{ fontSize: 17, fontWeight: 700, color: T.textPrimary, marginBottom: 2 }}>{phase.title}</p>
+            <p style={{ fontSize: 12, color: T.textSecondary }}>{days.length} aula{days.length === 1 ? "" : "s"}</p>
+          </div>
+        </div>
+
+        <div style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 14, overflow: "hidden" }}>
+          {days.map((day, di) => {
+            const key = `${pi}_${di}`;
+            const lessonDone = completedTopics.includes(key);
+            const isFirstLesson = pi === 0 && di === 0;
+            return (
+              <div key={di} onClick={() => setLessonView({ phaseIdx: pi, dayIdx: di })} style={{ display: "flex", gap: 12, padding: "14px 16px", borderTop: di === 0 ? "none" : `1px solid ${T.border}`, cursor: "pointer" }}>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontWeight: 600, fontSize: 14, color: T.textPrimary, marginBottom: 3, textDecoration: lessonDone ? "line-through" : "none" }}>{day.title}</p>
+                  <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 6, lineHeight: 1.5 }}>{day.description}</p>
+                  <span style={{ fontSize: 10, background: col.bg, color: col.text, padding: "2px 8px", borderRadius: 5, border: `1px solid ${col.border}`, fontWeight: 600 }}>{day.tag}</span>
+                  {isFirstLesson && course.first_prompt && (
+                    <div onClick={e => e.stopPropagation()} style={{ marginTop: 10 }}>
+                      {!openPrompts.has(key) ? (
+                        <button onClick={e => togglePrompt(key, e)} style={{ padding: "5px 12px", background: T.accentDim, border: `1px solid ${T.accent}44`, borderRadius: 8, color: T.accent, fontSize: 12, fontWeight: 600, fontFamily: "'Nunito',sans-serif", cursor: "pointer" }}>Ver prompt</button>
+                      ) : (
+                        <div style={{ padding: "12px 14px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 10 }}>
+                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+                            <p style={{ fontSize: 10, fontWeight: 700, color: T.accent, textTransform: "uppercase", letterSpacing: ".06em" }}>Prompt inicial</p>
+                            <button onClick={e => togglePrompt(key, e)} style={{ background: "none", border: "none", color: T.textDim, fontSize: 14, cursor: "pointer", lineHeight: 1 }}>✕</button>
+                          </div>
+                          <p style={{ fontSize: 12, color: T.textSecondary, lineHeight: 1.7, fontStyle: "italic", marginBottom: 10 }}>"{course.first_prompt}"</p>
+                          <button onClick={e => { e.stopPropagation(); navigator.clipboard?.writeText(course.first_prompt); setCopied(true); addXP(5); setTimeout(() => setCopied(false), 2000); }} style={{ padding: "7px 14px", background: T.accent, border: "none", borderRadius: 8, color: "#fff", fontSize: 12, fontWeight: 700, fontFamily: "'Nunito',sans-serif", cursor: "pointer" }}>{copied ? "Copiado!" : "Copiar prompt"}</button>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+                <div style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
+                  <div style={{ width: 24, height: 24, borderRadius: 7, border: `1.5px solid ${lessonDone ? T.green : T.border}`, background: lessonDone ? T.green : "transparent", color: lessonDone ? "#fff" : T.textDim, fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center" }}>{lessonDone ? "✓" : "▶"}</div>
+                </div>
+              </div>
+            );
+          })}
+          <div style={{ padding: "12px 16px", borderTop: `1px solid ${T.border}` }}>
+            <button onClick={() => setShowTrailTutor(true)} style={{ width: "100%", padding: "11px 0", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 9, color: T.accent, fontSize: 13, fontWeight: 600, fontFamily: "'Nunito',sans-serif", cursor: "pointer" }}>
+              Revisar este módulo com o tutor
+            </button>
+          </div>
+        </div>
+      </div>
+      {tutorDock}
+      </div>
+    );
+  }
+
   const totalTopics = course.phases?.reduce((s, p) => s + (p.days?.length || 0), 0) || 1;
   const progressPct = Math.round((completedTopics.length / totalTopics) * 100);
 
   return (
-    <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
+    <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
+    <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden', flex: 1, minWidth: 0 }}>
       <img src="/bg-trilhas.svg" alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.08, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
-      {/* Floating tutor button — rendered via Portal directly in document.body */}
+      {/* Floating tutor button (mobile only) — rendered via Portal directly in document.body */}
       {tutorBtnMounted && !showTrailTutor && ReactDOM.createPortal(
-        <button onClick={() => setShowTrailTutor(true)} style={{ position: 'fixed', bottom: '90px', right: '20px', zIndex: 9999, background: "#6C4DFF", border: "none", borderRadius: 22, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", boxShadow: "0 4px 20px #6C4DFF55", display: "flex", alignItems: "center", gap: 7 }}>
-          <span style={{ fontSize: 16 }}>💬</span> Tutor
+        <button className="rv-tutor-float-btn" onClick={() => setShowTrailTutor(true)} style={{ position: 'fixed', bottom: '90px', right: '20px', zIndex: 9999, background: T.accent, border: "none", borderRadius: 10, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 700, fontFamily: "'Nunito',sans-serif", cursor: "pointer" }}>
+          Tutor
         </button>,
         document.body
       )}
       {showTrailTutor && <TutorPanel T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} lessonContext={null} onClose={() => setShowTrailTutor(false)} />}
 
       {/* Header */}
-      <h2 style={{ fontSize: 20, fontWeight: 900, color: T.textPrimary, marginBottom: 4 }}>{course.headline || "Sua trilha"}</h2>
+      <h2 style={{ fontSize: 19, fontWeight: 700, color: T.textPrimary, marginBottom: 4 }}>{course.headline || "Sua trilha"}</h2>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
         <p style={{ fontSize: 13, color: T.textSecondary }}>Seu progresso:</p>
-        <span style={{ fontSize: 13, fontWeight: 900, color: "#6C4DFF", fontFamily: "'JetBrains Mono',monospace" }}>{progressPct}%</span>
+        <span style={{ fontSize: 13, fontWeight: 700, color: T.textPrimary, fontFamily: "'JetBrains Mono',monospace" }}>{progressPct}%</span>
       </div>
-      <div style={{ height: 7, background: T.border, borderRadius: 6, overflow: "hidden", marginBottom: 22 }}>
-        <div style={{ height: 7, background: "linear-gradient(90deg,#6C4DFF,#8b84ff)", width: progressPct + "%", borderRadius: 6, transition: "width .6s ease" }} />
+      <div style={{ height: 6, background: T.border, borderRadius: 4, overflow: "hidden", marginBottom: 22 }}>
+        <div style={{ height: 6, background: T.accent, width: progressPct + "%", borderRadius: 4, transition: "width .6s ease" }} />
       </div>
 
-      {/* Modules */}
-      <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 12, fontFamily: "'JetBrains Mono',monospace" }}>Módulos</p>
-      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {/* Módulos — capas de caderno */}
+      <p style={{ fontSize: 11, fontWeight: 700, color: T.textSecondary, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 12 }}>Seus cadernos</p>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         {course.phases?.map((phase, pi) => {
           const col = getPC(phase.color, T);
+          const icon = pickModuleIcon(phase.title, pi);
           const total = phase.days?.length || 0;
           const done = (phase.days || []).filter((_, di) => completedTopics.includes(`${pi}_${di}`)).length;
           const prevAccessible = pi === 0 || completedTopics.some(k => k.startsWith(`${pi - 1}_`));
           const status = done === total && total > 0 ? "done" : done > 0 ? "inProgress" : prevAccessible ? "next" : "locked";
-          const isOpen = openPhase === pi;
           const isAccessible = status !== "locked";
-          const s = { done: { icon: "✅", label: "Concluído", color: T.green }, inProgress: { icon: "🟡", label: "Em andamento", color: T.amber }, next: { icon: "⚪", label: "Próximo módulo", color: T.textSecondary }, locked: { icon: "🔒", label: "Bloqueado", color: T.textDim } }[status];
+          const s = { done: { label: "Concluído", color: T.green }, inProgress: { label: `${done}/${total}`, color: T.amber }, next: { label: "Começar", color: T.textSecondary }, locked: { label: "Bloqueado", color: T.textDim } }[status];
           return (
-            <div key={pi}>
-              {/* Module header */}
-              <div onClick={() => isAccessible && setOpenPhase(isOpen ? -1 : pi)} style={{ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", background: T.card, border: `1px solid ${isOpen ? "#6C4DFF44" : T.border}`, borderRadius: isOpen ? "14px 14px 0 0" : 14, cursor: isAccessible ? "pointer" : "default", opacity: status === "locked" ? 0.5 : 1, transition: "all .2s" }}>
-                <div style={{ width: 36, height: 36, borderRadius: 10, background: isOpen ? "#6C4DFF18" : T.surface, border: `1.5px solid ${isOpen ? "#6C4DFF66" : T.border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 900, color: isOpen ? "#6C4DFF" : T.textDim, flexShrink: 0 }}>{pi + 1}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontWeight: 800, fontSize: 14, color: status === "locked" ? T.textDim : T.textPrimary, marginBottom: 4 }}>{phase.title}</p>
-                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                    <span style={{ fontSize: 12 }}>{s.icon}</span>
-                    <span style={{ fontSize: 11, fontWeight: 700, color: s.color }}>{s.label}</span>
-                    {total > 0 && <span style={{ fontSize: 10, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>· {done}/{total}</span>}
-                  </div>
+            <div key={pi} onClick={() => isAccessible && setOpenPhase(pi)} style={{ borderRadius: 14, overflow: "hidden", border: `1px solid ${col.border}`, cursor: isAccessible ? "pointer" : "default", opacity: isAccessible ? 1 : 0.5 }}>
+              <div style={{ height: 5, background: col.dot }} />
+              <div style={{ background: col.bg, padding: "14px 12px" }}>
+                <div style={{ width: 34, height: 34, borderRadius: 9, background: T.card, border: `1px solid ${col.border}`, display: "flex", alignItems: "center", justifyContent: "center", color: col.text, marginBottom: 10 }}>
+                  <ModuleIcon name={icon} size={17} color={col.text} />
                 </div>
-                {isAccessible && <span style={{ color: T.textDim, fontSize: 16, display: "inline-block", transition: "transform .2s", transform: isOpen ? "rotate(180deg)" : "rotate(0deg)" }}>▾</span>}
+                <p style={{ fontWeight: 600, fontSize: 13, color: status === "locked" ? T.textDim : T.textPrimary, marginBottom: 6, lineHeight: 1.35 }}>{phase.title}</p>
+                <span style={{ fontSize: 11, fontWeight: 600, color: s.color }}>{s.label}</span>
               </div>
-
-              {/* Lessons (expanded) */}
-              {isOpen && isAccessible && (
-                <div style={{ background: T.card, border: "1px solid #6C4DFF44", borderTop: `1px solid ${T.border}`, borderRadius: "0 0 14px 14px" }}>
-                  {(phase.days || []).map((day, di) => {
-                    const key = `${pi}_${di}`;
-                    const lessonDone = completedTopics.includes(key);
-                    const isFirstLesson = pi === 0 && di === 0;
-                    return (
-                      <div key={di} onClick={() => setLessonView({ phaseIdx: pi, dayIdx: di })} style={{ display: "flex", gap: 12, padding: "12px 16px", borderTop: di === 0 ? "none" : `1px solid ${T.border}`, cursor: "pointer" }}>
-                        <div style={{ minWidth: 48, fontSize: 10, fontWeight: 700, color: col.text, paddingTop: 2, fontFamily: "'JetBrains Mono',monospace" }}>{day.period}</div>
-                        <div style={{ flex: 1 }}>
-                          <p style={{ fontWeight: 700, fontSize: 13, color: T.textPrimary, marginBottom: 3, textDecoration: lessonDone ? "line-through" : "none" }}>{day.title}</p>
-                          <p style={{ fontSize: 12, color: T.textSecondary, marginBottom: 6, lineHeight: 1.5 }}>{day.description}</p>
-                          <span style={{ fontSize: 10, background: col.bg, color: col.text, padding: "2px 8px", borderRadius: 5, border: `1px solid ${col.border}`, fontWeight: 700 }}>{day.tag}</span>
-                          {isFirstLesson && course.first_prompt && (
-                            <div onClick={e => e.stopPropagation()} style={{ marginTop: 10 }}>
-                              {!openPrompts.has(key) ? (
-                                <button onClick={e => togglePrompt(key, e)} style={{ padding: "5px 12px", background: T.accentDim, border: `1px solid ${T.accent}44`, borderRadius: 8, color: T.accent, fontSize: 12, fontWeight: 700, fontFamily: "'Nunito',sans-serif", cursor: "pointer" }}>✨ Ver prompt</button>
-                              ) : (
-                                <div style={{ padding: "12px 14px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 11 }}>
-                                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                                    <p style={{ fontSize: 10, fontWeight: 800, color: T.accent, textTransform: "uppercase", letterSpacing: ".08em", fontFamily: "'JetBrains Mono',monospace" }}>✦ Prompt do dia 1</p>
-                                    <button onClick={e => togglePrompt(key, e)} style={{ background: "none", border: "none", color: T.textDim, fontSize: 14, cursor: "pointer", lineHeight: 1 }}>✕</button>
-                                  </div>
-                                  <p style={{ fontSize: 12, color: T.textSecondary, lineHeight: 1.7, fontStyle: "italic", marginBottom: 10 }}>"{course.first_prompt}"</p>
-                                  <button onClick={e => { e.stopPropagation(); navigator.clipboard?.writeText(course.first_prompt); setCopied(true); addXP(5); setTimeout(() => setCopied(false), 2000); }} style={{ padding: "7px 14px", background: T.accent, border: "none", borderRadius: 8, color: "#fff", fontSize: 12, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer" }}>{copied ? "✓ Copiado!" : "Copiar prompt"}</button>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                        <div style={{ display: "flex", alignItems: "center", flexShrink: 0 }}>
-                          <div style={{ width: 26, height: 26, borderRadius: 8, border: `2px solid ${lessonDone ? T.green : T.border}`, background: lessonDone ? T.green : "transparent", color: lessonDone ? "#fff" : T.textDim, fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", transition: "all .2s" }}>{lessonDone ? "✓" : "▶"}</div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                  {/* Quiz do módulo */}
-                  <div style={{ padding: "12px 16px", borderTop: `1px solid ${T.border}` }}>
-                    <button onClick={e => { e.stopPropagation(); setModuleQuiz({ phaseIdx: pi }); }} style={{ width: "100%", padding: "11px 0", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 11, color: T.accent, fontSize: 13, fontWeight: 800, fontFamily: "'Nunito',sans-serif", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 7, transition: "all .15s" }}
-                      onMouseEnter={e => { e.currentTarget.style.background = T.accent; e.currentTarget.style.color = "#fff"; }}
-                      onMouseLeave={e => { e.currentTarget.style.background = T.accentDim; e.currentTarget.style.color = T.accent; }}>
-                      🧠 Fazer quiz do módulo
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           );
         })}
       </div>
       </div>
+    </div>
+    {tutorDock}
     </div>
   );
 }
@@ -2233,142 +2216,6 @@ function TutorTab({ T, user, updateUser, addXP, addToast, completeMission }) {
         <input placeholder="Pergunte ao seu tutor..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && !e.shiftKey && send()} style={{ flex: 1, background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, color: T.textPrimary, fontFamily: "'Nunito',sans-serif", fontSize: 14, padding: "12px 14px", outline: "none" }} onFocus={e => e.target.style.borderColor = T.accent} onBlur={e => e.target.style.borderColor = T.border} />
         <BtnPrimary T={T} style={{ width: 48, padding: 0, fontSize: 17, borderRadius: 12, flexShrink: 0 }} onClick={() => send()} disabled={loading}>→</BtnPrimary>
       </div>
-    </div>
-  );
-}
-
-// ─── Quiz Tab ──────────────────────────────────────────────────────────────
-function QuizTab({ T, user, updateUser, addXP, addToast, completeMission }) {
-  const [quiz, setQuiz] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [current, setCurrent] = useState(0);
-  const [selected, setSelected] = useState(null);
-  const [answered, setAnswered] = useState(false);
-  const [score, setScore] = useState(0);
-  const [finished, setFinished] = useState(false);
-  const [err, setErr] = useState("");
-
-  async function startQuiz() {
-    setLoading(true); setErr("");
-    try {
-      const q = await generateQuiz(user.profile, user.course);
-      setQuiz(q); setCurrent(0); setSelected(null); setAnswered(false); setScore(0); setFinished(false);
-    } catch (e) { setErr("Erro ao gerar quiz: " + e.message); }
-    finally { setLoading(false); }
-  }
-
-  function answer(idx) {
-    if (answered) return;
-    setSelected(idx); setAnswered(true);
-    if (idx === quiz.questions[current].answer) setScore(s => s + 1);
-  }
-
-  function next() {
-    if (current + 1 >= quiz.questions.length) {
-      setFinished(true);
-      const xpGained = score * 20 + 30;
-      addXP(xpGained);
-      const history = [...(user.quizHistory || []), { date: getTodayStr(), score, total: quiz.questions.length, xp: xpGained }];
-      updateUser({ ...user, quizHistory: history });
-      addToast(`🎯 Quiz completo! ${score}/${quiz.questions.length} · +${xpGained} XP`);
-      completeMission("do_quiz");
-      completeMission("home_quiz");
-      const totalQuizzes = history.length;
-      if (totalQuizzes >= 5) addXP(150, "quiz_5");
-    } else {
-      setCurrent(c => c + 1); setSelected(null); setAnswered(false);
-    }
-  }
-
-  if (loading) return (
-    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: 300, gap: 16 }}>
-      <div style={{ fontSize: 40, animation: "pulse 1.2s ease-in-out infinite" }}>🎯</div>
-      <p style={{ fontWeight: 800, color: T.textPrimary }}>Gerando quiz personalizado...</p>
-    </div>
-  );
-
-  if (!quiz) return (
-    <div style={{ animation: "fadeUp .4s ease" }}>
-      <h2 style={{ fontSize: 20, fontWeight: 900, color: T.textPrimary, marginBottom: 5 }}>Quiz Diário 🎯</h2>
-      <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 20 }}>Perguntas geradas por IA, personalizadas para o seu perfil e trilha.</p>
-      <Card T={T} style={{ textAlign: "center", padding: "32px 20px", marginBottom: 16 }}>
-        <div style={{ fontSize: 52, marginBottom: 14 }}>🎯</div>
-        <p style={{ fontWeight: 800, fontSize: 18, color: T.textPrimary, marginBottom: 8 }}>Pronto para ser testado?</p>
-        <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 20 }}>5 perguntas baseadas na sua trilha e área de atuação.</p>
-        <BtnPrimary T={T} style={{ width: "auto", padding: "13px 32px" }} onClick={startQuiz}>Começar Quiz →</BtnPrimary>
-        {err && <p style={{ color: T.red, fontSize: 13, marginTop: 12 }}>{err}</p>}
-      </Card>
-      {user.quizHistory?.length > 0 && (
-        <Card T={T}>
-          <p style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary, marginBottom: 10 }}>Histórico</p>
-          {user.quizHistory.slice(-5).reverse().map((q, i) => (
-            <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "8px 0", borderBottom: `1px solid ${T.border}` }}>
-              <span style={{ fontSize: 13, color: T.textSecondary }}>{q.date}</span>
-              <span style={{ fontSize: 13, fontWeight: 800, color: q.score >= q.total * 0.8 ? T.green : q.score >= q.total * 0.5 ? T.amber : T.red }}>{q.score}/{q.total} · +{q.xp} XP</span>
-            </div>
-          ))}
-        </Card>
-      )}
-    </div>
-  );
-
-  if (finished) return (
-    <div style={{ animation: "fadeUp .4s ease", textAlign: "center" }}>
-      <Card T={T} style={{ padding: "36px 24px", marginBottom: 16 }}>
-        <div style={{ fontSize: 52, marginBottom: 12 }}>{score === quiz.questions.length ? "🏆" : score >= quiz.questions.length * 0.6 ? "⭐" : "💪"}</div>
-        <h2 style={{ fontSize: 22, fontWeight: 900, color: T.textPrimary, marginBottom: 6 }}>{score === quiz.questions.length ? "Perfeito!" : score >= quiz.questions.length * 0.6 ? "Muito bem!" : "Continue praticando!"}</h2>
-        <p style={{ fontSize: 32, fontWeight: 900, color: T.accent, marginBottom: 4, fontFamily: "'JetBrains Mono',monospace" }}>{score}/{quiz.questions.length}</p>
-        <p style={{ color: T.textSecondary, fontSize: 14, marginBottom: 20 }}>+{score * 20 + 30} XP ganhos</p>
-        <BtnPrimary T={T} onClick={startQuiz}>Novo Quiz →</BtnPrimary>
-      </Card>
-    </div>
-  );
-
-  const q = quiz.questions[current];
-  return (
-    <div style={{ animation: "fadeUp .4s ease" }}>
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-        <h2 style={{ fontSize: 16, fontWeight: 900, color: T.textPrimary }}>{quiz.title}</h2>
-        <span style={{ fontSize: 12, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>{current + 1}/{quiz.questions.length}</span>
-      </div>
-      <div style={{ height: 4, background: T.border, borderRadius: 4, marginBottom: 18, overflow: "hidden" }}>
-        <div style={{ height: 4, background: T.accent, width: ((current / quiz.questions.length) * 100) + "%", borderRadius: 4, transition: "width .4s ease" }} />
-      </div>
-      <Card T={T} style={{ marginBottom: 14 }}>
-        <p style={{ fontSize: 15, fontWeight: 700, color: T.textPrimary, lineHeight: 1.5 }}>{q.q}</p>
-      </Card>
-      <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 14 }}>
-        {q.options.map((opt, i) => {
-          const isCorrect = i === q.answer;
-          const isSelected = i === selected;
-          let bg = T.surface, border = T.border, color = T.textPrimary, fontWeight = 500;
-          if (answered) {
-            if (isCorrect) { bg = T.greenDim; border = T.green + "88"; color = T.green; fontWeight = 700; }
-            else if (isSelected) { bg = T.redDim; border = T.red + "88"; color = T.red; fontWeight = 700; }
-          } else if (isSelected) { bg = T.accentDim; border = T.accent; }
-          return (
-            <div key={i} onClick={() => answer(i)} style={{ padding: "13px 15px", background: bg, border: `2px solid ${border}`, borderRadius: 12, fontSize: 14, fontWeight, color, cursor: answered ? "default" : "pointer", transition: "all .2s", display: "flex", alignItems: "center", gap: 10, transform: answered && (isCorrect || isSelected) ? "scale(1.01)" : "scale(1)" }}>
-              <span style={{ width: 24, height: 24, borderRadius: "50%", border: `2px solid ${border}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 12, fontWeight: 900, flexShrink: 0, background: answered && isCorrect ? T.green : answered && isSelected ? T.red : "transparent", color: answered && (isCorrect || isSelected) ? "#fff" : color }}>{answered && isCorrect ? "✓" : answered && isSelected ? "✗" : String.fromCharCode(65 + i)}</span>
-              {opt}
-            </div>
-          );
-        })}
-      </div>
-      {answered && (() => {
-        const correct = selected === q.answer;
-        return (
-          <div style={{ marginBottom: 12, borderRadius: 14, overflow: "hidden", border: `1px solid ${correct ? T.green + "55" : T.red + "55"}` }}>
-            <div style={{ padding: "10px 14px", background: correct ? T.green : T.red, display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ fontSize: 16 }}>{correct ? "✓" : "✗"}</span>
-              <p style={{ fontWeight: 800, fontSize: 14, color: "#fff" }}>{correct ? "Resposta correta!" : "Resposta incorreta!"}</p>
-            </div>
-            <div style={{ padding: "12px 14px", background: correct ? T.greenDim : T.redDim }}>
-              <p style={{ fontSize: 13, color: T.textPrimary, lineHeight: 1.65 }}><span style={{ fontWeight: 800, color: correct ? T.green : T.red }}>💡 </span>{q.explanation}</p>
-            </div>
-          </div>
-        );
-      })()}
-      {answered && <BtnPrimary T={T} onClick={next}>{current + 1 >= quiz.questions.length ? "Ver resultado →" : "Próxima pergunta →"}</BtnPrimary>}
     </div>
   );
 }
