@@ -1823,7 +1823,6 @@ function ExploreTab({ T }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
-      <PageBackground T={T} scene="explorar" />
       <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Toggle: Trilhas / Prompts prontos */}
       <div style={{ display: "flex", gap: 6, marginBottom: 20, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 11, padding: 4, width: "fit-content" }}>
@@ -1950,6 +1949,9 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
 
   return (
     <div className="rv-shell-root" style={{ minHeight: "100vh", background: T.bg }}>
+      {(tab === "home" || tab === "trail" || tab === "explore") && (
+        <PageBackground T={T} scene={tab === "home" ? "inicio" : tab === "trail" ? "trilhas" : "explorar"} />
+      )}
       {/* Navbar */}
       <div style={{ background: T.navBg, borderBottom: `1px solid ${T.border}`, padding: "10px 16px", display: "flex", alignItems: "center", gap: 10, position: "sticky", top: 0, zIndex: 100, backdropFilter: "blur(16px)" }}>
         <span style={{ fontSize: 16, fontWeight: 700, color: T.textPrimary, fontFamily: "'Source Serif 4', serif" }}>Riv<span style={{ color: T.accent, fontWeight: 900 }}>.IA</span></span>
@@ -2191,7 +2193,6 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
-      <PageBackground T={T} scene="inicio" />
       <div style={{ position: 'relative', zIndex: 1 }}>
 
       {/* Header */}
@@ -2454,7 +2455,6 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
     const days = phase.days || [];
     return (
       <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
-      <PageBackground T={T} scene="trilhas" />
       <div style={{ animation: "fadeUp .4s ease", flex: 1, minWidth: 0, position: 'relative', zIndex: 1 }}>
         {showTrailTutor && <TutorPanel T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} lessonContext={null} onClose={() => setShowTrailTutor(false)} />}
         <button onClick={() => setOpenPhase(-1)} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Source Serif 4',serif", marginBottom: 18 }}>← Voltar aos módulos</button>
@@ -2521,7 +2521,6 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   return (
     <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden', flex: 1, minWidth: 0 }}>
-      <PageBackground T={T} scene="trilhas" />
       <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Floating tutor button (mobile only) — rendered via Portal directly in document.body */}
       {tutorBtnMounted && !showTrailTutor && ReactDOM.createPortal(
