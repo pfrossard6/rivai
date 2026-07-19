@@ -322,80 +322,13 @@ function pickModuleIcon(title = "", pi = 0) {
   return MODULE_ICON_ORDER[pi % MODULE_ICON_ORDER.length];
 }
 
-// ─── Page backgrounds — subtle, theme-aware scene art per page ────────────
-function hexToRgb(hex) {
-  const h = hex.replace("#", "");
-  const full = h.length === 3 ? h.split("").map(c => c + c).join("") : h;
-  const n = parseInt(full, 16);
-  return `${(n >> 16) & 255},${(n >> 8) & 255},${n & 255}`;
-}
-
-function PageBackground({ T, scene }) {
-  const dark = !!T.isDark;
-  const accentRGB = hexToRgb(T.accent);
-  const blobOpacity = dark ? 0.18 : 0.12;
-  const lineOpacity = dark ? 0.30 : 0.20;
-  const dotOpacity = dark ? 0.26 : 0.17;
-  const stroke = `rgba(${accentRGB},${lineOpacity})`;
-  const strokeSoft = `rgba(${accentRGB},${lineOpacity * 0.7})`;
-  const dotFill = `rgba(${accentRGB},${dotOpacity})`;
-
-  let sceneChildren;
-  if (scene === "trilhas") {
-    // winding trail through hills, with a marker flag
-    sceneChildren = (
-      <>
-        <path d="M 0 900 C 300 820, 500 860, 780 800 C 1050 740, 1300 780, 1920 700 L 1920 1080 L 0 1080 Z" fill={`rgba(${accentRGB},${blobOpacity * 0.7})`} />
-        <path d="M 0 980 C 260 930, 600 970, 900 920 C 1200 870, 1500 940, 1920 880 L 1920 1080 L 0 1080 Z" fill={`rgba(${accentRGB},${blobOpacity})`} />
-        <path d="M 60 1000 C 220 900, 260 820, 420 780 C 600 736, 640 640, 820 600 C 1000 560, 1060 480, 1260 440 C 1440 404, 1520 320, 1700 260" fill="none" stroke={stroke} strokeWidth="4" strokeDasharray="2 22" strokeLinecap="round" />
-        <circle cx="420" cy="780" r="6" fill={dotFill} />
-        <circle cx="820" cy="600" r="6" fill={dotFill} />
-        <path d="M 1700 260 L 1700 190" stroke={stroke} strokeWidth="3" />
-        <path d="M 1700 190 L 1740 205 L 1700 220 Z" fill={strokeSoft} />
-      </>
-    );
-  } else if (scene === "explorar") {
-    // minimal figure with binoculars beside a river, fishing line into the water
-    sceneChildren = (
-      <>
-        <path d="M -50 760 C 300 700, 500 820, 850 760 C 1150 706, 1350 780, 1750 720 C 1850 706, 1900 720, 1970 700" fill="none" stroke={strokeSoft} strokeWidth="3" />
-        <path d="M -50 840 C 320 790, 560 890, 900 840 C 1180 796, 1400 860, 1750 810" fill="none" stroke={strokeSoft} strokeWidth="2" />
-        <circle cx="1560" cy="470" r="20" fill="none" stroke={stroke} strokeWidth="3" />
-        <path d="M 1560 490 L 1560 600 M 1560 600 L 1530 700 M 1560 600 L 1590 700" fill="none" stroke={stroke} strokeWidth="3" strokeLinecap="round" />
-        <path d="M 1560 520 L 1520 470" fill="none" stroke={stroke} strokeWidth="3" strokeLinecap="round" />
-        <path d="M 1560 520 L 1600 470" fill="none" stroke={stroke} strokeWidth="3" strokeLinecap="round" />
-        <rect x="1500" y="452" width="22" height="16" rx="4" fill="none" stroke={stroke} strokeWidth="3" />
-        <rect x="1526" y="452" width="22" height="16" rx="4" fill="none" stroke={stroke} strokeWidth="3" />
-        <path d="M 1590 620 L 1660 560" fill="none" stroke={strokeSoft} strokeWidth="2.5" strokeLinecap="round" />
-        <path d="M 1660 560 C 1680 630, 1700 700, 1690 780" fill="none" stroke={strokeSoft} strokeWidth="1.5" strokeDasharray="1 8" />
-        <circle cx="1690" cy="780" r="5" fill={dotFill} />
-      </>
-    );
-  } else {
-    // início: a river flowing across, with small AI network-node accents along the bank
-    const nodes = [[520, 300], [640, 360], [560, 460], [700, 520]];
-    sceneChildren = (
-      <>
-        <path d="M 1980 40 C 1650 120, 1600 240, 1400 320 C 1180 408, 1120 300, 900 380 C 700 452, 660 600, 420 660 C 240 706, 120 660, -40 740" fill="none" stroke={stroke} strokeWidth="5" />
-        <path d="M 1980 100 C 1660 180, 1630 290, 1440 370 C 1220 458, 1170 350, 950 430 C 750 502, 710 640, 470 700" fill="none" stroke={strokeSoft} strokeWidth="2.5" />
-        {nodes.map((p, i) => <circle key={i} cx={p[0]} cy={p[1]} r="5" fill={dotFill} />)}
-        <path d={`M ${nodes[0][0]} ${nodes[0][1]} L ${nodes[1][0]} ${nodes[1][1]} L ${nodes[3][0]} ${nodes[3][1]} L ${nodes[2][0]} ${nodes[2][1]} L ${nodes[0][0]} ${nodes[0][1]}`} fill="none" stroke={strokeSoft} strokeWidth="1.2" />
-      </>
-    );
-  }
-
-  const dots = [];
-  const cols = 8, rows = 5;
-  for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if ((r * 13 + c * 7) % 5 === 0) dots.push({ x: (c / (cols - 1)) * 100, y: (r / (rows - 1)) * 100 });
-
+// ─── Page backgrounds — real illustrated photos, per page, responsive ─────
+function PageBackground({ scene }) {
+  const base = `/bg-${scene}`;
   return (
     <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
-      <div style={{ position: "absolute", top: -220, right: -180, width: 780, height: 780, borderRadius: "50%", background: `radial-gradient(circle, rgba(${accentRGB},${blobOpacity}) 0%, rgba(${accentRGB},0) 70%)`, animation: "bgDrift 40s ease-in-out infinite alternate" }} />
-      <div style={{ position: "absolute", bottom: -260, left: -200, width: 820, height: 820, borderRadius: "50%", background: `radial-gradient(circle, rgba(${accentRGB},${blobOpacity * 0.85}) 0%, rgba(${accentRGB},0) 70%)`, animation: "bgDrift 46s ease-in-out infinite alternate-reverse" }} />
-      <svg width="100%" height="100%" viewBox="0 0 1920 1080" preserveAspectRatio="none" style={{ position: "absolute", inset: 0 }}>
-        {sceneChildren}
-      </svg>
-      {dots.map((d, i) => <div key={i} style={{ position: "absolute", left: d.x + "%", top: d.y + "%", width: 6, height: 6, borderRadius: "50%", background: dotFill }} />)}
+      <img src={`${base}-mobile.jpg`} alt="" className="rv-bg-mobile" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
+      <img src={`${base}-desktop.jpg`} alt="" className="rv-bg-desktop" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
     </div>
   );
 }
@@ -961,6 +894,8 @@ export default function App() {
     .rv-bottomnav{display:flex}
     .rv-shell-root{padding-bottom:70px}
     .rv-shell-content{max-width:720px}
+    .rv-bg-mobile{display:block}
+    .rv-bg-desktop{display:none}
     @media (min-width:880px){
       .rv-tutor-dock{display:block}
       .rv-tutor-float-btn{display:none}
@@ -969,6 +904,8 @@ export default function App() {
       .rv-shell-content{margin-left:196px;max-width:1040px}
       .rv-covers-grid{grid-template-columns:repeat(3,1fr) !important}
       .rv-shell-root{padding-bottom:0}
+      .rv-bg-mobile{display:none}
+      .rv-bg-desktop{display:block}
     }
   `;
 
@@ -1950,7 +1887,7 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
   return (
     <div className="rv-shell-root" style={{ minHeight: "100vh", background: T.bg }}>
       {(tab === "home" || tab === "trail" || tab === "explore") && (
-        <PageBackground T={T} scene={tab === "home" ? "inicio" : tab === "trail" ? "trilhas" : "explorar"} />
+        <PageBackground scene={tab === "home" ? "inicio" : tab === "trail" ? "trilhas" : "explorar"} />
       )}
       {/* Navbar */}
       <div style={{ background: T.navBg, borderBottom: `1px solid ${T.border}`, padding: "10px 16px", display: "flex", alignItems: "center", gap: 10, position: "sticky", top: 0, zIndex: 100, backdropFilter: "blur(16px)" }}>
