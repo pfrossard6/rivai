@@ -1743,6 +1743,7 @@ function ExploreTab({ T }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
+      <img src="/bg-explorar.svg" alt="" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', objectFit: 'cover', opacity: 0.07, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Toggle: Trilhas / Prompts prontos */}
       <div style={{ display: "flex", gap: 6, marginBottom: 20, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 11, padding: 4, width: "fit-content" }}>
@@ -2110,6 +2111,7 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
+      <img src="/bg-inicio.svg" alt="" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', objectFit: 'cover', opacity: 0.07, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
 
       {/* Header */}
@@ -2325,7 +2327,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const course = user.course;
   const completedTopics = user.completedTopics || [];
   const tutorDock = (
-    <div className="rv-tutor-dock" style={{ width: 320, flexShrink: 0, position: "sticky", top: 18, height: "calc(100vh - 110px)" }}>
+    <div className="rv-tutor-dock" style={{ width: 320, flexShrink: 0, position: "sticky", top: 18, height: "calc(100vh - 110px)", zIndex: 1 }}>
       <TutorPanel T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} lessonContext={null} dock />
     </div>
   );
@@ -2372,7 +2374,8 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
     const days = phase.days || [];
     return (
       <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
-      <div style={{ animation: "fadeUp .4s ease", flex: 1, minWidth: 0 }}>
+      <img src="/bg-trilhas.svg" alt="" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', objectFit: 'cover', opacity: 0.07, pointerEvents: 'none', zIndex: 0 }} />
+      <div style={{ animation: "fadeUp .4s ease", flex: 1, minWidth: 0, position: 'relative', zIndex: 1 }}>
         {showTrailTutor && <TutorPanel T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} lessonContext={null} onClose={() => setShowTrailTutor(false)} />}
         <button onClick={() => setOpenPhase(-1)} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Source Serif 4',serif", marginBottom: 18 }}>← Voltar aos módulos</button>
 
@@ -2438,6 +2441,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   return (
     <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden', flex: 1, minWidth: 0 }}>
+      <img src="/bg-trilhas.svg" alt="" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', objectFit: 'cover', opacity: 0.07, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Floating tutor button (mobile only) — rendered via Portal directly in document.body */}
       {tutorBtnMounted && !showTrailTutor && ReactDOM.createPortal(
@@ -2520,7 +2524,9 @@ function TutorTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const suggestions = ["Como fazer um bom prompt?", "O que é automação com IA?", "Como aplicar IA no meu trabalho?"];
 
   return (
-    <div style={{ animation: "fadeUp .4s ease" }}>
+    <div style={{ animation: "fadeUp .4s ease", position: "relative" }}>
+      <img src="/bg-tutor.svg" alt="" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', objectFit: 'cover', opacity: 0.07, pointerEvents: 'none', zIndex: 0 }} />
+      <div style={{ position: "relative", zIndex: 1 }}>
       <div style={{ display: "flex", alignItems: "center", gap: 11, marginBottom: 12 }}>
         <div style={{ width: 40, height: 40, borderRadius: 12, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 19, boxShadow: `0 0 16px ${T.accentGlow}` }}>⬡</div>
         <div><h2 style={{ fontWeight: 900, fontSize: 16, color: T.textPrimary }}>Tutor Personalizado</h2><p style={{ fontSize: 11, color: T.green }}>● especializado no seu perfil</p></div>
@@ -2552,6 +2558,7 @@ function TutorTab({ T, user, updateUser, addXP, addToast, completeMission }) {
       <div style={{ display: "flex", gap: 8 }}>
         <input placeholder="Pergunte ao seu tutor..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && !e.shiftKey && send()} style={{ flex: 1, background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, color: T.textPrimary, fontFamily: "'Source Serif 4',serif", fontSize: 14, padding: "12px 14px", outline: "none" }} onFocus={e => e.target.style.borderColor = T.accent} onBlur={e => e.target.style.borderColor = T.border} />
         <BtnPrimary T={T} style={{ width: 48, padding: 0, fontSize: 17, borderRadius: 12, flexShrink: 0 }} onClick={() => send()} disabled={loading}>→</BtnPrimary>
+      </div>
       </div>
     </div>
   );
@@ -2631,7 +2638,7 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
-      <img src="/bg-notas.svg" alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.08, pointerEvents: 'none', zIndex: 0 }} />
+      <img src="/bg-notas.svg" alt="" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', objectFit: 'cover', opacity: 0.07, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Section tabs */}
       <div style={{ display: "flex", gap: 8, marginBottom: 20, background: T.surface, borderRadius: 12, padding: 4, border: `1px solid ${T.border}` }}>
