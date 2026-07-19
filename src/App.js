@@ -132,7 +132,6 @@ const NAV_ITEMS = [
   { id: "home", icon: "🏠", label: "Início" },
   { id: "trail", icon: "📚", label: "Trilhas" },
   { id: "explore", icon: "🔍", label: "Explorar" },
-  { id: "notes", icon: "📓", label: "Notas" },
 ];
 const getTodayStr = () => new Date().toDateString();
 const HEATMAP_KEY = "rivai_study_heatmap";
@@ -478,7 +477,7 @@ function TutorPanel({ T, user, updateUser, addXP, addToast, completeMission, les
 }
 
 // ─── Mini Profile Menu ─────────────────────────────────────────────────────
-function MiniProfileMenu({ T, user, lang, setLang, onEditPhoto, onOpenProfile, onTutorial, onLogout, onClose }) {
+function MiniProfileMenu({ T, user, lang, setLang, onEditPhoto, onOpenProfile, onTutorial, onOpenNotes, onLogout, onClose }) {
   const isPhoto = user.settings?.avatarType === "photo";
   const photo = isPhoto ? getProfilePhoto() : null;
   const avatarContent = photo
@@ -515,6 +514,9 @@ function MiniProfileMenu({ T, user, lang, setLang, onEditPhoto, onOpenProfile, o
         </button>
         <button onClick={() => { onClose(); onTutorial(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
           📖 Ver tutorial
+        </button>
+        <button onClick={() => { onClose(); onOpenNotes(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
+          📓 Minhas notas
         </button>
         <button onClick={() => { onClose(); onOpenProfile(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
           ⚙️ Configurações
@@ -622,7 +624,21 @@ function LessonScreen({ T, phaseIdx, dayIdx, course, completedTopics, onConclude
   const [genLoading, setGenLoading] = useState(false);
   const [genErr, setGenErr] = useState("");
   const [flipped, setFlipped] = useState(new Set());
+  const [noteText, setNoteText] = useState("");
+  const [noteSaved, setNoteSaved] = useState(false);
   const content = fixedContent || cachedContent || genContent;
+
+  function saveQuickNote() {
+    if (!noteText.trim()) return;
+    const note = { id: Date.now(), title: day?.title || "Anotação da aula", text: noteText, date: new Date().toLocaleDateString("pt-BR"), time: new Date().toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" }) };
+    const newNotes = [note, ...(user.notes || [])];
+    updateUser({ ...user, notes: newNotes });
+    addXP(15); addToast("Anotação salva! +15 XP");
+    completeMission("take_note");
+    if (newNotes.length >= 10) addXP(100, "notes_10");
+    setNoteText(""); setNoteSaved(true);
+    setTimeout(() => setNoteSaved(false), 2000);
+  }
 
   useEffect(() => {
     if (content || genLoading) return;
@@ -679,10 +695,7 @@ function LessonScreen({ T, phaseIdx, dayIdx, course, completedTopics, onConclude
           <h2 style={{ fontSize: 15, fontWeight: 700, color: T.textPrimary, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{day?.title}</h2>
         </div>
         {!isDone && (
-          <div style={{ background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 10, padding: "6px 12px", textAlign: "center", flexShrink: 0 }}>
-            <p style={{ fontSize: 9, color: T.textDim, marginBottom: 1, textTransform: "uppercase", letterSpacing: ".06em" }}>tempo</p>
-            <p style={{ fontSize: 14, fontWeight: 700, color: T.accent, fontFamily: "'JetBrains Mono',monospace" }}>{pad(mins)}:{pad(secs)}</p>
-          </div>
+          <span style={{ fontSize: 12, color: T.textDim, fontFamily: "'JetBrains Mono',monospace", flexShrink: 0 }}>{pad(mins)}:{pad(secs)}</span>
         )}
       </div>
 
@@ -733,6 +746,14 @@ function LessonScreen({ T, phaseIdx, dayIdx, course, completedTopics, onConclude
               <p style={{ fontSize: 13, color: T.textSecondary, lineHeight: 1.7 }}>{content.exercise.instructions}</p>
             </div>
           )}
+
+          <div style={{ marginBottom: 20 }}>
+            <p style={{ fontSize: 11, fontWeight: 700, color: T.textSecondary, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 8 }}>Anotar algo desta aula</p>
+            <textarea rows={2} value={noteText} onChange={e => setNoteText(e.target.value)} placeholder="Escreva um insight ou lembrete rápido..." style={{ width: "100%", background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, color: T.textPrimary, fontFamily: "'Inter',sans-serif", fontSize: 13, padding: "10px 12px", outline: "none", resize: "none", marginBottom: 8 }} />
+            <button onClick={saveQuickNote} disabled={!noteText.trim()} style={{ padding: "8px 14px", background: noteSaved ? T.green : T.surface, border: `1px solid ${noteSaved ? T.green : T.border}`, borderRadius: 9, color: noteSaved ? "#fff" : T.textSecondary, fontSize: 12, fontWeight: 600, fontFamily: "'Inter',sans-serif", cursor: noteText.trim() ? "pointer" : "default" }}>
+              {noteSaved ? "Salvo" : "Salvar nota"}
+            </button>
+          </div>
         </>
       )}
 
@@ -1186,6 +1207,67 @@ const EXPLORE_TRAILS = [
   },
 ];
 
+// Conteúdo real das aulas do Explorar — escrito uma única vez, compartilhado
+// entre todos (não é gerado por IA por pessoa, já que aqui não é personalizado).
+const EXPLORE_LESSON_CONTENT = {
+  "2_l1": {
+    cards: [
+      { title: "Janela de contexto", body: "O Claude é conhecido por janelas de contexto bem grandes — muitas vezes 200 mil tokens ou mais. Na prática, isso significa colar um contrato de 80 páginas, uma base de código inteira ou uma reunião transcrita numa única conversa, sem precisar picar o texto em pedaços. O ChatGPT também evoluiu nisso, mas essa foi historicamente a diferença mais sentida no dia a dia com textos longos." },
+      { title: "Estilo de resposta", body: "O Claude tende a ser mais cauteloso: quando falta informação, ele costuma sinalizar a incerteza ou pedir mais contexto em vez de inventar uma resposta confiante. Modelos como o ChatGPT (principalmente versões mais antigas) tendem a ser mais assertivos mesmo quando estão incertos. Isso muda como você deve conferir o que cada um te devolve." },
+      { title: "Pontos fortes de cada um", body: "De forma geral: o Claude se destaca em redação cuidadosa, análise crítica de texto e raciocínio explicado passo a passo. O ChatGPT tem um ecossistema mais amplo de plugins e integrações, e costuma ser rápido em tarefas curtas e diretas. Na prática, muita gente boa usa os dois — cada um no que se sai melhor." },
+    ],
+    flashcards: [
+      { front: "Qual modelo historicamente oferece janelas de contexto maiores?", back: "O Claude — permite colar documentos e códigos bem mais longos numa única conversa." },
+      { front: "Como o Claude costuma reagir quando falta informação num prompt?", back: "Tende a sinalizar a incerteza ou pedir mais contexto, em vez de inventar uma resposta confiante." },
+      { front: "Em que tipo de tarefa o Claude costuma se destacar?", back: "Redação cuidadosa, análise crítica de texto e raciocínio passo a passo." },
+      { front: "Preciso escolher só um dos dois modelos pra sempre?", back: "Não — muita gente usa os dois, cada um no que se sai melhor." },
+    ],
+    exercise: { title: "Compare os dois na prática", instructions: "Pegue um texto longo que você tenha em mãos (um e-mail complicado, um contrato, um artigo) e peça a mesma tarefa — por exemplo 'resuma os 3 pontos principais e aponte riscos' — pro Claude e pro ChatGPT. Compare: qual foi mais precisa? Qual assumiu coisas que o texto não dizia?" },
+  },
+  "2_l2": {
+    cards: [
+      { title: "Peça pra ele discordar de você", body: "O Claude responde bem a pedidos explícitos de crítica honesta. Em vez de perguntar \"isso está bom?\", peça \"aponte os 3 maiores problemas deste texto, mesmo que pareçam pequenos\". Essa mudança de pergunta muda o modo de resposta — de \"concordar educadamente\" pra uma análise real." },
+      { title: "Peça o contra-argumento", body: "Antes de uma decisão importante, peça ao Claude para defender o lado oposto do que você está pensando — \"argumente contra essa decisão como se fosse advogado do diabo\". Isso expõe pontos cegos antes de você se comprometer com algo." },
+      { title: "Estrutura de crítica em camadas", body: "Um pedido de crítica eficaz segue uma ordem: (1) resumo do que foi entendido, (2) pontos fortes, (3) pontos fracos específicos com exemplos do próprio texto, (4) uma sugestão concreta de melhoria. Nessa ordem, evita respostas vagas do tipo \"está bom, só ajustar um pouco\"." },
+    ],
+    flashcards: [
+      { front: "O que pedir em vez de 'isso está bom?'", back: "Peça para apontar os maiores problemas, mesmo que pareçam pequenos." },
+      { front: "O que é o prompt de 'advogado do diabo'?", back: "Pedir ao modelo para argumentar contra sua ideia, expondo pontos cegos antes de decidir." },
+      { front: "Qual é a ordem de uma boa crítica em camadas?", back: "Resumo → pontos fortes → pontos fracos específicos → sugestão concreta." },
+      { front: "Por que evitar perguntas vagas tipo 'está bom?'", back: "Porque tendem a gerar respostas educadas e genéricas, não uma análise real." },
+    ],
+    exercise: { title: "Critique algo seu de verdade", instructions: "Cole um texto seu (um e-mail, uma proposta, um post) no Claude e peça a estrutura de 4 camadas: resumo, pontos fortes, pontos fracos específicos, sugestão concreta. Veja se a crítica aponta algo que você não tinha percebido." },
+  },
+  "2_l3": {
+    cards: [
+      { title: "Cole o documento inteiro, não resuma antes", body: "Por causa da janela de contexto grande, dá pra colar o documento inteiro — contrato, artigo científico, ata de reunião — sem resumir antes por conta própria. Resumir manualmente antes de perguntar já filtra informação que pode ser importante." },
+      { title: "Peça resumo estruturado, não corrido", body: "Em vez de \"resuma isso\", peça algo como \"resuma em tópicos: decisões tomadas, pendências, prazos e riscos\". Isso força uma leitura mais completa e organizada, em vez de um parágrafo genérico que mistura tudo." },
+      { title: "Peça pra citar a origem dentro do documento", body: "Peça para o Claude referenciar a seção, página ou trecho de onde tirou cada informação do resumo. Isso ajuda a conferir rapidamente se ele leu certo, sem precisar reler o documento inteiro você mesmo." },
+    ],
+    flashcards: [
+      { front: "Por que colar o documento inteiro em vez de resumir antes?", back: "Resumir manualmente já filtra informação — o modelo deve trabalhar com o texto completo." },
+      { front: "Como pedir um resumo mais útil que um parágrafo genérico?", back: "Peça por tópicos específicos: decisões, pendências, prazos, riscos." },
+      { front: "Como conferir rapidamente se o resumo está certo?", back: "Peça para citar a seção ou página de onde tirou cada informação." },
+      { front: "Que tipo de documento se beneficia dessa técnica?", back: "Contratos, artigos longos, atas de reunião — qualquer texto extenso que precise de leitura cuidadosa." },
+    ],
+    exercise: { title: "Processe um documento real", instructions: "Pegue o documento mais longo que você precisa ler essa semana (contrato, relatório, ata) e peça ao Claude um resumo estruturado em tópicos, com prazos e riscos, citando a seção de onde tirou cada ponto." },
+  },
+  "2_l4": {
+    cards: [
+      { title: "Defina o estilo antes de pedir o texto", body: "Antes de pedir o texto final, descreva o estilo desejado com exemplos: formal ou casual, frases curtas ou longas, com ou sem humor. Um prompt como \"escreva como um e-mail entre colegas próximos, frases curtas, sem formalidade excessiva\" gera um resultado bem diferente de um pedido genérico." },
+      { title: "Trabalhe em rascunhos, não no texto final direto", body: "Peça uma primeira versão só com a estrutura em tópicos, depois peça pra desenvolver cada tópico, depois peça uma revisão de tom. Dividir em etapas dá bem mais controle do que pedir o texto pronto de uma vez." },
+      { title: "Peça variações de tom pro mesmo conteúdo", body: "Com um rascunho bom em mãos, peça \"reescreva isso em 3 tons diferentes: mais formal, mais direto, mais caloroso\" e escolha o que combina com a situação — é mais rápido que tentar descrever o tom ideal do zero." },
+    ],
+    flashcards: [
+      { front: "O que fazer antes de pedir o texto final?", back: "Definir o estilo desejado com exemplos concretos (formal/casual, frases curtas/longas)." },
+      { front: "Por que trabalhar em etapas (estrutura → desenvolvimento → revisão)?", back: "Dá mais controle do que pedir o texto pronto de uma vez só." },
+      { front: "Como escolher o tom certo mais rápido?", back: "Peça variações do mesmo texto em tons diferentes e compare, em vez de descrever o tom ideal do zero." },
+      { front: "Que tipo de texto se beneficia da escrita em etapas?", back: "Textos mais longos ou importantes — e-mails delicados, propostas, comunicados." },
+    ],
+    exercise: { title: "Escreva algo em 3 etapas", instructions: "Escolha um texto que você precisa escrever essa semana (um e-mail difícil, um post, uma proposta). Peça ao Claude: 1) só a estrutura em tópicos, 2) desenvolva cada tópico, 3) 3 variações de tom. Escolha a que mais combina com quem vai ler." },
+  },
+};
+
 const EXPLORE_CATEGORIES = [
   { id: "produtividade", label: "Produtividade", icon: "⚡" },
   { id: "automacao", label: "Automação", icon: "🔄" },
@@ -1199,6 +1281,8 @@ function ExploreTab({ T }) {
   const [activeCategory, setActiveCategory] = useState(null);
   const [searchFocused, setSearchFocused] = useState(false);
   const [selectedTrail, setSelectedTrail] = useState(null);
+  const [openLesson, setOpenLesson] = useState(null); // { trailId, lesson } or null
+  const [flipped, setFlipped] = useState(new Set());
 
   const totalLessons = (trail) => trail.modules.reduce((sum, m) => sum + m.lessons.length, 0);
 
@@ -1214,6 +1298,55 @@ function ExploreTab({ T }) {
     prática: { bg: '#1a3a2a', color: '#4ade80' },
     projeto: { bg: '#3a2a10', color: '#fbbf24' },
   };
+
+  if (openLesson) {
+    const content = EXPLORE_LESSON_CONTENT[`${openLesson.trailId}_${openLesson.lesson.id}`];
+    return (
+      <div style={{ animation: "fadeUp .4s ease" }}>
+        <button onClick={() => { setOpenLesson(null); setFlipped(new Set()); }} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Inter',sans-serif", marginBottom: 18 }}>← Voltar</button>
+        <h2 style={{ fontSize: 17, fontWeight: 700, color: T.textPrimary, marginBottom: 20 }}>{openLesson.lesson.title}</h2>
+        {!content ? (
+          <div style={{ padding: 20, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, textAlign: "center" }}>
+            <p style={{ fontSize: 13, color: T.textSecondary }}>Estamos preparando o conteúdo completo desta aula. Volte em breve.</p>
+          </div>
+        ) : (
+          <>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 20 }}>
+              {content.cards.map((card, i) => (
+                <Card T={T} key={i}>
+                  <p style={{ fontWeight: 700, fontSize: 14, color: T.textPrimary, marginBottom: 8 }}>{card.title}</p>
+                  <p style={{ fontSize: 13, color: T.textSecondary, lineHeight: 1.8 }}>{card.body}</p>
+                </Card>
+              ))}
+            </div>
+            {content.flashcards?.length > 0 && (
+              <div style={{ marginBottom: 20 }}>
+                <p style={{ fontSize: 11, fontWeight: 700, color: T.textSecondary, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 10 }}>Flashcards de revisão</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                  {content.flashcards.map((fc, i) => {
+                    const isFlipped = flipped.has(i);
+                    return (
+                      <div key={i} onClick={() => setFlipped(prev => { const n = new Set(prev); n.has(i) ? n.delete(i) : n.add(i); return n; })} style={{ background: isFlipped ? T.accentDim : T.card, border: `1px solid ${isFlipped ? T.accent + "44" : T.border}`, borderRadius: 12, padding: "14px 16px", cursor: "pointer" }}>
+                        <p style={{ fontSize: 10, fontWeight: 700, color: isFlipped ? T.accent : T.textDim, textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 6 }}>{isFlipped ? "Resposta" : "Pergunta"}</p>
+                        <p style={{ fontSize: 13, color: T.textPrimary, lineHeight: 1.6 }}>{isFlipped ? fc.back : fc.front}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+            {content.exercise && (
+              <div style={{ background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 14, padding: "16px" }}>
+                <p style={{ fontSize: 11, fontWeight: 700, color: T.accent, textTransform: "uppercase", letterSpacing: ".06em", marginBottom: 8 }}>Exercício prático</p>
+                <p style={{ fontWeight: 700, fontSize: 14, color: T.textPrimary, marginBottom: 6 }}>{content.exercise.title}</p>
+                <p style={{ fontSize: 13, color: T.textSecondary, lineHeight: 1.7 }}>{content.exercise.instructions}</p>
+              </div>
+            )}
+          </>
+        )}
+      </div>
+    );
+  }
 
   if (selectedTrail) {
     let lessonCounter = 0;
@@ -1246,7 +1379,7 @@ function ExploreTab({ T }) {
                   const num = lessonCounter;
                   const ts = tagStyles[lesson.tag] || tagStyles.teoria;
                   return (
-                    <Card T={T} key={lesson.id} style={{ padding: '14px 16px' }}>
+                    <Card T={T} key={lesson.id} onClick={() => setOpenLesson({ trailId: selectedTrail.id, lesson })} style={{ padding: '14px 16px' }}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                         <div style={{ width: 32, height: 32, borderRadius: '50%', background: T.accentDim, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12, fontWeight: 800, color: T.accent, flexShrink: 0, fontFamily: "'JetBrains Mono',monospace" }}>{num}</div>
                         <div style={{ flex: 1 }}>
@@ -1254,10 +1387,7 @@ function ExploreTab({ T }) {
                             <p style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary }}>{lesson.title}</p>
                             <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 20, background: ts.bg, color: ts.color, fontFamily: "'JetBrains Mono',monospace" }}>{lesson.tag}</span>
                           </div>
-                          <p style={{ fontSize: 12, color: T.textSecondary, lineHeight: 1.6, marginBottom: lesson.tag === 'prática' ? 8 : 0 }}>{lesson.desc}</p>
-                          {lesson.tag === 'prática' && (
-                            <span style={{ fontSize: 11, fontWeight: 700, color: T.green }}>✨ Exercício prático</span>
-                          )}
+                          <p style={{ fontSize: 12, color: T.textSecondary, lineHeight: 1.6 }}>{lesson.desc}</p>
                         </div>
                       </div>
                     </Card>
@@ -1370,7 +1500,7 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
     <div className="rv-shell-root" style={{ minHeight: "100vh", background: T.bg }}>
       {/* Navbar */}
       <div style={{ background: T.navBg, borderBottom: `1px solid ${T.border}`, padding: "10px 16px", display: "flex", alignItems: "center", gap: 10, position: "sticky", top: 0, zIndex: 100, backdropFilter: "blur(16px)" }}>
-        <span style={{ fontSize: 16, fontWeight: 700, color: "#F2F3F7", fontFamily: "'Inter', sans-serif" }}>Riv<span style={{ color: "#6C4DFF", fontWeight: 900 }}>.IA</span></span>
+        <span style={{ fontSize: 16, fontWeight: 700, color: T.textPrimary, fontFamily: "'Inter', sans-serif" }}>Riv<span style={{ color: T.accent, fontWeight: 900 }}>.IA</span></span>
         <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8 }}>
           {(() => { const { lvl, pct } = getLevel(user.xp || 0); return <>
             <div style={{ background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 800, color: "#fff" }}>L{lvl}</div>
@@ -1435,6 +1565,7 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
           onEditPhoto={() => setShowPhotoModal(true)}
           onOpenProfile={() => setShowProfile(true)}
           onTutorial={() => setShowTutorial(true)}
+          onOpenNotes={() => setTab("notes")}
           onLogout={() => { setShowMiniMenu(false); onLogout(); }}
           onClose={() => setShowMiniMenu(false)}
         />
