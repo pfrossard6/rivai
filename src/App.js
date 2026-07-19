@@ -1161,7 +1161,7 @@ const EXPLORE_TRAILS = [
     ]
   },
   {
-    id: 2, title: "Claude — O Assistente de Raciocínio", desc: "Explore o modelo da Anthropic, ideal para análises longas, redação e raciocínio passo a passo.", level: "Iniciante", icon: "⬡", category: "produtividade",
+    id: 2, title: "Claude — O Assistente de Raciocínio", desc: "Explore o modelo da Anthropic, ideal para análises longas, redação e raciocínio passo a passo.", level: "Iniciante", icon: "⬡", category: "dados",
     modules: [
       {
         id: "m1", title: "Conhecendo o Claude",
@@ -1180,7 +1180,7 @@ const EXPLORE_TRAILS = [
     ]
   },
   {
-    id: 3, title: "Gemini — IA integrada ao Google", desc: "Use a IA do Google integrada ao Gmail, Docs e Drive para turbinar sua produtividade no ecossistema G Suite.", level: "Iniciante", icon: "🔵", category: "produtividade",
+    id: 3, title: "Gemini — IA integrada ao Google", desc: "Use a IA do Google integrada ao Gmail, Docs e Drive para turbinar sua produtividade no ecossistema G Suite.", level: "Iniciante", icon: "🔵", category: "automacao",
     modules: [
       {
         id: "m1", title: "Gemini no Google Workspace",
@@ -1637,6 +1637,7 @@ function ExploreTab({ T }) {
   const [selectedTrail, setSelectedTrail] = useState(null);
   const [openLesson, setOpenLesson] = useState(null); // { trailId, lesson } or null
   const [flipped, setFlipped] = useState(new Set());
+  useEffect(() => { window.scrollTo(0, 0); }, [selectedTrail, openLesson]);
 
   function copyPrompt(text, id) {
     navigator.clipboard?.writeText(text);
@@ -1826,7 +1827,7 @@ function ExploreTab({ T }) {
         <Card T={T} style={{ textAlign: "center", padding: "32px 20px" }}>
           <div style={{ fontSize: 38, marginBottom: 10 }}>🔍</div>
           <p style={{ fontWeight: 800, fontSize: 15, color: T.textPrimary, marginBottom: 4 }}>Nenhum resultado</p>
-          <p style={{ color: T.textSecondary, fontSize: 13 }}>Tente outro termo de busca.</p>
+          <p style={{ color: T.textSecondary, fontSize: 13 }}>{activeCategory && !query ? "Ainda não temos trilhas nessa categoria — mais em breve." : "Tente outro termo de busca."}</p>
         </Card>
       ) : (
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -1869,6 +1870,7 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
   const navTo = useCallback(t => setTab(t), []);
   const userRef = useRef(user);
   useEffect(() => { userRef.current = user; }, [user]);
+  useEffect(() => { window.scrollTo(0, 0); }, [tab]);
 
   useEffect(() => {
     if (!getTutorialDone()) setShowTutorial(true);
@@ -2316,6 +2318,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
   const [openPrompts, setOpenPrompts] = useState(new Set());
   const [showTrailTutor, setShowTrailTutor] = useState(false);
   const [tutorBtnMounted, setTutorBtnMounted] = useState(false);
+  useEffect(() => { window.scrollTo(0, 0); }, [openPhase, lessonView]);
   const studySecRef = useRef(0);
   if (studySecRef.current === 0) {
     try {
