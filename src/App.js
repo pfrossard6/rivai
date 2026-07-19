@@ -1279,6 +1279,279 @@ const EXPLORE_LESSON_CONTENT = {
     ],
     exercise: { title: "Escreva algo em 3 etapas", instructions: "Escolha um texto que você precisa escrever essa semana (um e-mail difícil, um post, uma proposta). Peça ao Claude: 1) só a estrutura em tópicos, 2) desenvolva cada tópico, 3) 3 variações de tom. Escolha a que mais combina com quem vai ler." },
   },
+  "1_l1": {
+    cards: [
+      { title: "Modelo de linguagem, não banco de dados", body: "O ChatGPT não \"procura\" respostas numa base — ele prevê, palavra por palavra, a continuação mais provável de um texto, com base em padrões aprendidos no treinamento. Isso explica tanto a fluência quanto os erros: ele pode soar muito confiante mesmo errado, porque seu trabalho é gerar texto plausível, não checar fatos." },
+      { title: "A janela de contexto tem limite", body: "Cada conversa tem um limite de quanto texto o modelo consegue considerar ao mesmo tempo. Em conversas muito longas, informações do início podem ser \"esquecidas\". Se a conversa ficar longa demais, é melhor abrir uma nova e recolocar o essencial." },
+      { title: "Alucinação é uma limitação real", body: "Alucinação é quando o modelo inventa uma informação com aparência de verdade — um dado, uma citação, uma fonte. Isso acontece porque ele prioriza fluência sobre precisão. Sempre confira fatos, números e citações antes de usar algo importante." },
+    ],
+    flashcards: [
+      { front: "O ChatGPT busca respostas prontas num banco de dados?", back: "Não — ele prevê a continuação mais provável do texto, com base em padrões aprendidos." },
+      { front: "O que é 'alucinação' num modelo de IA?", back: "Quando o modelo inventa uma informação com aparência de verdade, sem embasamento real." },
+      { front: "Por que conversas muito longas podem 'esquecer' o início?", back: "Porque a janela de contexto tem um limite de quanto texto o modelo consegue considerar de uma vez." },
+    ],
+    exercise: { title: "Teste os limites", instructions: "Peça ao ChatGPT uma informação bem específica (uma data, uma citação, uma estatística) sobre um tema que você conhece bem. Confira se está correta — isso dá uma noção real de quando confiar e quando checar." },
+  },
+  "1_l2": {
+    cards: [
+      { title: "A estrutura papel + contexto + instrução + formato", body: "Um prompt eficaz define quem o modelo deve \"ser\" (papel), a situação (contexto), o que fazer exatamente (instrução) e como entregar (formato). Ex: \"Você é consultor de RH. Uma funcionária pediu demissão após 2 anos. Escreva 3 perguntas pra entender o motivo real, em tópicos curtos.\"" },
+      { title: "Diga o que evitar também", body: "Prompts vagos como \"melhore este texto\" geram resultado genérico. Dizer o que evitar (\"sem jargão\", \"sem emojis\", \"sem passar de 100 palavras\") ajuda tanto quanto dizer o que incluir." },
+      { title: "Prompt fraco vs. prompt forte", body: "Fraco: \"escreva sobre marketing digital\". Forte: \"escreva um post de LinkedIn de 150 palavras sobre por que pequenas empresas devem investir em marketing digital, tom direto, sem clichês.\" A diferença está na especificidade, não no tamanho." },
+    ],
+    flashcards: [
+      { front: "Quais os 4 elementos de um prompt eficaz?", back: "Papel, contexto, instrução e formato." },
+      { front: "Por que dizer o que evitar também ajuda?", back: "Reduz resultados genéricos e direciona melhor o que o modelo deve produzir." },
+      { front: "O que torna um prompt 'forte' em vez de 'fraco'?", back: "Especificidade — detalhes concretos de situação, tom e formato, não apenas o tema." },
+    ],
+    exercise: { title: "Reescreva um prompt fraco", instructions: "Pegue algo que você já pediu de forma vaga (ex: 'me ajude com um e-mail') e reescreva usando papel + contexto + instrução + formato. Compare os dois resultados." },
+  },
+  "1_l3": {
+    cards: [
+      { title: "Cole o texto inteiro quando possível", body: "Para documentos que cabem na janela de contexto, colar o texto completo dá resultado mais confiável do que descrever de memória. Só resuma manualmente quando o documento for maior que o limite do modelo." },
+      { title: "Peça resumo por categorias, não um parágrafo", body: "Em vez de \"resuma\", peça \"liste em tópicos: decisões, pendências, prazos e responsáveis\". Funciona bem pra atas de reunião e e-mails longos." },
+      { title: "Chunking para textos muito grandes", body: "Quando o texto não cabe de uma vez, divida em partes, peça um resumo de cada parte e depois um resumo final combinando os resumos parciais. Mais trabalhoso, mas evita perder informação." },
+    ],
+    flashcards: [
+      { front: "Por que colar o texto inteiro é melhor que descrevê-lo de memória?", back: "O modelo trabalha com o texto real, sem depender da sua lembrança ou interpretação." },
+      { front: "O que é a técnica de chunking?", back: "Dividir um texto grande em partes, resumir cada uma e combinar num resumo final." },
+      { front: "Como pedir um resumo mais útil que um parágrafo corrido?", back: "Por categorias específicas: decisões, pendências, prazos, responsáveis." },
+    ],
+    exercise: { title: "Resuma uma reunião real", instructions: "Pegue a ata da sua última reunião de trabalho e peça um resumo em tópicos: decisões, pendências e prazos." },
+  },
+  "1_l4": {
+    cards: [
+      { title: "Defina destinatário e objetivo antes do texto", body: "Um e-mail pra um cliente irritado precisa de tom diferente de um pra sua equipe. Diga quem vai ler e o que você quer alcançar antes de pedir o texto — muda o resultado mais que qualquer ajuste de estilo depois." },
+      { title: "Peça variações curtas antes da versão longa", body: "Para comunicados sensíveis, peça primeiro \"resuma em 2 frases o que esse e-mail precisa dizer\" — isso ajuda a validar a mensagem central antes de gastar tempo no texto completo." },
+      { title: "Revisão de tom antes de enviar", body: "Com um rascunho pronto, peça \"isso soa passivo-agressivo ou apenas direto?\" — textos escritos perdem nuance de voz, então uma segunda opinião sobre o tom evita mal-entendidos." },
+    ],
+    flashcards: [
+      { front: "O que definir antes de pedir o texto de um e-mail?", back: "Quem vai ler (destinatário) e o que você quer alcançar (objetivo)." },
+      { front: "Por que pedir um resumo de 2 frases antes do e-mail completo?", back: "Ajuda a validar a mensagem central antes de gastar tempo no texto todo." },
+      { front: "Por que pedir uma checagem de tom antes de enviar?", back: "Textos escritos perdem nuance de voz — uma segunda opinião evita mal-entendidos." },
+    ],
+    exercise: { title: "Escreva um e-mail difícil", instructions: "Pense num e-mail que você está adiando (cobrar um prazo, dar um feedback difícil). Peça ao ChatGPT definindo destinatário e objetivo, depois peça uma checagem de tom." },
+  },
+  "1_l5": {
+    cards: [
+      { title: "O fluxo básico: dados → prompt → formato final", body: "Um relatório automatizado segue: extrair dados brutos (planilha, sistema, export), colar num prompt que já define a estrutura, e pedir a saída num formato pronto pra usar (texto, tabela, lista)." },
+      { title: "Zapier e Make como ponte de automação", body: "Ferramentas como Zapier ou Make conectam o ChatGPT a outros apps (Sheets, Slack, e-mail) sem programar — um gatilho (nova linha na planilha) dispara uma ação (gerar resumo com IA e enviar por e-mail)." },
+      { title: "Comece manual, automatize depois", body: "Antes de montar uma automação completa, faça o processo manualmente algumas vezes — isso revela se o prompt precisa de ajustes antes de investir tempo automatizando algo ainda desafinado." },
+    ],
+    flashcards: [
+      { front: "Qual o fluxo básico de um relatório automatizado com IA?", back: "Dados brutos → prompt estruturado → formato final pronto pra usar." },
+      { front: "O que ferramentas como Zapier ou Make permitem fazer?", back: "Conectar o ChatGPT a outros apps sem programar, usando gatilhos e ações." },
+      { front: "Por que testar manualmente antes de automatizar?", back: "Pra garantir que o prompt já está afinado antes de investir tempo na automação." },
+    ],
+    exercise: { title: "Desenhe seu fluxo", instructions: "Escolha um relatório que você faz toda semana manualmente. Escreva os 3 passos que ele teria como automação: de onde vêm os dados, qual prompt resumiria, e onde o resultado chegaria." },
+  },
+  "1_l6": {
+    cards: [
+      { title: "O que são Custom Instructions", body: "Um espaço nas configurações do ChatGPT onde você descreve, uma única vez, quem você é e como prefere que ele responda (tom, nível técnico, formato). Elimina precisar repetir esse contexto em toda conversa nova." },
+      { title: "O que colocar nesse espaço", body: "Informações estáveis — sua profissão, seu nível de conhecimento no assunto que mais usa, preferências de formato (\"sempre em tópicos\", \"sem emojis\", \"respostas objetivas\"). Evite coisas que mudam com frequência." },
+      { title: "Memória de longo prazo é diferente", body: "Além das Custom Instructions, o ChatGPT também retém fatos mencionados ao longo de conversas normais. Dá pra revisar e apagar o que ele \"lembra\" nas configurações." },
+    ],
+    flashcards: [
+      { front: "Pra que servem as Custom Instructions?", back: "Descrever, uma única vez, quem você é e como prefere que o modelo responda." },
+      { front: "Que tipo de informação colocar nas Custom Instructions?", back: "Informações estáveis: profissão, nível de conhecimento, preferências de formato." },
+      { front: "Dá pra apagar o que o ChatGPT 'lembrou' de você automaticamente?", back: "Sim, é possível revisar e apagar essas memórias nas configurações." },
+    ],
+    exercise: { title: "Configure suas instruções", instructions: "Escreva suas Custom Instructions: sua profissão, seu nível de conhecimento no assunto que mais usa IA, e como prefere receber respostas. Teste antes e depois de configurar." },
+  },
+  "1_l7": {
+    cards: [
+      { title: "O que é um GPT personalizado", body: "Uma versão configurada do ChatGPT com instruções, tom e, às vezes, uma base de conhecimento própria (documentos anexados), sem escrever nenhuma linha de código." },
+      { title: "Quando vale a pena criar um", body: "Se você (ou sua equipe) faz o mesmo tipo de tarefa repetidamente — revisar contratos, responder dúvidas com base num manual, gerar posts no seu tom de marca — um GPT personalizado economiza reescrever o mesmo contexto toda vez." },
+      { title: "Publicar e compartilhar", body: "Depois de criado, um GPT pode ficar privado ou ser compartilhado por link com sua equipe ou publicamente, permitindo que outras pessoas usem seu assistente configurado sem saber montar prompts." },
+    ],
+    flashcards: [
+      { front: "O que é um GPT personalizado?", back: "Uma versão configurada do ChatGPT com instruções e base de conhecimento próprios, sem programar." },
+      { front: "Quando vale a pena criar um GPT personalizado?", back: "Quando você repete o mesmo tipo de tarefa ou pergunta com frequência." },
+      { front: "É possível compartilhar um GPT personalizado?", back: "Sim — por link, com sua equipe ou publicamente." },
+    ],
+    exercise: { title: "Planeje seu primeiro GPT", instructions: "Pense numa tarefa que você ou sua equipe repete toda semana. Escreva que instruções esse GPT precisaria ter e que documentos ele deveria conhecer." },
+  },
+  "1_l8": {
+    cards: [
+      { title: "Follow-up é mais eficiente que recomeçar", body: "Se a resposta não veio como esperado, é quase sempre melhor pedir um ajuste específico (\"deixe mais direto\", \"adicione um exemplo\") do que escrever um prompt novo do zero — o modelo mantém o contexto." },
+      { title: "Peça pra ele mesmo se avaliar", body: "Um truque útil: pedir \"critique sua própria resposta — o que poderia estar mais claro ou correto?\" depois de receber algo. Frequentemente revela pontos fracos que passariam despercebidos." },
+      { title: "Cadeia de raciocínio para problemas complexos", body: "Para tarefas com lógica ou decisão, peça \"pense passo a passo antes de responder\" — reduz erros em problemas com várias etapas, forçando o modelo a expor o raciocínio em vez de pular pra conclusão." },
+    ],
+    flashcards: [
+      { front: "O que fazer quando a resposta não veio como esperado?", back: "Pedir um ajuste específico via follow-up, em vez de recomeçar do zero." },
+      { front: "O que acontece quando você pede pro modelo criticar a própria resposta?", back: "Frequentemente revela pontos fracos que passariam despercebidos." },
+      { front: "Por que pedir 'pense passo a passo' em problemas complexos?", back: "Reduz erros porque força o modelo a expor o raciocínio em vez de pular pra conclusão." },
+    ],
+    exercise: { title: "Refine em 3 rodadas", instructions: "Peça algo ao ChatGPT, depois peça pra ele mesmo criticar a resposta, depois peça uma versão final incorporando essa crítica." },
+  },
+  "3_l1": {
+    cards: [
+      { title: "Como ativar", body: "O Gemini for Gmail (\"Ajuda-me a escrever\") fica disponível dentro da caixa de composição, geralmente como um ícone de estrela. Ele lê o e-mail que você está respondendo pra sugerir rascunhos com base no contexto da conversa." },
+      { title: "Refinar em vez de aceitar direto", body: "As primeiras sugestões costumam ser genéricas. Use os botões de refinamento (formalizar, encurtar, elaborar) em vez de aceitar a primeira versão — economiza mais tempo de edição do que reescrever manualmente." },
+      { title: "Cuidado com informações sensíveis", body: "Como ele lê o conteúdo do e-mail pra gerar sugestões, evite usar em threads com dados extremamente sensíveis sem revisar a política de privacidade da sua organização." },
+    ],
+    flashcards: [
+      { front: "Onde encontrar o 'Ajuda-me a escrever' no Gmail?", back: "Na caixa de composição de e-mail, geralmente como um ícone de estrela." },
+      { front: "O que fazer quando a primeira sugestão do Gemini é genérica?", back: "Usar os botões de refinamento em vez de aceitar direto." },
+      { front: "Por que ter cuidado ao usar em e-mails sensíveis?", back: "Porque o recurso lê o conteúdo do e-mail pra gerar as sugestões." },
+    ],
+    exercise: { title: "Responda um e-mail parado", instructions: "Pegue um e-mail que você está adiando responder. Use o 'Ajuda-me a escrever' do Gmail e refine a sugestão pelo menos uma vez antes de considerar pronta." },
+  },
+  "3_l2": {
+    cards: [
+      { title: "Gerar um documento do zero", body: "No Google Docs, dá pra pedir ao Gemini pra redigir um documento completo a partir de uma descrição breve — útil como ponto de partida, mas quase sempre precisa de edição depois." },
+      { title: "Melhorar texto existente", body: "Selecione um trecho já escrito e peça pra reescrever, resumir ou ajustar o tom — mais rápido do que copiar pra outra ferramenta e trazer o resultado de volta." },
+      { title: "Gerar apresentações a partir de texto", body: "No Slides, dá pra colar um esboço de tópicos e pedir uma estrutura de slides — o Gemini sugere a divisão de conteúdo, mas o design final ainda precisa de ajuste manual." },
+    ],
+    flashcards: [
+      { front: "Pra que serve gerar um documento do zero com Gemini no Docs?", back: "Como ponto de partida rápido — quase sempre precisa de edição depois." },
+      { front: "Como melhorar um texto já escrito no Docs?", back: "Selecionar o trecho e pedir pra reescrever, resumir ou ajustar o tom." },
+      { front: "O que o Gemini faz ao gerar uma apresentação a partir de tópicos?", back: "Sugere a divisão de conteúdo por slide — o design final ainda precisa de ajuste manual." },
+    ],
+    exercise: { title: "Transforme notas em slides", instructions: "Pegue uma lista de tópicos sobre algum assunto de trabalho e use o Gemini no Slides pra gerar uma estrutura inicial de apresentação." },
+  },
+  "3_l3": {
+    cards: [
+      { title: "O que é multimodalidade", body: "Significa que o modelo processa mais de um tipo de informação ao mesmo tempo — texto, imagem e áudio — em vez de precisar de uma ferramenta separada pra cada tipo." },
+      { title: "Análise de imagens na prática", body: "Dá pra enviar uma foto de um gráfico e pedir pra explicar a tendência, ou uma captura de tela de um erro e pedir ajuda pra resolver — o modelo \"lê\" a imagem como parte do contexto." },
+      { title: "Transcrição e análise de áudio", body: "Em vez de só transcrever, dá pra pedir análise sobre o conteúdo — por exemplo, resumir os pontos principais de uma reunião gravada, não só gerar o texto bruto da fala." },
+    ],
+    flashcards: [
+      { front: "O que significa 'multimodalidade' num modelo de IA?", back: "Processar mais de um tipo de informação (texto, imagem, áudio) na mesma conversa." },
+      { front: "Dê um exemplo prático de análise de imagem.", back: "Enviar um gráfico ou captura de tela e pedir explicação ou ajuda pra resolver um problema." },
+      { front: "Qual a diferença entre transcrever e analisar um áudio?", back: "Transcrever gera só o texto da fala; analisar também resume e interpreta o conteúdo." },
+    ],
+    exercise: { title: "Analise uma imagem sua", instructions: "Envie ao Gemini uma captura de tela ou foto de algo do seu trabalho (um gráfico, uma tela de erro) e peça uma análise ou explicação." },
+  },
+  "3_l4": {
+    cards: [
+      { title: "O pipeline completo", body: "Colete os dados brutos no Google Sheets, use o Gemini pra gerar interpretação e resumo, e exporte o resultado formatado no Google Docs — três ferramentas, um fluxo só." },
+      { title: "Onde o Gemini agrega mais valor", body: "Ele é mais útil na etapa de interpretação — transformar números brutos em frases que explicam o que os dados significam — do que na coleta ou formatação, que continuam manuais." },
+      { title: "Repita o processo, não reinvente toda vez", body: "Depois de montar esse fluxo uma vez, guarde o prompt que funcionou bem — reutilizá-lo economiza mais tempo do que escrever um novo prompt a cada relatório." },
+    ],
+    flashcards: [
+      { front: "Quais as 3 etapas do pipeline de relatório com Gemini + Sheets?", back: "Coletar dados no Sheets → interpretar com Gemini → exportar formatado no Docs." },
+      { front: "Em que etapa o Gemini agrega mais valor?", back: "Na interpretação — transformar números em explicações, não na coleta ou formatação." },
+      { front: "Por que guardar o prompt que funcionou bem?", back: "Pra reutilizar e economizar tempo em vez de escrever um novo a cada relatório." },
+    ],
+    exercise: { title: "Monte seu pipeline", instructions: "Pegue uma planilha real que você atualiza com frequência. Peça ao Gemini uma interpretação dos números principais e leve o resumo pra um documento formatado." },
+  },
+  "4_l1": {
+    cards: [
+      { title: "Os elementos de um bom prompt visual", body: "Sujeito (o que aparece), estilo (fotografia, ilustração, 3D, aquarela), iluminação (natural, dramática, neon), composição/câmera (close-up, plano aberto) e humor/atmosfera. Quanto mais desses elementos você define, mais previsível o resultado." },
+      { title: "Prompt fraco vs. forte", body: "Fraco: \"um café\". Forte: \"uma xícara de café fumegante numa mesa de madeira rústica, luz da manhã pela janela, estilo fotografia editorial, foco raso.\" A diferença não é o tamanho, é a especificidade visual." },
+      { title: "Referências ajudam mais que adjetivos genéricos", body: "Em vez de \"bonito\" ou \"profissional\", cite referências concretas — \"estilo de revista de arquitetura\", \"paleta tipo Wes Anderson\". Modelos visuais respondem melhor a referências do que a elogios vagos." },
+    ],
+    flashcards: [
+      { front: "Quais os 5 elementos de um prompt visual completo?", back: "Sujeito, estilo, iluminação, composição/câmera e humor/atmosfera." },
+      { front: "O que torna um prompt visual 'forte'?", back: "Especificidade — detalhes concretos de cena, luz e estilo, não o tamanho do texto." },
+      { front: "Por que citar referências específicas em vez de adjetivos como 'bonito'?", back: "Modelos visuais respondem melhor a referências concretas do que a elogios vagos." },
+    ],
+    exercise: { title: "Reescreva um prompt visual fraco", instructions: "Pense numa imagem simples que queira gerar (ex: 'um escritório'). Reescreva com os 5 elementos: sujeito, estilo, iluminação, composição e atmosfera." },
+  },
+  "4_l2": {
+    cards: [
+      { title: "Onde e como gerar", body: "O Midjourney funciona através de um servidor no Discord — você digita /imagine seguido do prompt, e o modelo gera 4 variações da imagem em poucos segundos." },
+      { title: "Parâmetros úteis", body: "--ar define a proporção (ex: --ar 16:9), --v escolhe a versão do modelo, e --style ajusta o quão literal ou artístico é o resultado. Esses parâmetros vão no final do prompt." },
+      { title: "Refinar em vez de gerar do zero de novo", body: "Depois das 4 variações, dá pra pedir upscale (U) ou variações (V) de uma específica em vez de escrever um prompt novo — itera mais rápido sobre uma ideia que já está no caminho certo." },
+    ],
+    flashcards: [
+      { front: "Onde o Midjourney funciona?", back: "Através de um servidor no Discord, usando o comando /imagine." },
+      { front: "Pra que serve o parâmetro --ar?", back: "Define a proporção da imagem, como 16:9 para formato widescreen." },
+      { front: "Como iterar sobre uma imagem boa sem começar do zero?", back: "Usando as opções de upscale (U) ou variação (V) daquela imagem específica." },
+    ],
+    exercise: { title: "Gere sua primeira imagem", instructions: "Configure o Discord do Midjourney e gere uma imagem com /imagine, incluindo sujeito, estilo e iluminação no prompt. Experimente o --ar." },
+  },
+  "4_l3": {
+    cards: [
+      { title: "Geração direto na conversa", body: "Dentro do ChatGPT, basta descrever a imagem que você quer e ele gera usando o DALL-E integrado — sem precisar de outra ferramenta ou configuração separada." },
+      { title: "Bom para iteração rápida", body: "Como está na mesma conversa, dá pra pedir ajustes em linguagem natural (\"deixe mais colorido\", \"tire o texto\") sem reescrever o prompt do zero — ótimo pra protótipos rápidos." },
+      { title: "Limitações em relação a ferramentas dedicadas", body: "O controle fino de estilo e composição é mais limitado que em ferramentas especializadas como Midjourney — ótimo pra mockups, menos indicado quando o resultado final precisa de refinamento visual." },
+    ],
+    flashcards: [
+      { front: "Como gerar imagens com DALL-E dentro do ChatGPT?", back: "Basta descrever a imagem na conversa — não precisa de ferramenta separada." },
+      { front: "Qual a vantagem de gerar imagem direto no ChatGPT?", back: "Dá pra pedir ajustes em linguagem natural, sem reescrever o prompt do zero." },
+      { front: "Quando vale mais usar uma ferramenta dedicada em vez do DALL-E no ChatGPT?", back: "Quando o resultado final precisa de controle fino de estilo e composição." },
+    ],
+    exercise: { title: "Gere um mockup rápido", instructions: "Peça ao ChatGPT pra gerar uma imagem de um produto ou post relacionado ao seu trabalho. Peça pelo menos um ajuste em linguagem natural." },
+  },
+  "4_l4": {
+    cards: [
+      { title: "Defina a paleta e o estilo antes de gerar tudo", body: "Antes de criar banner, avatar e post separadamente, gere primeiro uma imagem de referência de estilo e cor, e reutilize essa descrição nos prompts seguintes — mantém coerência visual." },
+      { title: "Gere variações do mesmo prompt-base", body: "Para banner, avatar e post, use o mesmo prompt-base de estilo, mudando só o \"sujeito\" e a proporção — mais rápido e mais consistente do que criar cada peça com um prompt totalmente novo." },
+      { title: "Exportação em alta resolução", body: "Para uso comercial (impressão, banners grandes), sempre gere ou faça upscale na maior resolução disponível antes de considerar o arquivo final pronto." },
+    ],
+    flashcards: [
+      { front: "Por que gerar uma imagem de referência de estilo antes das outras peças?", back: "Pra manter coerência visual reutilizando a mesma descrição de estilo e cor." },
+      { front: "Como manter consistência entre banner, avatar e post?", back: "Usar o mesmo prompt-base de estilo, mudando só o sujeito e a proporção." },
+      { front: "O que verificar antes de considerar uma imagem pronta para uso comercial?", back: "Se está na maior resolução disponível, com upscale se necessário." },
+    ],
+    exercise: { title: "Crie um mini kit visual", instructions: "Escolha uma marca fictícia (ou a sua). Gere um prompt-base de estilo e cor, depois use variações dele pra criar um avatar e um post." },
+  },
+  "4_l5": {
+    cards: [
+      { title: "Uso comercial varia por ferramenta", body: "Cada ferramenta tem termos próprios sobre quem detém os direitos da imagem gerada e se pode ser usada comercialmente — vale checar os termos antes de usar em algo pago ou publicado profissionalmente." },
+      { title: "Atribuição e originalidade", body: "Imagens geradas por IA não são \"cópias\" diretas de obras específicas, mas são criadas a partir de padrões aprendidos de milhões de imagens existentes — isso alimenta debates sobre originalidade e direitos dos artistas originais." },
+      { title: "Transparência é uma boa prática", body: "Em contextos profissionais ou editoriais, é boa prática sinalizar quando uma imagem foi gerada por IA, especialmente se pode ser confundida com uma fotografia real." },
+    ],
+    flashcards: [
+      { front: "O uso comercial de imagens geradas por IA é igual em todas as ferramentas?", back: "Não — cada ferramenta tem termos próprios, vale checar antes de usar comercialmente." },
+      { front: "Por que existe debate sobre originalidade em imagens geradas por IA?", back: "Porque os modelos aprendem padrões de milhões de imagens existentes, levantando questões sobre os artistas originais." },
+      { front: "O que é boa prática ao publicar uma imagem gerada por IA?", back: "Sinalizar que foi gerada por IA, especialmente se pode ser confundida com uma foto real." },
+    ],
+    exercise: { title: "Confira os termos", instructions: "Escolha a ferramenta de imagem que mais usa (ou pretende usar) e leia os termos de uso sobre direitos comerciais. Anote o que descobriu." },
+  },
+  "5_l1": {
+    cards: [
+      { title: "Busca aumentada por IA", body: "Em vez de devolver uma lista de links pra você investigar, o Perplexity lê várias fontes e devolve uma resposta direta, já sintetizada, com as fontes citadas ao lado de cada afirmação." },
+      { title: "Citação de fontes reduz (mas não elimina) alucinação", body: "Como cada afirmação vem com a fonte de onde foi tirada, é mais fácil conferir se a informação é real — mas ainda vale checar a fonte original em decisões importantes." },
+      { title: "Quando ainda prefira o Google", body: "Para navegação simples (achar o site de uma empresa) ou buscas muito recentes/locais, o Google tradicional pode ser mais rápido. O Perplexity brilha mais em perguntas que pedem síntese de várias fontes." },
+    ],
+    flashcards: [
+      { front: "Qual a principal diferença entre Perplexity e busca tradicional do Google?", back: "O Perplexity sintetiza uma resposta direta a partir de várias fontes, em vez de só listar links." },
+      { front: "Por que ainda vale checar a fonte original mesmo com a citação do Perplexity?", back: "Porque a síntese pode simplificar demais a informação original." },
+      { front: "Quando o Google tradicional ainda pode ser melhor?", back: "Pra navegação simples ou buscas muito recentes/locais." },
+    ],
+    exercise: { title: "Compare os dois", instructions: "Faça a mesma pergunta de pesquisa no Google e no Perplexity. Compare: qual deu uma resposta mais rápida de usar? Qual você confiaria mais sem checar mais nada?" },
+  },
+  "5_l2": {
+    cards: [
+      { title: "Modo Focus", body: "O Perplexity permite restringir a busca a um tipo de fonte específico — acadêmico, YouTube, Reddit, ou web em geral. Usar o modo certo pra sua pergunta melhora muito a qualidade das fontes citadas." },
+      { title: "Perguntas de acompanhamento mantêm o contexto", body: "Assim como num chat normal, dá pra fazer perguntas de acompanhamento que se baseiam na busca anterior, sem precisar reformular tudo do zero." },
+      { title: "Peça pra comparar fontes divergentes", body: "Se um tema tem opiniões conflitantes, peça \"quais fontes discordam entre si e por quê?\" — isso expõe o debate em vez de esconder atrás de uma resposta única." },
+    ],
+    flashcards: [
+      { front: "O que é o modo Focus no Perplexity?", back: "Uma forma de restringir a busca a um tipo específico de fonte, como acadêmico ou Reddit." },
+      { front: "Dá pra fazer perguntas de acompanhamento no Perplexity?", back: "Sim, mantendo o contexto da busca anterior, sem reformular do zero." },
+      { front: "Como expor um debate com opiniões divergentes?", back: "Perguntando explicitamente quais fontes discordam entre si e por quê." },
+    ],
+    exercise: { title: "Pesquise com Focus", instructions: "Escolha um tema técnico da sua área e pesquise no Perplexity usando o modo Focus acadêmico. Compare com uma busca no modo padrão." },
+  },
+  "5_l3": {
+    cards: [
+      { title: "O que são Spaces", body: "Spaces são espaços de trabalho dentro do Perplexity onde você organiza pesquisas por tema e, em alguns casos, configura atualizações contínuas sobre um assunto específico." },
+      { title: "Bom para acompanhar concorrência ou setor", body: "Configurar um Space pra acompanhar notícias do seu setor ou concorrentes economiza a tarefa manual de checar múltiplos sites toda semana." },
+      { title: "Combine com uma rotina, não substitua o julgamento", body: "Alertas automáticos trazem volume, mas cabe a você decidir o que é relevante — trate como uma triagem inicial, não como a análise final." },
+    ],
+    flashcards: [
+      { front: "O que são Spaces no Perplexity?", back: "Espaços de trabalho pra organizar pesquisas por tema, com possibilidade de atualizações contínuas." },
+      { front: "Pra que serve configurar um Space de monitoramento de concorrência?", back: "Pra economizar a tarefa manual de checar múltiplos sites toda semana." },
+      { front: "Alertas automáticos substituem sua análise?", back: "Não — servem como triagem inicial, a decisão do que é relevante ainda é sua." },
+    ],
+    exercise: { title: "Configure um Space", instructions: "Crie um Space no Perplexity pra acompanhar um tema relevante pro seu trabalho e veja o que ele traz depois de alguns dias." },
+  },
+  "5_l4": {
+    cards: [
+      { title: "Defina a pergunta central primeiro", body: "Antes de pesquisar, escreva a pergunta exata que o relatório precisa responder — evita divagar em buscas amplas demais que geram informação difícil de organizar depois." },
+      { title: "Peça a estrutura junto com a pesquisa", body: "Em vez de só pedir informações soltas, peça \"pesquise X e organize em: contexto, principais dados, riscos e recomendação\" — entrega algo perto do formato final." },
+      { title: "Revise as fontes antes de apresentar", body: "Para um relatório que vai ser apresentado a outras pessoas, abra pelo menos as fontes principais citadas pra confirmar que o contexto bate com o que foi resumido." },
+    ],
+    flashcards: [
+      { front: "Por que definir a pergunta central antes de pesquisar?", back: "Evita buscas amplas demais que geram informação difícil de organizar depois." },
+      { front: "Como pedir um resultado já perto do formato final?", back: "Pedindo a pesquisa organizada em categorias: contexto, dados, riscos, recomendação." },
+      { front: "Por que revisar as fontes citadas antes de apresentar?", back: "Pra confirmar que o contexto original bate com o que foi resumido." },
+    ],
+    exercise: { title: "Monte um relatório rápido", instructions: "Escolha uma pergunta de mercado relevante pro seu trabalho. Peça ao Perplexity uma pesquisa organizada em contexto, dados, riscos e recomendação." },
+  },
 };
 
 const EXPLORE_CATEGORIES = [
@@ -1736,23 +2009,14 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
 
   const tutorQuestions = user.chatHistory?.filter(m => m.role === "user").length || 0;
 
-  const [rank, setRank] = useState(null);
-  useEffect(() => {
-    supabase.from("users").select("email,xp").order("xp", { ascending: false }).then(({ data }) => {
-      if (!data) return;
-      const idx = data.findIndex(u => u.email === user.email);
-      if (idx >= 0) setRank(idx + 1);
-    });
-  }, [user.email]);
-
   const phasesInProgress = (user.course?.phases || []).map((p, pi) => {
     const total = p.days?.length || 0;
     const done = (p.days || []).filter((_, di) => completedTopics.includes(`${pi}_${di}`)).length;
     return { phase: p, pi, done, total, pct: total > 0 ? Math.round((done / total) * 100) : 0 };
-  }).filter(p => p.done > 0 && p.done < p.total).slice(-2).reverse();
+  }).filter(p => p.done > 0 && p.done < p.total).reverse();
 
   const phasesToShow = phasesInProgress.length > 0 ? phasesInProgress
-    : (user.course?.phases || []).slice(0, 2).map((p, pi) => ({
+    : (user.course?.phases || []).map((p, pi) => ({
       phase: p, pi,
       done: (p.days || []).filter((_, di) => completedTopics.includes(`${pi}_${di}`)).length,
       total: p.days?.length || 0, pct: 0,
@@ -1803,7 +2067,7 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
           {[
             { value: completedPhases, suffix: "", label: "Trilhas\nconcluídas" },
             { value: tutorQuestions, suffix: "", label: "Perguntas\nao tutor" },
-            { value: rank ? `#${rank}` : "—", suffix: "", label: "Posição no\nranking" },
+            { value: completedTopics.length, suffix: "", label: "Aulas\nconcluídas" },
           ].map(m => (
             <div key={m.label} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, padding: "13px 8px", textAlign: "center" }}>
               <p style={{ fontSize: 18, fontWeight: 700, color: T.textPrimary, fontFamily: "'JetBrains Mono',monospace", lineHeight: 1 }}>{m.value}{m.suffix}</p>
