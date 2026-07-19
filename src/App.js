@@ -153,14 +153,7 @@ const markTutorialDone = () => localStorage.setItem(TUTORIAL_KEY, "1");
 const AVATAR_OPTIONS = ["🐶","🐱","🦊","🐼","🦁","🐨","🦄","🐸","🤖","👽","🧙","🧝","👩‍💻","🧑‍🚀","🦸","🌟","💎","⭐","🔥","⚡","🌊","🎯","🚀","🎨"];
 
 // ─── Language & Profile Photo ──────────────────────────────────────────────
-const LANG_OPTIONS = [
-  { id: "pt", flag: "🇧🇷", label: "Português" },
-  { id: "en", flag: "🇺🇸", label: "English" },
-  { id: "es", flag: "🇪🇸", label: "Español" },
-];
 const PROFILE_EMOJIS = ["🐶","🐱","🦊","🐼","🦁","🐨","🦄","🐸","🤖","👽","🧙","🎯"];
-const getLang = () => localStorage.getItem("rivai_lang") || "pt";
-const saveLang = l => localStorage.setItem("rivai_lang", l);
 const getProfilePhoto = () => localStorage.getItem("rivai_profile_photo");
 const saveProfilePhoto = b64 => b64 ? localStorage.setItem("rivai_profile_photo", b64) : localStorage.removeItem("rivai_profile_photo");
 
@@ -328,9 +321,9 @@ function pickModuleIcon(title = "", pi = 0) {
 }
 
 // ─── Shared UI ─────────────────────────────────────────────────────────────
-function Card({ T, children, style = {}, glow, onClick }) {
+function Card({ T, children, style = {}, glow, onClick, ...rest }) {
   return (
-    <div onClick={onClick} style={{ background: T.card, border: `1px solid ${glow ? T.accent + "40" : T.border}`, borderRadius: 14, padding: "18px", boxShadow: T.card === "#ffffff" ? "0 1px 3px #0000000a" : "none", cursor: onClick ? "pointer" : "default", ...style }}>
+    <div onClick={onClick} {...rest} style={{ background: T.card, border: `1px solid ${glow ? T.accent + "40" : T.border}`, borderRadius: 14, padding: "18px", boxShadow: T.card === "#ffffff" ? "0 1px 3px #0000000a" : "none", cursor: onClick ? "pointer" : "default", ...style }}>
       {children}
     </div>
   );
@@ -338,7 +331,7 @@ function Card({ T, children, style = {}, glow, onClick }) {
 
 function BtnPrimary({ T, children, onClick, disabled, style = {} }) {
   return (
-    <button onClick={onClick} disabled={disabled} style={{ padding: "13px 20px", background: disabled ? T.textDim : T.accent, color: T.btnText, border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: disabled ? "not-allowed" : "pointer", fontFamily: "'Inter', sans-serif", transition: "background 0.15s", width: "100%", ...style }}>
+    <button onClick={onClick} disabled={disabled} style={{ padding: "13px 20px", background: disabled ? T.textDim : T.accent, color: T.btnText, border: "none", borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: disabled ? "not-allowed" : "pointer", fontFamily: "'Source Serif 4', serif", transition: "background 0.15s", width: "100%", ...style }}>
       {children}
     </button>
   );
@@ -346,7 +339,7 @@ function BtnPrimary({ T, children, onClick, disabled, style = {} }) {
 
 function TInput({ T, placeholder, type = "text", value, onChange, style = {} }) {
   const [f, setF] = useState(false);
-  return <input type={type} placeholder={placeholder} value={value} onChange={onChange} onFocus={() => setF(true)} onBlur={() => setF(false)} style={{ width: "100%", background: T.surface, border: `1px solid ${f ? T.accent : T.border}`, borderRadius: 11, color: T.textPrimary, fontFamily: "'Inter', sans-serif", fontSize: 14, padding: "12px 14px", outline: "none", marginBottom: 12, transition: "border 0.2s", boxShadow: f ? `0 0 0 3px ${T.accentDim}` : "none", ...style }} />;
+  return <input type={type} placeholder={placeholder} value={value} onChange={onChange} onFocus={() => setF(true)} onBlur={() => setF(false)} style={{ width: "100%", background: T.surface, border: `1px solid ${f ? T.accent : T.border}`, borderRadius: 11, color: T.textPrimary, fontFamily: "'Source Serif 4', serif", fontSize: 14, padding: "12px 14px", outline: "none", marginBottom: 12, transition: "border 0.2s", boxShadow: f ? `0 0 0 3px ${T.accentDim}` : "none", ...style }} />;
 }
 
 function Chip({ T, label, active, onClick, radio, icon }) {
@@ -360,36 +353,66 @@ function Chip({ T, label, active, onClick, radio, icon }) {
 }
 
 // ─── Tutorial Overlay ──────────────────────────────────────────────────────
-function TutorialOverlay({ T, onDone }) {
+const TOUR_STEPS = [
+  { tab: "home", target: "home-trail", title: "Sua trilha", desc: "Aqui você vê sua trilha atual e continua de onde parou, direto pra próxima aula." },
+  { tab: "home", target: "home-progress", title: "Seu progresso", desc: "Acompanhe quantos módulos você já concluiu e sua posição no ranking." },
+  { tab: "trail", target: "trail-covers", title: "Seus cadernos", desc: "Cada módulo é um caderno — clique para abrir e ver as aulas, no seu ritmo, sem separação por dia." },
+  { tab: "explore", target: "explore-search", title: "Explorar", desc: "Conteúdo geral sobre IA — ChatGPT, Claude, automação — pra qualquer pessoa, sem depender da sua trilha pessoal." },
+  { tab: "home", target: "profile-avatar", title: "Seu perfil", desc: "Seu perfil, notas salvas e configurações ficam aqui, no ícone do canto." },
+];
+
+function GuidedTour({ T, setTab, onDone }) {
   const [step, setStep] = useState(0);
-  const STEPS = [
-    { icon: "🏠", tab: "Início", title: "Bem-vindo ao Riv.IA!", desc: "Aqui você vê suas missões do dia, progresso da trilha e a próxima aula recomendada. É seu ponto de partida diário." },
-    { icon: "🗺️", tab: "Trilha", title: "Sua jornada de aprendizado", desc: "A trilha mostra seu curso personalizado em fases, dias e tópicos. Clique em qualquer tópico para abrir a aula completa." },
-    { icon: "⏱️", tab: "Estudar", title: "Acompanhe seu tempo", desc: "Use o cronômetro para medir suas sessões e atingir a meta diária. Complete 30 minutos para ganhar XP extra!" },
-    { icon: "⬡", tab: "Tutor", title: "Seu tutor personalizado", desc: "Tire dúvidas e peça revisões com um tutor de IA especializado no seu perfil. Quanto mais você pergunta, mais personalizado fica." },
-    { icon: "📓", tab: "Notas", title: "Registre o que aprende", desc: "Anote insights e aprendizados. Escrever ajuda a fixar o conteúdo — e você ganha XP por cada nota criada!" },
-  ];
-  const s = STEPS[step];
-  const isLast = step === STEPS.length - 1;
+  const [rect, setRect] = useState(null);
+  const s = TOUR_STEPS[step];
+
+  useEffect(() => {
+    setTab(s.tab);
+    setRect(null);
+    const t = setTimeout(() => {
+      const el = document.querySelector(`[data-tour="${s.target}"]`);
+      if (el) {
+        el.scrollIntoView({ block: "center" });
+        setRect(el.getBoundingClientRect());
+      }
+    }, 300);
+    return () => clearTimeout(t);
+  }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  function next() {
+    if (step + 1 >= TOUR_STEPS.length) onDone();
+    else setStep(p => p + 1);
+  }
+
+  const pad = 8;
+  const box = rect ? { top: rect.top - pad, left: rect.left - pad, width: rect.width + pad * 2, height: rect.height + pad * 2 } : null;
+  const tooltipWidth = 280;
+  let tooltipTop = 0, tooltipLeft = 0;
+  if (box) {
+    const spaceBelow = window.innerHeight - (box.top + box.height);
+    tooltipTop = spaceBelow > 200 ? box.top + box.height + 14 : Math.max(14, box.top - 180);
+    tooltipLeft = Math.min(Math.max(14, box.left), window.innerWidth - tooltipWidth - 14);
+  }
+
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 1000, background: "#000c", display: "flex", alignItems: "center", justifyContent: "center", padding: 20, animation: "overlayIn .3s ease" }}>
-      <div style={{ width: "100%", maxWidth: 400, background: T.card, border: `1px solid ${T.border}`, borderRadius: 24, padding: "32px 26px", animation: "pop .35s ease" }}>
-        <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 28 }}>
-          {STEPS.map((_, i) => <div key={i} style={{ width: i === step ? 22 : 7, height: 7, borderRadius: 4, background: i <= step ? T.accent : T.border, transition: "all .3s" }} />)}
+    <>
+      <div onClick={onDone} style={{ position: "fixed", inset: 0, zIndex: 900 }} />
+      {box
+        ? <div style={{ position: "fixed", top: box.top, left: box.left, width: box.width, height: box.height, borderRadius: 12, border: `2px solid ${T.accent}`, boxShadow: "0 0 0 9999px rgba(0,0,0,.62)", pointerEvents: "none", zIndex: 901, transition: "all .25s ease" }} />
+        : <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,.62)", zIndex: 901 }} />
+      }
+      <div style={{ position: "fixed", top: box ? tooltipTop : "50%", left: box ? tooltipLeft : "50%", transform: box ? "none" : "translate(-50%,-50%)", width: tooltipWidth, background: T.card, border: `1px solid ${T.border}`, borderRadius: 14, padding: 16, zIndex: 902, animation: "fadeUp .25s ease" }}>
+        <div style={{ display: "flex", gap: 5, marginBottom: 12 }}>
+          {TOUR_STEPS.map((_, i) => <div key={i} style={{ flex: 1, height: 3, borderRadius: 3, background: i <= step ? T.accent : T.border }} />)}
         </div>
-        <div style={{ textAlign: "center", marginBottom: 24 }}>
-          <div style={{ fontSize: 52, marginBottom: 12 }}>{s.icon}</div>
-          <div style={{ display: "inline-block", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 8, padding: "3px 12px", fontSize: 12, fontWeight: 700, color: T.accent, marginBottom: 12 }}>{s.tab}</div>
-          <h2 style={{ fontSize: 20, fontWeight: 900, color: T.textPrimary, marginBottom: 10 }}>{s.title}</h2>
-          <p style={{ fontSize: 14, color: T.textSecondary, lineHeight: 1.7 }}>{s.desc}</p>
+        <p style={{ fontWeight: 700, fontSize: 14, color: T.textPrimary, marginBottom: 6 }}>{s.title}</p>
+        <p style={{ fontSize: 13, color: T.textSecondary, lineHeight: 1.6, marginBottom: 14 }}>{s.desc}</p>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <button onClick={onDone} style={{ background: "none", border: "none", color: T.textDim, fontSize: 12, cursor: "pointer", fontFamily: "'Source Serif 4',serif" }}>Pular</button>
+          <button onClick={next} style={{ padding: "9px 16px", background: T.accent, color: "#fff", border: "none", borderRadius: 9, fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "'Source Serif 4',serif" }}>{step + 1 >= TOUR_STEPS.length ? "Concluir" : "Próximo →"}</button>
         </div>
-        <div style={{ display: "flex", gap: 10 }}>
-          {step > 0 && <button onClick={() => setStep(p => p - 1)} style={{ padding: "13px 18px", background: "transparent", border: `1px solid ${T.border}`, borderRadius: 12, color: T.textSecondary, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Inter',sans-serif" }}>←</button>}
-          <BtnPrimary T={T} style={{ flex: 1 }} onClick={() => isLast ? onDone() : setStep(p => p + 1)}>{isLast ? "Começar! 🚀" : "Próximo →"}</BtnPrimary>
-        </div>
-        {!isLast && <p onClick={onDone} style={{ textAlign: "center", fontSize: 12, color: T.textDim, marginTop: 14, cursor: "pointer" }}>Pular tutorial</p>}
       </div>
-    </div>
+    </>
   );
 }
 
@@ -429,7 +452,7 @@ function TutorPanel({ T, user, updateUser, addXP, addToast, completeMission, les
       <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 18px 12px", borderBottom: `1px solid ${T.border}` }}>
         <div style={{ width: 30, height: 30, borderRadius: 9, background: T.accentDim, border: `1px solid ${T.accent}44`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, color: T.accent, flexShrink: 0 }}>⬡</div>
         <p style={{ flex: 1, fontWeight: 700, fontSize: 14, color: T.textPrimary }}>Tutor personalizado</p>
-        {!dock && <button onClick={onClose} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "6px 11px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Inter',sans-serif", flexShrink: 0 }}>✕</button>}
+        {!dock && <button onClick={onClose} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "6px 11px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Source Serif 4',serif", flexShrink: 0 }}>✕</button>}
       </div>
 
       {/* Messages */}
@@ -458,7 +481,7 @@ function TutorPanel({ T, user, updateUser, addXP, addToast, completeMission, les
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === "Enter" && !e.shiftKey && send()}
-            style={{ flex: 1, background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, color: T.textPrimary, fontFamily: "'Inter',sans-serif", fontSize: 14, padding: "13px 15px", outline: "none", minHeight: 48 }}
+            style={{ flex: 1, background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, color: T.textPrimary, fontFamily: "'Source Serif 4',serif", fontSize: 14, padding: "13px 15px", outline: "none", minHeight: 48 }}
             onFocus={e => e.target.style.borderColor = T.accent}
             onBlur={e => e.target.style.borderColor = T.border}
           />
@@ -477,7 +500,7 @@ function TutorPanel({ T, user, updateUser, addXP, addToast, completeMission, les
 }
 
 // ─── Mini Profile Menu ─────────────────────────────────────────────────────
-function MiniProfileMenu({ T, user, lang, setLang, onEditPhoto, onOpenProfile, onTutorial, onOpenNotes, onLogout, onClose }) {
+function MiniProfileMenu({ T, user, onEditPhoto, onOpenProfile, onTutorial, onOpenNotes, onLogout, onClose }) {
   const isPhoto = user.settings?.avatarType === "photo";
   const photo = isPhoto ? getProfilePhoto() : null;
   const avatarContent = photo
@@ -498,30 +521,20 @@ function MiniProfileMenu({ T, user, lang, setLang, onEditPhoto, onOpenProfile, o
             <p style={{ fontSize: 11, color: T.textDim, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{user.email}</p>
           </div>
         </div>
-        {/* Language */}
-        <p style={{ fontSize: 10, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 8, fontFamily: "'JetBrains Mono',monospace" }}>Idioma</p>
-        <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-          {LANG_OPTIONS.map(l => (
-            <button key={l.id} onClick={() => { setLang(l.id); saveLang(l.id); }} style={{ flex: 1, padding: "6px 4px", border: `1.5px solid ${lang === l.id ? T.accent : T.border}`, borderRadius: 9, background: lang === l.id ? T.accentDim : "transparent", cursor: "pointer", fontFamily: "'Inter',sans-serif", fontSize: 11, fontWeight: lang === l.id ? 800 : 500, color: lang === l.id ? T.accent : T.textSecondary, display: "flex", flexDirection: "column", alignItems: "center", gap: 2, transition: "all .15s" }}>
-              <span style={{ fontSize: 18 }}>{l.flag}</span>
-              <span>{l.label}</span>
-            </button>
-          ))}
-        </div>
         {/* Actions */}
-        <button onClick={() => { onClose(); onEditPhoto(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
+        <button onClick={() => { onClose(); onEditPhoto(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Source Serif 4',serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
           🖼️ Editar perfil
         </button>
-        <button onClick={() => { onClose(); onTutorial(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
+        <button onClick={() => { onClose(); onTutorial(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Source Serif 4',serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
           📖 Ver tutorial
         </button>
-        <button onClick={() => { onClose(); onOpenNotes(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
+        <button onClick={() => { onClose(); onOpenNotes(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Source Serif 4',serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
           📓 Minhas notas
         </button>
-        <button onClick={() => { onClose(); onOpenProfile(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
+        <button onClick={() => { onClose(); onOpenProfile(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Source Serif 4',serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
           ⚙️ Configurações
         </button>
-        <button onClick={onLogout} style={{ width: "100%", padding: "10px 12px", background: T.redDim, border: `1px solid ${T.red}33`, borderRadius: 10, cursor: "pointer", fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: 700, color: T.red, textAlign: "left", display: "flex", alignItems: "center", gap: 8 }}>
+        <button onClick={onLogout} style={{ width: "100%", padding: "10px 12px", background: T.redDim, border: `1px solid ${T.red}33`, borderRadius: 10, cursor: "pointer", fontFamily: "'Source Serif 4',serif", fontSize: 13, fontWeight: 700, color: T.red, textAlign: "left", display: "flex", alignItems: "center", gap: 8 }}>
           🚪 Sair da conta
         </button>
       </div>
@@ -569,10 +582,10 @@ function ProfilePhotoModal({ T, user, updateUser, addToast, onClose }) {
       <div style={{ position: "relative", width: "100%", maxWidth: 380, background: T.card, border: `1px solid ${T.border}`, borderRadius: 20, padding: "24px 20px", animation: "pop .3s ease" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
           <h3 style={{ fontWeight: 900, fontSize: 16, color: T.textPrimary }}>Editar foto de perfil</h3>
-          <button onClick={onClose} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", color: T.textSecondary, fontSize: 14, fontFamily: "'Inter',sans-serif" }}>✕</button>
+          <button onClick={onClose} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", color: T.textSecondary, fontSize: 14, fontFamily: "'Source Serif 4',serif" }}>✕</button>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: mode === "emoji" ? 14 : 0 }}>
-          <button onClick={() => { setMode("photo"); setTimeout(() => fileRef.current?.click(), 60); }} style={{ padding: "13px 16px", background: mode === "photo" ? T.accentDim : T.surface, border: `1.5px solid ${mode === "photo" ? T.accent : T.border}`, borderRadius: 13, cursor: "pointer", fontFamily: "'Inter',sans-serif", textAlign: "left", display: "flex", alignItems: "center", gap: 12, transition: "all .15s" }}>
+          <button onClick={() => { setMode("photo"); setTimeout(() => fileRef.current?.click(), 60); }} style={{ padding: "13px 16px", background: mode === "photo" ? T.accentDim : T.surface, border: `1.5px solid ${mode === "photo" ? T.accent : T.border}`, borderRadius: 13, cursor: "pointer", fontFamily: "'Source Serif 4',serif", textAlign: "left", display: "flex", alignItems: "center", gap: 12, transition: "all .15s" }}>
             <span style={{ fontSize: 24 }}>📷</span>
             <div>
               <p style={{ fontSize: 14, fontWeight: 700, color: T.textPrimary }}>Enviar foto</p>
@@ -580,14 +593,14 @@ function ProfilePhotoModal({ T, user, updateUser, addToast, onClose }) {
             </div>
           </button>
           <input ref={fileRef} type="file" accept="image/*" onChange={handlePhotoChange} style={{ display: "none" }} />
-          <button onClick={applyInitial} style={{ padding: "13px 16px", background: T.surface, border: `1.5px solid ${T.border}`, borderRadius: 13, cursor: "pointer", fontFamily: "'Inter',sans-serif", textAlign: "left", display: "flex", alignItems: "center", gap: 12, transition: "all .15s" }}>
+          <button onClick={applyInitial} style={{ padding: "13px 16px", background: T.surface, border: `1.5px solid ${T.border}`, borderRadius: 13, cursor: "pointer", fontFamily: "'Source Serif 4',serif", textAlign: "left", display: "flex", alignItems: "center", gap: 12, transition: "all .15s" }}>
             <span style={{ fontSize: 24 }}>🔤</span>
             <div>
               <p style={{ fontSize: 14, fontWeight: 700, color: T.textPrimary }}>Usar inicial do nome</p>
               <p style={{ fontSize: 12, color: T.textSecondary }}>Exibe a primeira letra do seu nome</p>
             </div>
           </button>
-          <button onClick={() => setMode(m => m === "emoji" ? null : "emoji")} style={{ padding: "13px 16px", background: mode === "emoji" ? T.accentDim : T.surface, border: `1.5px solid ${mode === "emoji" ? T.accent : T.border}`, borderRadius: 13, cursor: "pointer", fontFamily: "'Inter',sans-serif", textAlign: "left", display: "flex", alignItems: "center", gap: 12, transition: "all .15s" }}>
+          <button onClick={() => setMode(m => m === "emoji" ? null : "emoji")} style={{ padding: "13px 16px", background: mode === "emoji" ? T.accentDim : T.surface, border: `1.5px solid ${mode === "emoji" ? T.accent : T.border}`, borderRadius: 13, cursor: "pointer", fontFamily: "'Source Serif 4',serif", textAlign: "left", display: "flex", alignItems: "center", gap: 12, transition: "all .15s" }}>
             <span style={{ fontSize: 24 }}>😀</span>
             <div>
               <p style={{ fontSize: 14, fontWeight: 700, color: T.textPrimary }}>Escolher emoji</p>
@@ -671,7 +684,7 @@ function LessonScreen({ T, phaseIdx, dayIdx, course, completedTopics, onConclude
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
       {/* Floating tutor button */}
-      <button onClick={() => setShowTutor(true)} style={{ position: "fixed", bottom: 82, right: 18, zIndex: 110, background: T.accent, border: "none", borderRadius: 10, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 700, fontFamily: "'Inter',sans-serif", cursor: "pointer" }}>
+      <button onClick={() => setShowTutor(true)} style={{ position: "fixed", bottom: 82, right: 18, zIndex: 110, background: T.accent, border: "none", borderRadius: 10, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 700, fontFamily: "'Source Serif 4',serif", cursor: "pointer" }}>
         Perguntar ao Tutor
       </button>
 
@@ -689,7 +702,7 @@ function LessonScreen({ T, phaseIdx, dayIdx, course, completedTopics, onConclude
       )}
 
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-        <button onClick={onBack} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Inter',sans-serif", flexShrink: 0 }}>← Voltar</button>
+        <button onClick={onBack} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Source Serif 4',serif", flexShrink: 0 }}>← Voltar</button>
         <div style={{ flex: 1, minWidth: 0 }}>
           <p style={{ fontSize: 10, color: col.text, fontWeight: 700, marginBottom: 1 }}>{phase?.title}</p>
           <h2 style={{ fontSize: 15, fontWeight: 700, color: T.textPrimary, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>{day?.title}</h2>
@@ -749,8 +762,8 @@ function LessonScreen({ T, phaseIdx, dayIdx, course, completedTopics, onConclude
 
           <div style={{ marginBottom: 20 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: T.textSecondary, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 8 }}>Anotar algo desta aula</p>
-            <textarea rows={2} value={noteText} onChange={e => setNoteText(e.target.value)} placeholder="Escreva um insight ou lembrete rápido..." style={{ width: "100%", background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, color: T.textPrimary, fontFamily: "'Inter',sans-serif", fontSize: 13, padding: "10px 12px", outline: "none", resize: "none", marginBottom: 8 }} />
-            <button onClick={saveQuickNote} disabled={!noteText.trim()} style={{ padding: "8px 14px", background: noteSaved ? T.green : T.surface, border: `1px solid ${noteSaved ? T.green : T.border}`, borderRadius: 9, color: noteSaved ? "#fff" : T.textSecondary, fontSize: 12, fontWeight: 600, fontFamily: "'Inter',sans-serif", cursor: noteText.trim() ? "pointer" : "default" }}>
+            <textarea rows={2} value={noteText} onChange={e => setNoteText(e.target.value)} placeholder="Escreva um insight ou lembrete rápido..." style={{ width: "100%", background: T.card, border: `1px solid ${T.border}`, borderRadius: 10, color: T.textPrimary, fontFamily: "'Source Serif 4',serif", fontSize: 13, padding: "10px 12px", outline: "none", resize: "none", marginBottom: 8 }} />
+            <button onClick={saveQuickNote} disabled={!noteText.trim()} style={{ padding: "8px 14px", background: noteSaved ? T.green : T.surface, border: `1px solid ${noteSaved ? T.green : T.border}`, borderRadius: 9, color: noteSaved ? "#fff" : T.textSecondary, fontSize: 12, fontWeight: 600, fontFamily: "'Source Serif 4',serif", cursor: noteText.trim() ? "pointer" : "default" }}>
               {noteSaved ? "Salvo" : "Salvar nota"}
             </button>
           </div>
@@ -846,9 +859,9 @@ export default function App() {
   }
 
   const GS = `
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap');
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-    body{background:${T.bg};color:${T.textPrimary};font-family:'Inter',sans-serif;transition:background .3s,color .3s;}
+    body{background:${T.bg};color:${T.textPrimary};font-family:'Source Serif 4',serif;transition:background .3s,color .3s;}
     ::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:${T.border};border-radius:2px}
     @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
     @keyframes spin{to{transform:rotate(360deg)}}
@@ -927,7 +940,7 @@ function AuthScreen({ T, mode, onSubmit, onSwitch, error, setError, themeKey, to
 
   const fieldStyle = (focused) => ({
     width: "100%", background: "#0F0F1A", border: `1px solid ${focused ? "#6C4DFF" : "#2D2D3F"}`,
-    borderRadius: 12, color: "#ffffff", fontFamily: "'Inter', sans-serif", fontSize: 14,
+    borderRadius: 12, color: "#ffffff", fontFamily: "'Source Serif 4', serif", fontSize: 14,
     padding: "13px 14px", outline: "none", marginBottom: 12, transition: "border .2s",
     boxShadow: focused ? "0 0 0 3px rgba(108,77,255,.18)" : "none", boxSizing: "border-box",
   });
@@ -988,7 +1001,7 @@ function AuthScreen({ T, mode, onSubmit, onSwitch, error, setError, themeKey, to
             onClick={submit}
             onMouseEnter={() => setBtnHover(true)}
             onMouseLeave={() => setBtnHover(false)}
-            style={{ width: "100%", padding: "14px 20px", background: btnHover ? "#8A2BE2" : "#6C4DFF", color: "#ffffff", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: "'Inter', sans-serif", transition: "background .2s", boxShadow: "0 4px 20px rgba(108,77,255,.4)" }}
+            style={{ width: "100%", padding: "14px 20px", background: btnHover ? "#8A2BE2" : "#6C4DFF", color: "#ffffff", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: "'Source Serif 4', serif", transition: "background .2s", boxShadow: "0 4px 20px rgba(108,77,255,.4)" }}
           >
             {isLogin ? "Entrar →" : "Criar conta grátis →"}
           </button>
@@ -1070,7 +1083,7 @@ function OnboardingScreen({ T, user, onDone }) {
           {step === 1 && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 22 }}>{AREAS.map(a => <Chip key={a.id} T={T} label={a.label} active={areas.includes(a.id)} onClick={() => toggle(areas, setAreas, a.id)} />)}</div>}
           {step === 2 && <>
             <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 12, lineHeight: 1.6 }}>Essa é a parte que mais importa pra gente montar uma trilha de verdade sua — não genérica. Quanto mais específico, melhor.</p>
-            <textarea rows={5} value={context} onChange={e => setContext(e.target.value)} placeholder={contextPlaceholder} style={{ width: "100%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, color: T.textPrimary, fontFamily: "'Inter',sans-serif", fontSize: 14, padding: "12px 14px", outline: "none", resize: "none", marginBottom: 8 }} onFocus={e => e.target.style.borderColor = T.accent} onBlur={e => e.target.style.borderColor = T.border} />
+            <textarea rows={5} value={context} onChange={e => setContext(e.target.value)} placeholder={contextPlaceholder} style={{ width: "100%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, color: T.textPrimary, fontFamily: "'Source Serif 4',serif", fontSize: 14, padding: "12px 14px", outline: "none", resize: "none", marginBottom: 8 }} onFocus={e => e.target.style.borderColor = T.accent} onBlur={e => e.target.style.borderColor = T.border} />
             <p style={{ fontSize: 11, color: T.textDim }}>{context.trim().length < 15 ? "Escreva pelo menos uma frase com detalhe real." : "Ótimo, isso ajuda bastante."}</p>
           </>}
           {step === 3 && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 22 }}>{LEVELS.map(l => <Chip key={l.id} T={T} label={l.label} icon={l.icon} active={level === l.id} onClick={() => setLevel(l.id)} radio />)}</div>}
@@ -1087,7 +1100,7 @@ function OnboardingScreen({ T, user, onDone }) {
             {err && <p style={{ color: T.red, fontSize: 13, marginTop: 8, marginBottom: -4 }}>{err}</p>}
           </>}
           <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
-            {step > 0 && <button onClick={() => setStep(s => s - 1)} style={{ padding: "13px 18px", background: "transparent", border: `1px solid ${T.border}`, borderRadius: 12, color: T.textSecondary, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Inter',sans-serif" }}>←</button>}
+            {step > 0 && <button onClick={() => setStep(s => s - 1)} style={{ padding: "13px 18px", background: "transparent", border: `1px solid ${T.border}`, borderRadius: 12, color: T.textSecondary, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Source Serif 4',serif" }}>←</button>}
             <BtnPrimary T={T} disabled={step === 0 ? !goals.length : step === 1 ? !areas.length : step === 2 ? context.trim().length < 15 : step === 3 ? !level : false} style={{ flex: 1 }} onClick={step === 6 ? finish : () => setStep(s => s + 1)}>
               {step === 6 ? "✦ Gerar meu curso" : "Próximo →"}
             </BtnPrimary>
@@ -1303,7 +1316,7 @@ function ExploreTab({ T }) {
     const content = EXPLORE_LESSON_CONTENT[`${openLesson.trailId}_${openLesson.lesson.id}`];
     return (
       <div style={{ animation: "fadeUp .4s ease" }}>
-        <button onClick={() => { setOpenLesson(null); setFlipped(new Set()); }} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Inter',sans-serif", marginBottom: 18 }}>← Voltar</button>
+        <button onClick={() => { setOpenLesson(null); setFlipped(new Set()); }} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Source Serif 4',serif", marginBottom: 18 }}>← Voltar</button>
         <h2 style={{ fontSize: 17, fontWeight: 700, color: T.textPrimary, marginBottom: 20 }}>{openLesson.lesson.title}</h2>
         {!content ? (
           <div style={{ padding: 20, background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, textAlign: "center" }}>
@@ -1354,7 +1367,7 @@ function ExploreTab({ T }) {
       <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
         <img src="/bg-explorar.svg" alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.08, pointerEvents: 'none', zIndex: 0 }} />
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <button onClick={() => setSelectedTrail(null)} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'transparent', border: 'none', color: T.accent, fontFamily: "'Inter',sans-serif", fontSize: 14, fontWeight: 700, cursor: 'pointer', marginBottom: 18, padding: '4px 0' }}>
+          <button onClick={() => setSelectedTrail(null)} style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'transparent', border: 'none', color: T.accent, fontFamily: "'Source Serif 4',serif", fontSize: 14, fontWeight: 700, cursor: 'pointer', marginBottom: 18, padding: '4px 0' }}>
             ← Voltar
           </button>
           <Card T={T} style={{ padding: '20px 18px', marginBottom: 20 }}>
@@ -1406,7 +1419,7 @@ function ExploreTab({ T }) {
       <img src="/bg-explorar.svg" alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.08, pointerEvents: 'none', zIndex: 0 }} />
       <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Search bar */}
-      <div style={{ position: "relative", marginBottom: 22 }}>
+      <div data-tour="explore-search" style={{ position: "relative", marginBottom: 22 }}>
         <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 15, pointerEvents: "none" }}>🔍</span>
         <input
           placeholder="Buscar trilhas, temas ou aulas..."
@@ -1414,7 +1427,7 @@ function ExploreTab({ T }) {
           onChange={e => setQuery(e.target.value)}
           onFocus={() => setSearchFocused(true)}
           onBlur={() => setSearchFocused(false)}
-          style={{ width: "100%", background: T.surface, border: `1px solid ${searchFocused ? T.accent : T.border}`, borderRadius: 13, color: T.textPrimary, fontFamily: "'Inter',sans-serif", fontSize: 14, padding: "13px 14px 13px 40px", outline: "none", transition: "border .2s", boxShadow: searchFocused ? `0 0 0 3px ${T.accentDim}` : "none", boxSizing: "border-box" }}
+          style={{ width: "100%", background: T.surface, border: `1px solid ${searchFocused ? T.accent : T.border}`, borderRadius: 13, color: T.textPrimary, fontFamily: "'Source Serif 4',serif", fontSize: 14, padding: "13px 14px 13px 40px", outline: "none", transition: "border .2s", boxShadow: searchFocused ? `0 0 0 3px ${T.accentDim}` : "none", boxSizing: "border-box" }}
         />
       </div>
 
@@ -1424,7 +1437,7 @@ function ExploreTab({ T }) {
         {EXPLORE_CATEGORIES.map(cat => {
           const active = activeCategory === cat.id;
           return (
-            <button key={cat.id} onClick={() => setActiveCategory(active ? null : cat.id)} style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 13px", border: `1.5px solid ${active ? T.accent : T.border}`, borderRadius: 20, background: active ? T.accentDim : "transparent", color: active ? T.accent : T.textSecondary, fontSize: 13, fontWeight: active ? 700 : 500, fontFamily: "'Inter',sans-serif", cursor: "pointer", transition: "all .15s", boxShadow: active ? `0 0 0 1px ${T.accent}` : "none" }}>
+            <button key={cat.id} onClick={() => setActiveCategory(active ? null : cat.id)} style={{ display: "flex", alignItems: "center", gap: 5, padding: "7px 13px", border: `1.5px solid ${active ? T.accent : T.border}`, borderRadius: 20, background: active ? T.accentDim : "transparent", color: active ? T.accent : T.textSecondary, fontSize: 13, fontWeight: active ? 700 : 500, fontFamily: "'Source Serif 4',serif", cursor: "pointer", transition: "all .15s", boxShadow: active ? `0 0 0 1px ${T.accent}` : "none" }}>
               <span>{cat.icon}</span>{cat.label}
             </button>
           );
@@ -1454,7 +1467,7 @@ function ExploreTab({ T }) {
                   </div>
                 </div>
               </div>
-              <button onClick={() => setSelectedTrail(trail)} style={{ marginTop: 14, width: "100%", padding: "10px 0", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 10, color: T.accent, fontSize: 13, fontWeight: 800, fontFamily: "'Inter',sans-serif", cursor: "pointer", transition: "all .15s" }}
+              <button onClick={() => setSelectedTrail(trail)} style={{ marginTop: 14, width: "100%", padding: "10px 0", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 10, color: T.accent, fontSize: 13, fontWeight: 800, fontFamily: "'Source Serif 4',serif", cursor: "pointer", transition: "all .15s" }}
                 onMouseEnter={e => { e.currentTarget.style.background = T.accent; e.currentTarget.style.color = "#fff"; }}
                 onMouseLeave={e => { e.currentTarget.style.background = T.accentDim; e.currentTarget.style.color = T.accent; }}>
                 Ver trilha →
@@ -1474,7 +1487,6 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
   const [showProfile, setShowProfile] = useState(false);
   const [showMiniMenu, setShowMiniMenu] = useState(false);
   const [showPhotoModal, setShowPhotoModal] = useState(false);
-  const [lang, setLang] = useState(getLang);
   const [showTutorial, setShowTutorial] = useState(false);
   const navTo = useCallback(t => setTab(t), []);
   const userRef = useRef(user);
@@ -1500,22 +1512,11 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
     <div className="rv-shell-root" style={{ minHeight: "100vh", background: T.bg }}>
       {/* Navbar */}
       <div style={{ background: T.navBg, borderBottom: `1px solid ${T.border}`, padding: "10px 16px", display: "flex", alignItems: "center", gap: 10, position: "sticky", top: 0, zIndex: 100, backdropFilter: "blur(16px)" }}>
-        <span style={{ fontSize: 16, fontWeight: 700, color: T.textPrimary, fontFamily: "'Inter', sans-serif" }}>Riv<span style={{ color: T.accent, fontWeight: 900 }}>.IA</span></span>
-        <div style={{ flex: 1, display: "flex", alignItems: "center", gap: 8 }}>
-          {(() => { const { lvl, pct } = getLevel(user.xp || 0); return <>
-            <div style={{ background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, borderRadius: 6, padding: "2px 8px", fontSize: 11, fontWeight: 800, color: "#fff" }}>L{lvl}</div>
-            <div style={{ flex: 1, height: 5, background: T.border, borderRadius: 4, overflow: "hidden", maxWidth: 160 }}>
-              <div style={{ height: 5, background: `linear-gradient(90deg,${T.accent},${T.accentLight||T.green})`, width: pct + "%", borderRadius: 4, transition: "width .6s ease" }} />
-            </div>
-            <span style={{ fontSize: 11, color: T.amber, fontWeight: 800, fontFamily: "'JetBrains Mono',monospace", whiteSpace: "nowrap" }}>{user.xp || 0} XP</span>
-          </>; })()}
-        </div>
+        <span style={{ fontSize: 16, fontWeight: 700, color: T.textPrimary, fontFamily: "'Source Serif 4', serif" }}>Riv<span style={{ color: T.accent, fontWeight: 900 }}>.IA</span></span>
+        <div style={{ flex: 1 }} />
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          {user.streak > 0 && <div style={{ display: "flex", alignItems: "center", gap: 3, background: T.redDim, border: `1px solid ${T.red}33`, borderRadius: 7, padding: "3px 8px" }}>
-            <span>🔥</span><span style={{ fontSize: 12, fontWeight: 800, color: T.red }}>{user.streak}</span>
-          </div>}
           <button onClick={toggleTheme} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 9, padding: "5px 9px", cursor: "pointer", fontSize: 14 }}>{themeKey === "dark" ? "☀️" : "🌙"}</button>
-          <button onClick={() => setShowMiniMenu(m => !m)} style={{ width: 32, height: 32, borderRadius: 10, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, border: "none", display: "flex", alignItems: "center", justifyContent: "center", fontSize: user.settings?.avatarType === "photo" || !user.settings?.avatar ? 13 : 17, fontWeight: 900, color: "#fff", cursor: "pointer", overflow: "hidden" }}>
+          <button data-tour="profile-avatar" onClick={() => setShowMiniMenu(m => !m)} style={{ width: 32, height: 32, borderRadius: 10, background: T.accent, border: "none", display: "flex", alignItems: "center", justifyContent: "center", fontSize: user.settings?.avatarType === "photo" || !user.settings?.avatar ? 13 : 17, fontWeight: 700, color: "#fff", cursor: "pointer", overflow: "hidden" }}>
             {user.settings?.avatarType === "photo" && getProfilePhoto()
               ? <img src={getProfilePhoto()} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
               : (user.settings?.avatarType === "emoji" ? user.settings.avatar : (user.settings?.avatar || (user.name || "?")[0].toUpperCase()))
@@ -1548,7 +1549,7 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
       {/* Bottom nav (mobile) */}
       <div className="rv-bottomnav" style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: themeKey === "dark" ? "#1B1B24" : T.navBg, borderTop: `1px solid ${T.border}`, zIndex: 100, backdropFilter: "blur(16px)" }}>
         {NAV_ITEMS.map(item => (
-          <button key={item.id} onClick={() => setTab(item.id)} style={{ flex: 1, padding: "8px 0 9px", background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2, fontFamily: "'Inter',sans-serif" }}>
+          <button key={item.id} onClick={() => setTab(item.id)} style={{ flex: 1, padding: "8px 0 9px", background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2, fontFamily: "'Source Serif 4',serif" }}>
             <span style={{ fontSize: 18, filter: tab === item.id ? "none" : "grayscale(80%) opacity(.45)", transform: tab === item.id ? "scale(1.16)" : "scale(1)", transition: "all .15s", color: tab === item.id && item.id === "tutor" ? T.accent : undefined }}>{item.icon}</span>
             <span style={{ fontSize: 9, fontWeight: tab === item.id ? 800 : 500, color: tab === item.id ? (themeKey === "dark" ? "#6C4DFF" : T.accent) : (themeKey === "dark" ? "#9CA3AF" : T.textDim) }}>{item.label}</span>
           </button>
@@ -1560,8 +1561,6 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
         <MiniProfileMenu
           T={T}
           user={user}
-          lang={lang}
-          setLang={setLang}
           onEditPhoto={() => setShowPhotoModal(true)}
           onOpenProfile={() => setShowProfile(true)}
           onTutorial={() => setShowTutorial(true)}
@@ -1575,7 +1574,7 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
       {/* Profile Modal */}
       {showProfile && <ProfileModal T={T} user={user} updateUser={updateUser} onLogout={onLogout} onRestart={onRestart} addToast={addToast} onClose={() => setShowProfile(false)} />}
       {/* Tutorial */}
-      {showTutorial && <TutorialOverlay T={T} onDone={() => { markTutorialDone(); setShowTutorial(false); }} />}
+      {showTutorial && <GuidedTour T={T} setTab={setTab} onDone={() => { markTutorialDone(); setShowTutorial(false); setTab("home"); }} />}
     </div>
   );
 }
@@ -1655,7 +1654,7 @@ function ProfileModal({ T, user, updateUser, onLogout, onRestart, addToast, onCl
       <div style={{ position: "relative", width: "100%", maxWidth: 520, background: T.card, border: `1px solid ${T.border}`, borderRadius: "20px 20px 0 0", padding: "24px 22px 32px", animation: "modalIn .3s ease", maxHeight: "85vh", overflowY: "auto" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
           <h3 style={{ fontWeight: 900, fontSize: 17, color: T.textPrimary }}>Meu Perfil</h3>
-          <button onClick={onClose} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", color: T.textSecondary, fontSize: 14, fontFamily: "'Inter',sans-serif" }}>✕</button>
+          <button onClick={onClose} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 8, padding: "5px 10px", cursor: "pointer", color: T.textSecondary, fontSize: 14, fontFamily: "'Source Serif 4',serif" }}>✕</button>
         </div>
         {/* Avatar + level */}
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20, padding: "14px", background: T.surface, borderRadius: 14, border: `1px solid ${T.border}` }}>
@@ -1705,8 +1704,8 @@ function ProfileModal({ T, user, updateUser, onLogout, onRestart, addToast, onCl
         </div>
         <StudyHeatmap T={T} />
         <BtnPrimary T={T} onClick={save} style={{ marginBottom: 10 }}>Salvar alterações</BtnPrimary>
-        <button onClick={onRestart} style={{ width: "100%", padding: "12px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 12, color: T.accent, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Inter',sans-serif", marginBottom: 8 }}>🔄 Gerar novo curso</button>
-        <button onClick={onLogout} style={{ width: "100%", padding: "12px", background: T.redDim, border: `1px solid ${T.red}33`, borderRadius: 12, color: T.red, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Inter',sans-serif" }}>Sair da conta</button>
+        <button onClick={onRestart} style={{ width: "100%", padding: "12px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 12, color: T.accent, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Source Serif 4',serif", marginBottom: 8 }}>🔄 Gerar novo curso</button>
+        <button onClick={onLogout} style={{ width: "100%", padding: "12px", background: T.redDim, border: `1px solid ${T.red}33`, borderRadius: 12, color: T.red, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Source Serif 4',serif" }}>Sair da conta</button>
         {/* PWA hint */}
         <div style={{ marginTop: 14, padding: "12px 14px", background: T.accentDim, border: `1px solid ${T.accent}22`, borderRadius: 12, textAlign: "center" }}>
           <p style={{ fontSize: 12, fontWeight: 700, color: T.accent, marginBottom: 3 }}>📱 Instalar como app</p>
@@ -1720,9 +1719,7 @@ function ProfileModal({ T, user, updateUser, onLogout, onRestart, addToast, onCl
 // ─── Home Tab ──────────────────────────────────────────────────────────────
 function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }) {
   const completedTopics = user.completedTopics || [];
-  const completedMissions = user.completedMissions || [];
   const displayName = user.settings?.nickname || user.name?.split(" ")[0] || "Estudante";
-  const today = getTodayStr();
 
   const totalTopics = user.course?.phases?.reduce((s, p) => s + (p.days?.length || 0), 0) || 0;
   const progressPct = totalTopics > 0 ? Math.round((completedTopics.length / totalTopics) * 100) : 0;
@@ -1761,22 +1758,6 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
       total: p.days?.length || 0, pct: 0,
     }));
 
-  const HOME_MISSIONS = [
-    { id: "home_study_15", icon: "📚", label: "Estudar por 15 min",    xp: 30, hint: "Vá para a aba Trilhas e estude" },
-    { id: "home_review",   icon: "💬", label: "Revisar com o tutor",   xp: 50, hint: "Peça uma revisão de um tema no Tutor" },
-    { id: "home_tutor",    icon: "💬", label: "Perguntar ao tutor",    xp: 20, hint: "Envie uma mensagem ao Tutor" },
-  ];
-
-  const studySec = (() => {
-    try {
-      const s = JSON.parse(localStorage.getItem(TRAIL_STUDY_KEY) || "{}");
-      return s.date === today ? (s.sec || 0) : 0;
-    } catch { return 0; }
-  })();
-  const studyMin = Math.floor(studySec / 60);
-  const studySecRem = studySec % 60;
-  const studyPct = Math.min(100, Math.round((studySec / 900) * 100));
-
   return (
     <div style={{ animation: "fadeUp .4s ease", position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
       <img src="/bg-inicio.svg" alt="" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover', opacity: 0.08, pointerEvents: 'none', zIndex: 0 }} />
@@ -1798,7 +1779,7 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
 
       {/* Card "Sua trilha" */}
       {user.course && (
-        <Card T={T} style={{ marginBottom: 14 }}>
+        <Card T={T} data-tour="home-trail" style={{ marginBottom: 14 }}>
           <p style={{ fontSize: 11, fontWeight: 700, color: T.textSecondary, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 6 }}>Sua trilha</p>
           <p style={{ fontWeight: 700, fontSize: 16, color: T.textPrimary, marginBottom: 12 }}>{user.course.headline || user.course.title || "Trilha atual"}</p>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
@@ -1809,52 +1790,14 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
             <div style={{ height: 6, background: allDone ? T.green : T.accent, width: progressPct + "%", borderRadius: 4, transition: "width .6s ease" }} />
           </div>
           <button onClick={() => navTo("trail")}
-            style={{ width: "100%", padding: "12px 0", background: allDone ? T.green : T.accent, border: "none", borderRadius: 9, color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: "'Inter',sans-serif", cursor: "pointer" }}>
+            style={{ width: "100%", padding: "12px 0", background: allDone ? T.green : T.accent, border: "none", borderRadius: 9, color: "#fff", fontSize: 14, fontWeight: 700, fontFamily: "'Source Serif 4',serif", cursor: "pointer" }}>
             {allDone ? "Trilha concluída" : "Continuar trilha →"}
           </button>
         </Card>
       )}
 
-      {/* Missões do dia */}
-      <Card T={T} style={{ marginBottom: 14 }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-          <p style={{ fontSize: 11, fontWeight: 700, color: T.textSecondary, textTransform: "uppercase", letterSpacing: ".08em" }}>Metas de hoje</p>
-          <span style={{ fontSize: 11, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>{HOME_MISSIONS.filter(m => completedMissions.includes(m.id + "_" + today)).length}/{HOME_MISSIONS.length}</span>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {HOME_MISSIONS.map(m => {
-            const done = completedMissions.includes(m.id + "_" + today);
-            const isStudy = m.id === "home_study_15";
-            return (
-              <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 10, padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "default" }}>
-                <div style={{ width: 20, height: 20, borderRadius: 6, border: `1.5px solid ${done ? T.green : T.border}`, background: done ? T.green : "transparent", color: "#fff", fontSize: 11, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{done ? "✓" : ""}</div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ fontWeight: 600, fontSize: 13, color: done ? T.textSecondary : T.textPrimary, textDecoration: done ? "line-through" : "none" }}>{m.label}</p>
-                  {!done && isStudy && (
-                    <div style={{ marginTop: 4 }}>
-                      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 3 }}>
-                        <span style={{ fontSize: 10, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>
-                          {studyMin}:{String(studySecRem).padStart(2, "0")} / 15:00
-                        </span>
-                        <span style={{ fontSize: 10, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>{studyPct}%</span>
-                      </div>
-                      <div style={{ height: 3, background: T.border, borderRadius: 3, overflow: "hidden" }}>
-                        <div style={{ height: 3, background: T.accent, width: studyPct + "%", borderRadius: 3, transition: "width .5s ease" }} />
-                      </div>
-                    </div>
-                  )}
-                  {!done && !isStudy && (
-                    <p style={{ fontSize: 11, color: T.textDim, marginTop: 2 }}>{m.hint}</p>
-                  )}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </Card>
-
       {/* Card "Seu progresso" */}
-      <Card T={T} style={{ marginBottom: 14 }}>
+      <Card T={T} data-tour="home-progress" style={{ marginBottom: 14 }}>
         <p style={{ fontSize: 11, fontWeight: 700, color: T.textSecondary, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 12 }}>Seu progresso</p>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8 }}>
           {[
@@ -1875,7 +1818,7 @@ function HomeTab({ T, user, updateUser, addXP, addToast, navTo, onProfileClick }
         <div>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
             <p style={{ fontSize: 11, fontWeight: 700, color: T.textSecondary, textTransform: "uppercase", letterSpacing: ".08em" }}>Continuar aprendendo</p>
-            <button onClick={() => navTo("trail")} style={{ background: "none", border: "none", color: T.accent, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "'Inter',sans-serif" }}>Ver todas →</button>
+            <button onClick={() => navTo("trail")} style={{ background: "none", border: "none", color: T.accent, fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "'Source Serif 4',serif" }}>Ver todas →</button>
           </div>
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {phasesToShow.map(({ phase, pi, pct }) => (
@@ -1979,7 +1922,7 @@ function EstudarTab({ T, user, updateUser, addXP, addToast, completeMission }) {
         <p style={{ fontSize: 12, color: T.textDim, marginBottom: 12 }}>{done ? "🎉 Meta diária concluída!" : `Meta: ${user.settings?.dailyGoal || 1}h — faltam ${Math.max(0, Math.floor((goalSec - timerSec) / 60))}min`}</p>
         <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
           <BtnPrimary T={T} style={{ width: "auto", padding: "11px 24px" }} onClick={handleStart}>{running ? "⏸ Pausar" : "▶ Estudar agora"}</BtnPrimary>
-          {timerSec > 0 && <button onClick={resetTimer} style={{ padding: "11px 14px", background: "transparent", border: `1px solid ${T.border}`, borderRadius: 12, color: T.textSecondary, fontSize: 15, cursor: "pointer", fontFamily: "'Inter',sans-serif" }}>↺</button>}
+          {timerSec > 0 && <button onClick={resetTimer} style={{ padding: "11px 14px", background: "transparent", border: `1px solid ${T.border}`, borderRadius: 12, color: T.textSecondary, fontSize: 15, cursor: "pointer", fontFamily: "'Source Serif 4',serif" }}>↺</button>}
         </div>
       </Card>
 
@@ -2090,7 +2033,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
       <div style={{ display: "flex", gap: 20, alignItems: "flex-start" }}>
       <div style={{ animation: "fadeUp .4s ease", flex: 1, minWidth: 0 }}>
         {showTrailTutor && <TutorPanel T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} completeMission={completeMission} lessonContext={null} onClose={() => setShowTrailTutor(false)} />}
-        <button onClick={() => setOpenPhase(-1)} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Inter',sans-serif", marginBottom: 18 }}>← Voltar aos módulos</button>
+        <button onClick={() => setOpenPhase(-1)} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Source Serif 4',serif", marginBottom: 18 }}>← Voltar aos módulos</button>
 
         <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20 }}>
           <div style={{ width: 44, height: 44, borderRadius: 10, background: col.bg, border: `1px solid ${col.border}`, display: "flex", alignItems: "center", justifyContent: "center", color: col.text, flexShrink: 0 }}>
@@ -2116,7 +2059,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
                   {isFirstLesson && course.first_prompt && (
                     <div onClick={e => e.stopPropagation()} style={{ marginTop: 10 }}>
                       {!openPrompts.has(key) ? (
-                        <button onClick={e => togglePrompt(key, e)} style={{ padding: "5px 12px", background: T.accentDim, border: `1px solid ${T.accent}44`, borderRadius: 8, color: T.accent, fontSize: 12, fontWeight: 600, fontFamily: "'Inter',sans-serif", cursor: "pointer" }}>Ver prompt</button>
+                        <button onClick={e => togglePrompt(key, e)} style={{ padding: "5px 12px", background: T.accentDim, border: `1px solid ${T.accent}44`, borderRadius: 8, color: T.accent, fontSize: 12, fontWeight: 600, fontFamily: "'Source Serif 4',serif", cursor: "pointer" }}>Ver prompt</button>
                       ) : (
                         <div style={{ padding: "12px 14px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 10 }}>
                           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
@@ -2124,7 +2067,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
                             <button onClick={e => togglePrompt(key, e)} style={{ background: "none", border: "none", color: T.textDim, fontSize: 14, cursor: "pointer", lineHeight: 1 }}>✕</button>
                           </div>
                           <p style={{ fontSize: 12, color: T.textSecondary, lineHeight: 1.7, fontStyle: "italic", marginBottom: 10 }}>"{course.first_prompt}"</p>
-                          <button onClick={e => { e.stopPropagation(); navigator.clipboard?.writeText(course.first_prompt); setCopied(true); addXP(5); setTimeout(() => setCopied(false), 2000); }} style={{ padding: "7px 14px", background: T.accent, border: "none", borderRadius: 8, color: "#fff", fontSize: 12, fontWeight: 700, fontFamily: "'Inter',sans-serif", cursor: "pointer" }}>{copied ? "Copiado!" : "Copiar prompt"}</button>
+                          <button onClick={e => { e.stopPropagation(); navigator.clipboard?.writeText(course.first_prompt); setCopied(true); addXP(5); setTimeout(() => setCopied(false), 2000); }} style={{ padding: "7px 14px", background: T.accent, border: "none", borderRadius: 8, color: "#fff", fontSize: 12, fontWeight: 700, fontFamily: "'Source Serif 4',serif", cursor: "pointer" }}>{copied ? "Copiado!" : "Copiar prompt"}</button>
                         </div>
                       )}
                     </div>
@@ -2137,7 +2080,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
             );
           })}
           <div style={{ padding: "12px 16px", borderTop: `1px solid ${T.border}` }}>
-            <button onClick={() => setShowTrailTutor(true)} style={{ width: "100%", padding: "11px 0", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 9, color: T.accent, fontSize: 13, fontWeight: 600, fontFamily: "'Inter',sans-serif", cursor: "pointer" }}>
+            <button onClick={() => setShowTrailTutor(true)} style={{ width: "100%", padding: "11px 0", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 9, color: T.accent, fontSize: 13, fontWeight: 600, fontFamily: "'Source Serif 4',serif", cursor: "pointer" }}>
               Revisar este módulo com o tutor
             </button>
           </div>
@@ -2158,7 +2101,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
       <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Floating tutor button (mobile only) — rendered via Portal directly in document.body */}
       {tutorBtnMounted && !showTrailTutor && ReactDOM.createPortal(
-        <button className="rv-tutor-float-btn" onClick={() => setShowTrailTutor(true)} style={{ position: 'fixed', bottom: '90px', right: '20px', zIndex: 9999, background: T.accent, border: "none", borderRadius: 10, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 700, fontFamily: "'Inter',sans-serif", cursor: "pointer" }}>
+        <button className="rv-tutor-float-btn" onClick={() => setShowTrailTutor(true)} style={{ position: 'fixed', bottom: '90px', right: '20px', zIndex: 9999, background: T.accent, border: "none", borderRadius: 10, padding: "11px 18px", color: "#fff", fontSize: 13, fontWeight: 700, fontFamily: "'Source Serif 4',serif", cursor: "pointer" }}>
           Tutor
         </button>,
         document.body
@@ -2177,7 +2120,7 @@ function TrailTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 
       {/* Módulos — capas de caderno */}
       <p style={{ fontSize: 11, fontWeight: 700, color: T.textSecondary, textTransform: "uppercase", letterSpacing: ".08em", marginBottom: 12 }}>Seus cadernos</p>
-      <div className="rv-covers-grid" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+      <div className="rv-covers-grid" data-tour="trail-covers" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
         {course.phases?.map((phase, pi) => {
           const col = getPC(phase.color, T);
           const icon = pickModuleIcon(phase.title, pi);
@@ -2250,7 +2193,7 @@ function TutorTab({ T, user, updateUser, addXP, addToast, completeMission }) {
               <p style={{ fontWeight: 800, fontSize: 15, color: T.textPrimary }}>Pronto para aprender!</p>
               <p style={{ color: T.textSecondary, fontSize: 13, textAlign: "center", lineHeight: 1.6 }}>Pergunte qualquer coisa sobre IA. Sou especializado no seu perfil.</p>
               <div style={{ display: "flex", flexWrap: "wrap", gap: 7, justifyContent: "center", marginTop: 6 }}>
-                {suggestions.map(s => <button key={s} onClick={() => send(s)} style={{ padding: "7px 12px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 18, color: T.accent, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'Inter',sans-serif" }}>{s}</button>)}
+                {suggestions.map(s => <button key={s} onClick={() => send(s)} style={{ padding: "7px 12px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 18, color: T.accent, fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "'Source Serif 4',serif" }}>{s}</button>)}
               </div>
             </div>
           )}
@@ -2267,7 +2210,7 @@ function TutorTab({ T, user, updateUser, addXP, addToast, completeMission }) {
         </div>
       </Card>
       <div style={{ display: "flex", gap: 8 }}>
-        <input placeholder="Pergunte ao seu tutor..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && !e.shiftKey && send()} style={{ flex: 1, background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, color: T.textPrimary, fontFamily: "'Inter',sans-serif", fontSize: 14, padding: "12px 14px", outline: "none" }} onFocus={e => e.target.style.borderColor = T.accent} onBlur={e => e.target.style.borderColor = T.border} />
+        <input placeholder="Pergunte ao seu tutor..." value={input} onChange={e => setInput(e.target.value)} onKeyDown={e => e.key === "Enter" && !e.shiftKey && send()} style={{ flex: 1, background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, color: T.textPrimary, fontFamily: "'Source Serif 4',serif", fontSize: 14, padding: "12px 14px", outline: "none" }} onFocus={e => e.target.style.borderColor = T.accent} onBlur={e => e.target.style.borderColor = T.border} />
         <BtnPrimary T={T} style={{ width: 48, padding: 0, fontSize: 17, borderRadius: 12, flexShrink: 0 }} onClick={() => send()} disabled={loading}>→</BtnPrimary>
       </div>
     </div>
@@ -2336,11 +2279,11 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
     return (
       <div style={{ animation: "fadeUp .4s ease" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 18 }}>
-          <button onClick={() => { setView("list"); setEditing(null); setText(""); setTitle(""); }} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Inter',sans-serif" }}>← Voltar</button>
+          <button onClick={() => { setView("list"); setEditing(null); setText(""); setTitle(""); }} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 9, padding: "7px 12px", cursor: "pointer", color: T.textSecondary, fontSize: 13, fontFamily: "'Source Serif 4',serif" }}>← Voltar</button>
           <h2 style={{ fontSize: 16, fontWeight: 900, color: T.textPrimary }}>{editing !== null ? "Editar nota" : "Nova anotação"}</h2>
         </div>
         <TInput T={T} placeholder="Título da anotação" value={title || (editNote?.title || "")} onChange={e => setTitle(e.target.value)} style={{ marginBottom: 10, fontSize: 15, fontWeight: 700 }} />
-        <textarea value={text || (editNote?.text || "")} onChange={e => setText(e.target.value)} placeholder="Escreva o que você aprendeu hoje..." rows={10} style={{ width: "100%", background: T.card, border: `1px solid ${T.border}`, borderRadius: 14, color: T.textPrimary, fontFamily: "'Inter',sans-serif", fontSize: 14, padding: "14px 16px", outline: "none", resize: "none", lineHeight: 1.7, marginBottom: 12 }} onFocus={e => e.target.style.borderColor = T.accent} onBlur={e => e.target.style.borderColor = T.border} />
+        <textarea value={text || (editNote?.text || "")} onChange={e => setText(e.target.value)} placeholder="Escreva o que você aprendeu hoje..." rows={10} style={{ width: "100%", background: T.card, border: `1px solid ${T.border}`, borderRadius: 14, color: T.textPrimary, fontFamily: "'Source Serif 4',serif", fontSize: 14, padding: "14px 16px", outline: "none", resize: "none", lineHeight: 1.7, marginBottom: 12 }} onFocus={e => e.target.style.borderColor = T.accent} onBlur={e => e.target.style.borderColor = T.border} />
         <BtnPrimary T={T} onClick={saveNote}>Salvar anotação</BtnPrimary>
       </div>
     );
@@ -2353,7 +2296,7 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
       {/* Section tabs */}
       <div style={{ display: "flex", gap: 8, marginBottom: 20, background: T.surface, borderRadius: 12, padding: 4, border: `1px solid ${T.border}` }}>
         {[{ id: "notes", label: "📓 Anotações" }, { id: "agenda", label: "📅 Agenda" }].map(s => (
-          <button key={s.id} onClick={() => setSection(s.id)} style={{ flex: 1, padding: "9px 0", border: "none", borderRadius: 9, cursor: "pointer", fontFamily: "'Inter',sans-serif", fontSize: 13, fontWeight: section === s.id ? 800 : 600, background: section === s.id ? `linear-gradient(135deg,${T.accent},${T.accentLight || T.green})` : "transparent", color: section === s.id ? "#fff" : T.textSecondary, transition: "all .18s" }}>
+          <button key={s.id} onClick={() => setSection(s.id)} style={{ flex: 1, padding: "9px 0", border: "none", borderRadius: 9, cursor: "pointer", fontFamily: "'Source Serif 4',serif", fontSize: 13, fontWeight: section === s.id ? 800 : 600, background: section === s.id ? `linear-gradient(135deg,${T.accent},${T.accentLight || T.green})` : "transparent", color: section === s.id ? "#fff" : T.textSecondary, transition: "all .18s" }}>
             {s.label}
           </button>
         ))}
@@ -2380,8 +2323,8 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
                     <p style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary, flex: 1, marginRight: 10 }}>{note.title}</p>
                     <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                      <button onClick={() => { setEditing(note.id); setText(note.text); setTitle(note.title); }} style={{ background: T.accentDim, border: `1px solid ${T.accent}22`, borderRadius: 7, padding: "4px 9px", cursor: "pointer", color: T.accent, fontSize: 12, fontFamily: "'Inter',sans-serif" }}>✏️</button>
-                      <button onClick={() => deleteNote(note.id)} style={{ background: T.redDim, border: `1px solid ${T.red}22`, borderRadius: 7, padding: "4px 9px", cursor: "pointer", color: T.red, fontSize: 12, fontFamily: "'Inter',sans-serif" }}>🗑️</button>
+                      <button onClick={() => { setEditing(note.id); setText(note.text); setTitle(note.title); }} style={{ background: T.accentDim, border: `1px solid ${T.accent}22`, borderRadius: 7, padding: "4px 9px", cursor: "pointer", color: T.accent, fontSize: 12, fontFamily: "'Source Serif 4',serif" }}>✏️</button>
+                      <button onClick={() => deleteNote(note.id)} style={{ background: T.redDim, border: `1px solid ${T.red}22`, borderRadius: 7, padding: "4px 9px", cursor: "pointer", color: T.red, fontSize: 12, fontFamily: "'Source Serif 4',serif" }}>🗑️</button>
                     </div>
                   </div>
                   <p style={{ fontSize: 13, color: T.textSecondary, lineHeight: 1.6, marginBottom: 8, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{note.text}</p>
@@ -2411,7 +2354,7 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
               </div>
               <div style={{ display: "flex", gap: 8 }}>
                 <BtnPrimary T={T} onClick={saveAgendaItem} disabled={!agendaTitle.trim()}>Salvar</BtnPrimary>
-                <button onClick={() => { setShowAgendaForm(false); setAgendaTitle(""); setAgendaDate(""); setAgendaTime(""); }} style={{ flex: 1, padding: "13px 0", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, cursor: "pointer", color: T.textSecondary, fontSize: 14, fontWeight: 700, fontFamily: "'Inter',sans-serif" }}>Cancelar</button>
+                <button onClick={() => { setShowAgendaForm(false); setAgendaTitle(""); setAgendaDate(""); setAgendaTime(""); }} style={{ flex: 1, padding: "13px 0", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, cursor: "pointer", color: T.textSecondary, fontSize: 14, fontWeight: 700, fontFamily: "'Source Serif 4',serif" }}>Cancelar</button>
               </div>
             </Card>
           )}
@@ -2436,7 +2379,7 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
                         {!item.date && !item.time && <span style={{ fontSize: 11, color: T.textDim }}>sem data/horário</span>}
                       </div>
                     </div>
-                    <button onClick={() => deleteAgendaItem(item.id)} style={{ background: T.redDim, border: `1px solid ${T.red}22`, borderRadius: 7, padding: "5px 10px", cursor: "pointer", color: T.red, fontSize: 12, fontFamily: "'Inter',sans-serif", flexShrink: 0 }}>🗑️</button>
+                    <button onClick={() => deleteAgendaItem(item.id)} style={{ background: T.redDim, border: `1px solid ${T.red}22`, borderRadius: 7, padding: "5px 10px", cursor: "pointer", color: T.red, fontSize: 12, fontFamily: "'Source Serif 4',serif", flexShrink: 0 }}>🗑️</button>
                   </div>
                 </Card>
               ))}
