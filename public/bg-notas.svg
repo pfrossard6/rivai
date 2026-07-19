@@ -1,12 +1,23 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 900" width="100%" height="100%">
-  <path d="M0 600 C160 560 320 640 480 600 C640 560 800 620 960 582 C1120 544 1280 600 1440 566 L1440 900 L0 900 Z" fill="#6C4DFF" opacity="0.55"/>
-  <path d="M0 690 C200 658 400 722 600 690 C800 658 1000 712 1200 680 C1340 658 1400 688 1440 672 L1440 900 L0 900 Z" fill="#8A2BE2" opacity="0.4"/>
-  <path d="M0 780 C240 752 480 796 720 770 C960 744 1200 786 1440 762 L1440 900 L0 900 Z" fill="#6C4DFF" opacity="0.3"/>
-  <circle cx="280" cy="470" r="44" fill="#6C4DFF"/>
-  <path d="M234 526 Q280 494 326 526 L348 610 L212 610 Z" fill="#6C4DFF"/>
-  <line x1="326" y1="550" x2="414" y2="532" stroke="#6C4DFF" stroke-width="20" stroke-linecap="round"/>
-  <line x1="414" y1="532" x2="450" y2="504" stroke="#8A2BE2" stroke-width="10" stroke-linecap="round"/>
-  <rect x="348" y="542" width="96" height="66" rx="6" fill="#8A2BE2" opacity="0.85"/>
-  <line x1="368" y1="564" x2="424" y2="564" stroke="#6C4DFF" stroke-width="5"/>
-  <line x1="368" y1="586" x2="424" y2="586" stroke="#6C4DFF" stroke-width="5"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 1400" fill="none">
+  <g transform="translate(180,1000) rotate(-6)">
+    <rect x="-140" y="-190" width="280" height="380" rx="14" stroke="#8B7FFF" stroke-width="4"/>
+    <line x1="-140" y1="-140" x2="140" y2="-140" stroke="#8B7FFF" stroke-width="3"/>
+    <line x1="-100" y1="-90" x2="100" y2="-90" stroke="#8B7FFF" stroke-width="3"/>
+    <line x1="-100" y1="-50" x2="100" y2="-50" stroke="#8B7FFF" stroke-width="3"/>
+    <line x1="-100" y1="-10" x2="60" y2="-10" stroke="#8B7FFF" stroke-width="3"/>
+    <circle cx="-118" cy="-165" r="5" stroke="#8B7FFF" stroke-width="3"/>
+    <circle cx="-70" cy="-165" r="5" stroke="#8B7FFF" stroke-width="3"/>
+    <circle cx="-22" cy="-165" r="5" stroke="#8B7FFF" stroke-width="3"/>
+  </g>
+
+  <g transform="translate(560,760) rotate(38)">
+    <rect x="-14" y="-160" width="28" height="220" rx="6" stroke="#8B7FFF" stroke-width="4"/>
+    <path d="M -14 60 L 0 110 L 14 60 Z" stroke="#8B7FFF" stroke-width="4" stroke-linejoin="round"/>
+    <line x1="-14" y1="-110" x2="14" y2="-110" stroke="#8B7FFF" stroke-width="3"/>
+  </g>
+
+  <circle cx="700" cy="300" r="4" fill="#8B7FFF"/>
+  <circle cx="740" cy="1100" r="3" fill="#8B7FFF"/>
+  <circle cx="120" cy="450" r="3" fill="#8B7FFF"/>
+  <circle cx="300" cy="150" r="4" fill="#8B7FFF"/>
 </svg>
