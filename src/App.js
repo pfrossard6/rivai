@@ -345,16 +345,6 @@ function TInput({ T, placeholder, type = "text", value, onChange, style = {} }) 
   return <input type={type} placeholder={placeholder} value={value} onChange={onChange} onFocus={() => setF(true)} onBlur={() => setF(false)} style={{ width: "100%", background: T.surface, border: `1px solid ${f ? T.accent : T.border}`, borderRadius: 11, color: T.textPrimary, fontFamily: "'Source Serif 4', serif", fontSize: 14, padding: "12px 14px", outline: "none", marginBottom: 12, transition: "border 0.2s", boxShadow: f ? `0 0 0 3px ${T.accentDim}` : "none", ...style }} />;
 }
 
-function Chip({ T, label, active, onClick, radio, icon }) {
-  return (
-    <div onClick={onClick} style={{ padding: "10px 13px", border: `1.5px solid ${active ? T.accent : T.border}`, borderRadius: 11, fontSize: 13, fontWeight: active ? 700 : 500, color: active ? T.textPrimary : T.textSecondary, background: active ? T.accentDim : "transparent", cursor: "pointer", transition: "all 0.15s", userSelect: "none", display: "flex", alignItems: "center", gap: 8, boxShadow: active ? `0 0 0 1px ${T.accent}` : "none" }}>
-      {icon && <span>{icon}</span>}
-      <span style={{ width: 16, height: 16, borderRadius: radio ? "50%" : 4, border: `2px solid ${active ? T.accent : T.textDim}`, background: active ? T.accent : "transparent", display: "inline-flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 9, color: "#fff", transition: "all 0.15s" }}>{active ? (radio ? "●" : "✓") : ""}</span>
-      {label}
-    </div>
-  );
-}
-
 // ─── Tutorial Overlay ──────────────────────────────────────────────────────
 const TOUR_STEPS = [
   { tab: "home", target: "home-trail", title: "Sua trilha", desc: "Aqui você vê sua trilha atual e continua de onde parou, direto pra próxima aula." },
