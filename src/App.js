@@ -55,37 +55,35 @@ function userToDb(user) {
 }
 
 // ─── Data ──────────────────────────────────────────────────────────────────
-const GOALS = [
-  { id: "productive", label: "Ser mais produtivo" },
-  { id: "implement", label: "Implementar IA em empresas" },
-  { id: "build", label: "Construir produtos com IA" },
-  { id: "career", label: "Mudar de carreira" },
-  { id: "automate", label: "Automatizar processos" },
-  { id: "analyze", label: "Analisar dados" },
-  { id: "communicate", label: "Comunicar melhor" },
-  { id: "understand", label: "Entender IA profundamente" },
+const SECTORS = [
+  { id: "retail", label: "Varejo" },
+  { id: "services", label: "Serviços" },
+  { id: "food", label: "Alimentação" },
+  { id: "health", label: "Saúde" },
+  { id: "construction", label: "Construção e indústria" },
+  { id: "other", label: "Outro" },
 ];
-const AREAS = [
-  { id: "operations", label: "Operações / Logística" }, { id: "business", label: "Gestão / Administração" },
-  { id: "engineering", label: "Engenharia / Técnico" }, { id: "marketing", label: "Marketing / Comunicação" },
-  { id: "sales", label: "Vendas / Comercial" }, { id: "education", label: "Educação / Pesquisa" },
-  { id: "health", label: "Saúde / Bem-estar" }, { id: "finance", label: "Finanças / Contabilidade" },
-  { id: "design", label: "Design / Criativo" }, { id: "hr", label: "RH / Pessoas" },
-  { id: "law", label: "Direito / Compliance" }, { id: "other", label: "Outra área" },
+const TEAM_SIZE = [
+  { id: "solo", label: "Só eu por enquanto" },
+  { id: "micro", label: "Micro — até 9 pessoas" },
+  { id: "small", label: "Pequena — 10 a 49 pessoas" },
+  { id: "medium", label: "Média — 50 ou mais" },
 ];
-const AREA_CONTEXT_EXAMPLES = {
-  operations: "sou analista de logística numa fábrica de alimentos, cuido do estoque e da distribuição para 12 lojas",
-  business: "sou gerente administrativo numa clínica odontológica, cuido de contratos e fornecedores",
-  engineering: "sou engenheiro civil, trabalho em obras residenciais e faço orçamentos e cronogramas",
-  marketing: "sou social media de uma loja de roupas, crio conteúdo e cuido dos anúncios no Instagram",
-  sales: "sou vendedor de planos de saúde, faço prospecção e follow-up de clientes todo dia",
-  education: "sou professora de matemática no ensino médio, também corrijo provas e monto material de aula",
-  health: "sou enfermeira de UTI, trabalho em plantões de 12h e cuido de prontuários e escalas",
-  finance: "sou analista financeiro numa construtora, faço fluxo de caixa e relatórios mensais",
-  design: "sou designer freelancer, crio identidade visual e posts pra pequenos negócios",
-  hr: "sou analista de RH numa indústria, cuido de recrutamento e folha de pagamento",
-  law: "sou advogado trabalhista, atendo clientes e monto petições",
-  other: "conte o que você faz no dia a dia, seus projetos e desafios reais",
+const ROLES = [
+  { id: "owner", label: "Dono ou sócio" },
+  { id: "manager", label: "Gestor ou diretor de área" },
+  { id: "coordinator", label: "Coordenador" },
+  { id: "other", label: "Outro" },
+];
+const BOTTLENECKS = [
+  { id: "retention", label: "Retenção de clientes" },
+  { id: "operations", label: "Operações e processos" },
+  { id: "sales", label: "Vendas e conteúdo" },
+];
+const BOTTLENECK_CONTEXT_EXAMPLES = {
+  retention: "ex.: um cliente que cancelou recentemente e o motivo real por trás disso",
+  operations: "ex.: um processo que só funciona porque você está em cima",
+  sales: "ex.: um lead que esfriou depois do primeiro contato",
 };
 const LEVELS = [
   { id: "never", label: "Nunca usei IA de verdade", icon: "🌱" },
@@ -93,18 +91,6 @@ const LEVELS = [
   { id: "regular", label: "Uso no dia a dia, básico", icon: "⚡" },
   { id: "intermediate", label: "Sei fazer bons prompts", icon: "🎯" },
   { id: "advanced", label: "Entendo APIs e automações", icon: "🚀" },
-];
-const TOOLS = [
-  { id: "chatgpt", label: "ChatGPT" }, { id: "claude", label: "Claude" },
-  { id: "gemini", label: "Gemini" }, { id: "midjourney", label: "Midjourney" },
-  { id: "copilot", label: "GitHub Copilot" }, { id: "notion", label: "Notion AI" },
-  { id: "zapier", label: "Zapier / Make" }, { id: "none", label: "Nenhuma ainda" },
-];
-const CHALLENGES = [
-  { id: "time", label: "Falta de tempo" }, { id: "technical", label: "Dificuldade técnica" },
-  { id: "trust", label: "Não sei confiar na IA" }, { id: "apply", label: "Não sei aplicar" },
-  { id: "overwhelm", label: "Não sei por onde começar" }, { id: "cost", label: "Custo das ferramentas" },
-  { id: "privacy", label: "Dúvidas de privacidade" }, { id: "team", label: "Resistência da equipe" },
 ];
 const ACHIEVEMENTS = [
   { id: "welcome", icon: "🚀", title: "Decolagem", desc: "Criou sua conta", xp: 50, color: "#6c63ff" },
@@ -243,12 +229,11 @@ async function generateCourse(profile) {
   const system = `Você é um especialista em educação de IA. Gere APENAS um objeto JSON válido, sem nenhum texto antes ou depois, sem markdown, sem blocos de código. Apenas o JSON puro começando com { e terminando com }.`;
   const content = `Crie um plano de estudos personalizado para:
 - Nome: ${profile.name}
-- Área: ${profile.areas.join(", ")}
-- Nível: ${profile.level}
-- Objetivos: ${profile.goals.join(", ")}
-- Ferramentas: ${profile.tools.join(", ") || "nenhuma"}
-- Desafios: ${profile.challenges.join(", ")}
-- Horas/dia: ${profile.hours}h
+- Setor: ${profile.sector}
+- Porte do time: ${profile.teamSize}
+- Papel: ${profile.role}
+- Maior gargalo: ${profile.bottleneck}
+- Nível de uso de IA: ${profile.level}
 - Contexto pessoal (a parte mais importante — use isso em CADA fase, não só no resumo geral): ${profile.context || "não informado"}
 
 Retorne este JSON exato (substitua os valores):
@@ -264,7 +249,7 @@ async function generateLessonContent(profile, phase, day) {
   const system = `Você é um especialista em educação que ensina IA aplicada de forma prática e específica. Gere APENAS JSON válido, sem texto antes ou depois, sem markdown.`;
   const content = `Crie o conteúdo completo de uma aula para:
 - Aluno: ${profile?.name || "Estudante"}
-- Área/profissão: ${profile?.areas?.join(", ") || "geral"}
+- Setor: ${profile?.sector || "geral"}
 - Nível: ${profile?.level || "iniciante"}
 - Contexto pessoal (use isso para exemplos reais, é o mais importante): ${profile?.context || "não informado"}
 - Módulo: ${phase?.title || ""}
@@ -286,7 +271,7 @@ async function askTutor(messages, profile, lessonContext = null) {
     ? `\nContexto da aula atual: "${lessonContext.dayTitle}" (fase: ${lessonContext.phaseTitle}). Priorize respostas relacionadas a este conteúdo quando pertinente.`
     : "";
   const system = `Você é um tutor de IA especializado e personalizado. Estilo: direto, empolgante, didático mas descontraído.
-Perfil: ${profile?.name}, área: ${profile?.areas?.join(", ")}, nível: ${profile?.level}, objetivos: ${profile?.goals?.join(", ")}, contexto: ${profile?.context || "não informado"}.${lessonLine}
+Perfil: ${profile?.name}, setor: ${profile?.sector}, porte: ${profile?.teamSize}, papel: ${profile?.role}, gargalo: ${profile?.bottleneck}, nível: ${profile?.level}, contexto: ${profile?.context || "não informado"}.${lessonLine}
 Regras: máx 4 parágrafos curtos, use exemplos concretos da área do aluno, seja específico nunca genérico, responda em português.`;
   return await callAPI(messages, system, 900);
 }
@@ -1041,23 +1026,21 @@ function AuthScreen({ T, mode, onSubmit, onSwitch, error, setError, themeKey, to
 // ─── Onboarding ────────────────────────────────────────────────────────────
 function OnboardingScreen({ T, user, onDone }) {
   const [step, setStep] = useState(0);
-  const [goals, setGoals] = useState([]); const [areas, setAreas] = useState([]);
-  const [level, setLevel] = useState(""); const [tools, setTools] = useState([]);
-  const [challenges, setChallenges] = useState([]); const [hours, setHours] = useState(1);
-  const [context, setContext] = useState(""); const [loading, setLoading] = useState(false);
+  const [sector, setSector] = useState(""); const [teamSize, setTeamSize] = useState("");
+  const [role, setRole] = useState(""); const [bottleneck, setBottleneck] = useState("");
+  const [context, setContext] = useState(""); const [level, setLevel] = useState("");
+  const [loading, setLoading] = useState(false);
   const [loadMsg, setLoadMsg] = useState(""); const [err, setErr] = useState("");
-  const TOTAL = 7;
-  const toggle = (arr, set, id) => set(p => p.includes(id) ? p.filter(x => x !== id) : [...p, id]);
+  const TOTAL = 6;
   const stepInfo = [
-    { label: "Objetivos", q: "O que você quer alcançar com IA?" },
-    { label: "Área", q: "Onde você atua profissionalmente?" },
-    { label: "Contexto", q: "Conte sobre o seu dia a dia" },
-    { label: "Nível", q: "Qual é sua experiência com IA?" },
-    { label: "Ferramentas", q: "Quais ferramentas você já conhece?" },
-    { label: "Desafios", q: "O que te trava com IA hoje?" },
-    { label: "Detalhes", q: "Última coisa" },
+    { label: "Setor", q: "Qual é o setor da sua empresa?" },
+    { label: "Porte", q: "Qual é o porte do seu time?" },
+    { label: "Papel", q: "Qual é o seu papel na empresa?" },
+    { label: "Gargalo", q: "Qual desses é o seu maior gargalo hoje?" },
+    { label: "Contexto", q: "Conte um exemplo real disso" },
+    { label: "Experiência", q: "Quanto você já usa IA no dia a dia do negócio?" },
   ];
-  const contextPlaceholder = "ex: " + (AREA_CONTEXT_EXAMPLES[areas[0]] || AREA_CONTEXT_EXAMPLES.other);
+  const contextPlaceholder = BOTTLENECK_CONTEXT_EXAMPLES[bottleneck] || "";
 
   async function finish() {
     setErr(""); setLoading(true);
@@ -1066,12 +1049,12 @@ function OnboardingScreen({ T, user, onDone }) {
     const iv = setInterval(() => { i = (i + 1) % msgs.length; setLoadMsg(msgs[i]); }, 2000);
     const profile = {
       name: user?.name || "Estudante",
-      goals: goals.map(g => GOALS.find(x => x.id === g)?.label || g),
-      areas: areas.map(a => AREAS.find(x => x.id === a)?.label || a),
+      sector: SECTORS.find(s => s.id === sector)?.label || sector,
+      teamSize: TEAM_SIZE.find(t => t.id === teamSize)?.label || teamSize,
+      role: ROLES.find(r => r.id === role)?.label || role,
+      bottleneck: BOTTLENECKS.find(b => b.id === bottleneck)?.label || bottleneck,
       level: LEVELS.find(l => l.id === level)?.label || level,
-      tools: tools.map(t => TOOLS.find(x => x.id === t)?.label || t),
-      challenges: challenges.map(c => CHALLENGES.find(x => x.id === c)?.label || c),
-      hours, context,
+      context,
     };
     try { const course = await generateCourse(profile); clearInterval(iv); onDone(profile, course); }
     catch (e) { clearInterval(iv); setLoading(false); setErr("Erro ao gerar curso: " + e.message + ". Tente novamente."); }
@@ -1101,30 +1084,23 @@ function OnboardingScreen({ T, user, onDone }) {
         <div style={{ animation: "fadeUp .35s ease" }} key={step}>
           <p style={{ fontSize: 11, color: T.accent, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 4, fontFamily: "'JetBrains Mono',monospace" }}>{stepInfo[step].label}</p>
           <h2 style={{ fontSize: 20, fontWeight: 900, marginBottom: 18, color: T.textPrimary }}>{stepInfo[step].q}</h2>
-          {step === 0 && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 22 }}>{GOALS.map(g => <Chip key={g.id} T={T} label={g.label} active={goals.includes(g.id)} onClick={() => toggle(goals, setGoals, g.id)} />)}</div>}
-          {step === 1 && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 22 }}>{AREAS.map(a => <Chip key={a.id} T={T} label={a.label} active={areas.includes(a.id)} onClick={() => toggle(areas, setAreas, a.id)} />)}</div>}
-          {step === 2 && <>
+          {step === 0 && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 22 }}>{SECTORS.map(s => <Chip key={s.id} T={T} label={s.label} active={sector === s.id} onClick={() => setSector(s.id)} radio />)}</div>}
+          {step === 1 && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 22 }}>{TEAM_SIZE.map(t => <Chip key={t.id} T={T} label={t.label} active={teamSize === t.id} onClick={() => setTeamSize(t.id)} radio />)}</div>}
+          {step === 2 && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 22 }}>{ROLES.map(r => <Chip key={r.id} T={T} label={r.label} active={role === r.id} onClick={() => setRole(r.id)} radio />)}</div>}
+          {step === 3 && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 22 }}>{BOTTLENECKS.map(b => <Chip key={b.id} T={T} label={b.label} active={bottleneck === b.id} onClick={() => setBottleneck(b.id)} radio />)}</div>}
+          {step === 4 && <>
             <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 12, lineHeight: 1.6 }}>Essa é a parte que mais importa pra gente montar uma trilha de verdade sua — não genérica. Quanto mais específico, melhor.</p>
             <textarea rows={5} value={context} onChange={e => setContext(e.target.value)} placeholder={contextPlaceholder} style={{ width: "100%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, color: T.textPrimary, fontFamily: "'Source Serif 4',serif", fontSize: 14, padding: "12px 14px", outline: "none", resize: "none", marginBottom: 8 }} onFocus={e => e.target.style.borderColor = T.accent} onBlur={e => e.target.style.borderColor = T.border} />
             <p style={{ fontSize: 11, color: T.textDim }}>{context.trim().length < 15 ? "Escreva pelo menos uma frase com detalhe real." : "Ótimo, isso ajuda bastante."}</p>
           </>}
-          {step === 3 && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 22 }}>{LEVELS.map(l => <Chip key={l.id} T={T} label={l.label} icon={l.icon} active={level === l.id} onClick={() => setLevel(l.id)} radio />)}</div>}
-          {step === 4 && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 22 }}>{TOOLS.map(t => <Chip key={t.id} T={T} label={t.label} active={tools.includes(t.id)} onClick={() => toggle(tools, setTools, t.id)} />)}</div>}
-          {step === 5 && <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 22 }}>{CHALLENGES.map(c => <Chip key={c.id} T={T} label={c.label} active={challenges.includes(c.id)} onClick={() => toggle(challenges, setChallenges, c.id)} />)}</div>}
-          {step === 6 && <>
-            <div style={{ marginBottom: 18 }}>
-              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
-                <p style={{ fontSize: 14, fontWeight: 700, color: T.textPrimary }}>Horas de estudo por dia</p>
-                <span style={{ fontSize: 24, fontWeight: 900, color: T.accent, fontFamily: "'JetBrains Mono',monospace" }}>{hours}h</span>
-              </div>
-              <input type="range" min={1} max={5} step={1} value={hours} onChange={e => setHours(Number(e.target.value))} style={{ width: "100%", accentColor: T.accent, background: "transparent", border: "none", padding: 0, cursor: "pointer" }} />
-            </div>
+          {step === 5 && <>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 22 }}>{LEVELS.map(l => <Chip key={l.id} T={T} label={l.label} icon={l.icon} active={level === l.id} onClick={() => setLevel(l.id)} radio />)}</div>
             {err && <p style={{ color: T.red, fontSize: 13, marginTop: 8, marginBottom: -4 }}>{err}</p>}
           </>}
           <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
             {step > 0 && <button onClick={() => setStep(s => s - 1)} style={{ padding: "13px 18px", background: "transparent", border: `1px solid ${T.border}`, borderRadius: 12, color: T.textSecondary, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Source Serif 4',serif" }}>←</button>}
-            <BtnPrimary T={T} disabled={step === 0 ? !goals.length : step === 1 ? !areas.length : step === 2 ? context.trim().length < 15 : step === 3 ? !level : false} style={{ flex: 1 }} onClick={step === 6 ? finish : () => setStep(s => s + 1)}>
-              {step === 6 ? "✦ Gerar meu curso" : "Próximo →"}
+            <BtnPrimary T={T} disabled={step === 0 ? !sector : step === 1 ? !teamSize : step === 2 ? !role : step === 3 ? !bottleneck : step === 4 ? context.trim().length < 15 : step === 5 ? !level : false} style={{ flex: 1 }} onClick={step === 5 ? finish : () => setStep(s => s + 1)}>
+              {step === 5 ? "✦ Gerar meu curso" : "Próximo →"}
             </BtnPrimary>
           </div>
         </div>
