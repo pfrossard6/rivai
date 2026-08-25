@@ -86,11 +86,11 @@ const BOTTLENECK_CONTEXT_EXAMPLES = {
   sales: "ex.: um lead que esfriou depois do primeiro contato",
 };
 const LEVELS = [
-  { id: "never", label: "Nunca usei IA de verdade", icon: "🌱" },
-  { id: "curious", label: "Usei algumas vezes", icon: "🔍" },
-  { id: "regular", label: "Uso no dia a dia, básico", icon: "⚡" },
-  { id: "intermediate", label: "Sei fazer bons prompts", icon: "🎯" },
-  { id: "advanced", label: "Entendo APIs e automações", icon: "🚀" },
+  { id: "never", label: "Nunca usei IA de verdade" },
+  { id: "curious", label: "Usei algumas vezes" },
+  { id: "regular", label: "Uso no dia a dia, básico" },
+  { id: "intermediate", label: "Sei fazer bons prompts" },
+  { id: "advanced", label: "Entendo APIs e automações" },
 ];
 const ACHIEVEMENTS = [
   { id: "welcome", icon: "🚀", title: "Decolagem", desc: "Criou sua conta", xp: 50, color: "#6c63ff" },
@@ -922,12 +922,17 @@ export default function App() {
 // ─── Splash Screen ─────────────────────────────────────────────────────────
 function SplashScreen() {
   return (
-    <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: "#0F0F1A", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", animation: "splashIn .6s cubic-bezier(.22,.8,.44,1) forwards" }}>
+    <div style={{ position: "fixed", inset: 0, zIndex: 99999, background: NASCENTE.paperDim, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", animation: "splashIn .6s cubic-bezier(.22,.8,.44,1) forwards" }}>
       <div style={{ textAlign: "center" }}>
-        <div style={{ fontSize: 56, fontWeight: 900, letterSpacing: "-1px", marginBottom: 16, lineHeight: 1 }}>
-          <span style={{ color: "#ffffff" }}>Riv</span><span style={{ color: "#6C4DFF" }}>AI</span>
+        <div style={{ fontSize: 56, fontWeight: 900, letterSpacing: "-1px", marginBottom: 16, lineHeight: 1, fontFamily: "Inter,sans-serif" }}>
+          <span style={{ color: NASCENTE.ink }}>Riv</span><span style={{ color: NASCENTE.current }}>AI</span>
         </div>
-        <p style={{ fontSize: 17, fontWeight: 600, color: "#6C4DFF", letterSpacing: ".02em" }}>Seu ritmo, amplificado.</p>
+        <p style={{ fontSize: 15, fontWeight: 500, color: NASCENTE.inkSoft, letterSpacing: ".02em", fontFamily: "Inter,sans-serif", marginBottom: 22 }}>Seu ritmo, amplificado.</p>
+        <svg width="160" height="16" viewBox="0 0 160 16" style={{ overflow: "visible" }}>
+          <path d="M2 8 Q 22 1, 40 8 T 80 8 T 120 8 T 158 8" fill="none" stroke={NASCENTE.current} strokeWidth="2" strokeLinecap="round" strokeDasharray="7 11" opacity="0.8">
+            <animate attributeName="stroke-dashoffset" values="0;-18" dur="1.1s" repeatCount="indefinite" />
+          </path>
+        </svg>
       </div>
     </div>
   );
@@ -1023,15 +1028,152 @@ function AuthScreen({ T, mode, onSubmit, onSwitch, error, setError, themeKey, to
   );
 }
 
+// ─── Onboarding — tokens "Nascente" (ver DESIGN.md) ────────────────────────
+const NASCENTE = {
+  paper: "#F4F5F4", paperDim: "#EAEBEA", ink: "#16191C", inkSoft: "#565C55",
+  inkFaint: "#9BA1A3", line: "#D8DBDA", current: "#3B5B6B", currentSoft: "#DCE4E7", dry: "#C7CCC9",
+};
+
+// Catmull-Rom → cubic Bézier, pra uma curva suave passando por todos os pontos.
+function catmullControlPoints(points, i) {
+  const p0 = points[i === 0 ? 0 : i - 1];
+  const p1 = points[i];
+  const p2 = points[i + 1];
+  const p3 = points[i + 2 < points.length ? i + 2 : i + 1];
+  return {
+    c1x: p1.x + (p2.x - p0.x) / 6, c1y: p1.y + (p2.y - p0.y) / 6,
+    c2x: p2.x - (p3.x - p1.x) / 6, c2y: p2.y - (p3.y - p1.y) / 6,
+  };
+}
+function smoothRiverPath(points) {
+  if (points.length < 2) return "";
+  const d = [`M ${points[0].x} ${points[0].y}`];
+  for (let i = 0; i < points.length - 1; i++) {
+    const c = catmullControlPoints(points, i);
+    d.push(`C ${c.c1x.toFixed(2)} ${c.c1y.toFixed(2)}, ${c.c2x.toFixed(2)} ${c.c2y.toFixed(2)}, ${points[i + 1].x} ${points[i + 1].y}`);
+  }
+  return d.join(" ");
+}
+// Um sub-caminho independente por segmento — permite espessura e revelação por trecho.
+function smoothRiverSegments(points) {
+  const segs = [];
+  for (let i = 0; i < points.length - 1; i++) {
+    const c = catmullControlPoints(points, i);
+    segs.push(`M ${points[i].x} ${points[i].y} C ${c.c1x.toFixed(2)} ${c.c1y.toFixed(2)}, ${c.c2x.toFixed(2)} ${c.c2y.toFixed(2)}, ${points[i + 1].x} ${points[i + 1].y}`);
+  }
+  return segs;
+}
+
+function RiverProgress({ step, nodes }) {
+  const segRefs = useRef([]);
+  const [segLens, setSegLens] = useState([]);
+  const GAP = 54;
+  const CENTER = 30, AMP = 22, MIN_W = 1.5, MAX_W = 5.5;
+  const points = nodes.map((_, i) => ({ x: i % 2 === 0 ? CENTER - AMP : CENTER + AMP, y: i * GAP + 10 }));
+  const d = smoothRiverPath(points);
+  const waterSegments = smoothRiverSegments(points);
+  const segCount = waterSegments.length;
+
+  useEffect(() => {
+    setSegLens(segRefs.current.map(el => (el ? el.getTotalLength() : 0)));
+  }, [d]);
+
+  return (
+    <div style={{ display: "flex", gap: 16, flexShrink: 0 }}>
+      <svg width={CENTER + AMP + 10} height={GAP * segCount + 20} style={{ overflow: "visible" }}>
+        <path d={d} fill="none" stroke={NASCENTE.dry} strokeWidth="2" strokeLinecap="round" />
+        {waterSegments.map((segD, i) => {
+          const w = MIN_W + (MAX_W - MIN_W) * (segCount > 1 ? i / (segCount - 1) : 1);
+          const segLen = segLens[i] || 0;
+          const revealed = nodes[i].answered;
+          return (
+            <path key={i} ref={el => { segRefs.current[i] = el; }} d={segD} fill="none" stroke={NASCENTE.current}
+              strokeWidth={w} strokeLinecap="round" strokeDasharray={segLen || 1}
+              strokeDashoffset={revealed ? 0 : (segLen || 1)} style={{ transition: "stroke-dashoffset .6s ease" }} />
+          );
+        })}
+        {points.map((p, i) => {
+          const active = i === step;
+          const answered = nodes[i].answered;
+          return (
+            <g key={i}>
+              {active && (
+                <circle cx={p.x} cy={p.y} r="6" fill="none" stroke={NASCENTE.current} strokeWidth="1.5">
+                  <animate attributeName="r" values="6;13;6" dur="2.2s" repeatCount="indefinite" />
+                  <animate attributeName="opacity" values=".55;0;.55" dur="2.2s" repeatCount="indefinite" />
+                </circle>
+              )}
+              <circle cx={p.x} cy={p.y} r={active ? 6 : 4.5}
+                fill={answered || active ? NASCENTE.current : NASCENTE.paper}
+                stroke={answered || active ? NASCENTE.current : NASCENTE.dry} strokeWidth="2" />
+            </g>
+          );
+        })}
+      </svg>
+      <div style={{ display: "flex", flexDirection: "column" }}>
+        {nodes.map((n, i) => {
+          const active = i === step;
+          const color = active ? NASCENTE.current : n.answered ? NASCENTE.inkSoft : NASCENTE.inkFaint;
+          return (
+            <div key={i} style={{ height: GAP, display: "flex", flexDirection: "column", justifyContent: "center" }}>
+              <span style={{ fontFamily: "'Source Serif 4',serif", fontStyle: "italic", fontWeight: 600, fontSize: 13, color }}>{n.label}</span>
+              {n.answer && <span style={{ fontFamily: "'Source Serif 4',serif", fontStyle: "italic", fontSize: 12, color: NASCENTE.inkSoft, marginTop: 2 }}>{n.answer}</span>}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function OptionPill({ label, active, onClick }) {
+  return (
+    <button type="button" onClick={onClick} style={{
+      padding: "9px 16px", borderRadius: 24, border: `1.5px solid ${active ? NASCENTE.current : NASCENTE.line}`,
+      background: active ? NASCENTE.current : "#fff", color: active ? "#fff" : NASCENTE.ink,
+      fontFamily: "Inter,sans-serif", fontSize: 13, fontWeight: 500, cursor: "pointer", transition: "background .15s,border-color .15s",
+    }}>{label}</button>
+  );
+}
+
+function OptionRow({ label, active, onClick }) {
+  return (
+    <button type="button" onClick={onClick} style={{
+      width: "100%", textAlign: "left", padding: "13px 16px", borderRadius: 8,
+      border: `1.5px solid ${active ? NASCENTE.current : NASCENTE.line}`,
+      background: active ? NASCENTE.current : "#fff", color: active ? "#fff" : NASCENTE.ink,
+      fontFamily: "Inter,sans-serif", fontSize: 14, fontWeight: 500, cursor: "pointer", transition: "background .15s,border-color .15s",
+    }}>{label}</button>
+  );
+}
+
+function OnboardingButton({ children, onClick, disabled, style = {} }) {
+  return (
+    <button onClick={onClick} disabled={disabled} style={{
+      padding: "13px 22px", borderRadius: 24, border: "none", background: NASCENTE.ink, color: "#fff",
+      fontFamily: "Inter,sans-serif", fontSize: 14, fontWeight: 600, cursor: disabled ? "not-allowed" : "pointer",
+      opacity: disabled ? 0.35 : 1, transition: "opacity .15s", width: "100%", ...style,
+    }}>{children}</button>
+  );
+}
+
 // ─── Onboarding ────────────────────────────────────────────────────────────
-function OnboardingScreen({ T, user, onDone }) {
+function OnboardingScreen({ user, onDone }) {
   const [step, setStep] = useState(0);
   const [sector, setSector] = useState(""); const [teamSize, setTeamSize] = useState("");
   const [role, setRole] = useState(""); const [bottleneck, setBottleneck] = useState("");
   const [context, setContext] = useState(""); const [level, setLevel] = useState("");
   const [loading, setLoading] = useState(false);
   const [loadMsg, setLoadMsg] = useState(""); const [err, setErr] = useState("");
-  const TOTAL = 6;
+  const [displayStep, setDisplayStep] = useState(0);
+  const [phase, setPhase] = useState("enter");
+  const LEAVE_MS = 140, ENTER_MS = 220;
+  useEffect(() => {
+    if (step === displayStep) return;
+    setPhase("leave");
+    const t = setTimeout(() => { setDisplayStep(step); setPhase("enter"); }, LEAVE_MS);
+    return () => clearTimeout(t);
+  }, [step]); // eslint-disable-line react-hooks/exhaustive-deps
   const stepInfo = [
     { label: "Setor", q: "Qual é o setor da sua empresa?" },
     { label: "Porte", q: "Qual é o porte do seu time?" },
@@ -1041,6 +1183,16 @@ function OnboardingScreen({ T, user, onDone }) {
     { label: "Experiência", q: "Quanto você já usa IA no dia a dia do negócio?" },
   ];
   const contextPlaceholder = BOTTLENECK_CONTEXT_EXAMPLES[bottleneck] || "";
+  const contextAnswered = context.trim().length >= 15;
+  const riverNodes = [
+    { label: "Setor", answered: !!sector, answer: SECTORS.find(s => s.id === sector)?.label },
+    { label: "Porte", answered: !!teamSize, answer: TEAM_SIZE.find(t => t.id === teamSize)?.label },
+    { label: "Papel", answered: !!role, answer: ROLES.find(r => r.id === role)?.label },
+    { label: "Gargalo", answered: !!bottleneck, answer: BOTTLENECKS.find(b => b.id === bottleneck)?.label },
+    { label: "Contexto", answered: contextAnswered, answer: contextAnswered ? context.trim().slice(0, 28) + (context.trim().length > 28 ? "…" : "") : null },
+    { label: "Experiência", answered: !!level, answer: LEVELS.find(l => l.id === level)?.label },
+    { label: "Sua trilha", answered: false, answer: null },
+  ];
 
   async function finish() {
     setErr(""); setLoading(true);
@@ -1061,47 +1213,50 @@ function OnboardingScreen({ T, user, onDone }) {
   }
 
   if (loading) return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: T.bg, gap: 18 }}>
-      <div style={{ fontSize: 54, animation: "pulse 1.5s ease-in-out infinite" }}>⬡</div>
-      <p style={{ fontSize: 17, fontWeight: 800, color: T.textPrimary }}>{loadMsg}</p>
-      <p style={{ fontSize: 13, color: T.textSecondary }}>Criando algo único para você...</p>
-      <div style={{ width: 220, height: 4, background: T.border, borderRadius: 4, overflow: "hidden" }}>
-        <div style={{ height: 4, background: `linear-gradient(90deg,${T.accent},${T.green})`, borderRadius: 4, animation: "bar 2s ease-in-out infinite" }} />
-      </div>
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: NASCENTE.paperDim, gap: 18, fontFamily: "Inter,sans-serif" }}>
+      <div style={{ width: 54, height: 54, borderRadius: "50%", border: `3px solid ${NASCENTE.dry}`, borderTopColor: NASCENTE.current, animation: "spin 1s linear infinite" }} />
+      <p style={{ fontSize: 16, fontWeight: 600, color: NASCENTE.ink, fontFamily: "'Source Serif 4',serif" }}>{loadMsg}</p>
+      <p style={{ fontSize: 13, color: NASCENTE.inkSoft }}>Criando algo único para você...</p>
     </div>
   );
 
   return (
-    <div style={{ minHeight: "100vh", background: T.bg, padding: "26px 18px" }}>
-      <div style={{ maxWidth: 560, margin: "0 auto" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 30 }}>
-          <span style={{ fontSize: 17, fontWeight: 900, color: T.textPrimary }}>Riv.<span style={{ color: T.accent }}>IA</span></span>
-          <div style={{ flex: 1, display: "flex", gap: 3 }}>
-            {Array.from({ length: TOTAL }).map((_, i) => <div key={i} style={{ flex: 1, height: 4, borderRadius: 4, background: i <= step ? T.accent : T.border, transition: "background .3s" }} />)}
-          </div>
-          <span style={{ fontSize: 11, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>{step + 1}/{TOTAL}</span>
+    <div style={{ minHeight: "100vh", background: NASCENTE.paperDim, padding: "32px 20px", fontFamily: "Inter,sans-serif" }}>
+      <div style={{ maxWidth: 680, margin: "0 auto" }}>
+        <div style={{ marginBottom: 32 }}>
+          <span style={{ fontSize: 16, fontWeight: 700, color: NASCENTE.ink }}>Riv.<span style={{ color: NASCENTE.current }}>AI</span></span>
         </div>
-        <div style={{ animation: "fadeUp .35s ease" }} key={step}>
-          <p style={{ fontSize: 11, color: T.accent, fontWeight: 700, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 4, fontFamily: "'JetBrains Mono',monospace" }}>{stepInfo[step].label}</p>
-          <h2 style={{ fontSize: 20, fontWeight: 900, marginBottom: 18, color: T.textPrimary }}>{stepInfo[step].q}</h2>
-          {step === 0 && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 22 }}>{SECTORS.map(s => <Chip key={s.id} T={T} label={s.label} active={sector === s.id} onClick={() => setSector(s.id)} radio />)}</div>}
-          {step === 1 && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 22 }}>{TEAM_SIZE.map(t => <Chip key={t.id} T={T} label={t.label} active={teamSize === t.id} onClick={() => setTeamSize(t.id)} radio />)}</div>}
-          {step === 2 && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 22 }}>{ROLES.map(r => <Chip key={r.id} T={T} label={r.label} active={role === r.id} onClick={() => setRole(r.id)} radio />)}</div>}
-          {step === 3 && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 22 }}>{BOTTLENECKS.map(b => <Chip key={b.id} T={T} label={b.label} active={bottleneck === b.id} onClick={() => setBottleneck(b.id)} radio />)}</div>}
-          {step === 4 && <>
-            <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 12, lineHeight: 1.6 }}>Essa é a parte que mais importa pra gente montar uma trilha de verdade sua — não genérica. Quanto mais específico, melhor.</p>
-            <textarea rows={5} value={context} onChange={e => setContext(e.target.value)} placeholder={contextPlaceholder} style={{ width: "100%", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 12, color: T.textPrimary, fontFamily: "'Source Serif 4',serif", fontSize: 14, padding: "12px 14px", outline: "none", resize: "none", marginBottom: 8 }} onFocus={e => e.target.style.borderColor = T.accent} onBlur={e => e.target.style.borderColor = T.border} />
-            <p style={{ fontSize: 11, color: T.textDim }}>{context.trim().length < 15 ? "Escreva pelo menos uma frase com detalhe real." : "Ótimo, isso ajuda bastante."}</p>
-          </>}
-          {step === 5 && <>
-            <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 22 }}>{LEVELS.map(l => <Chip key={l.id} T={T} label={l.label} icon={l.icon} active={level === l.id} onClick={() => setLevel(l.id)} radio />)}</div>
-            {err && <p style={{ color: T.red, fontSize: 13, marginTop: 8, marginBottom: -4 }}>{err}</p>}
-          </>}
-          <div style={{ display: "flex", gap: 10, marginTop: 16 }}>
-            {step > 0 && <button onClick={() => setStep(s => s - 1)} style={{ padding: "13px 18px", background: "transparent", border: `1px solid ${T.border}`, borderRadius: 12, color: T.textSecondary, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Source Serif 4',serif" }}>←</button>}
-            <BtnPrimary T={T} disabled={step === 0 ? !sector : step === 1 ? !teamSize : step === 2 ? !role : step === 3 ? !bottleneck : step === 4 ? context.trim().length < 15 : step === 5 ? !level : false} style={{ flex: 1 }} onClick={step === 5 ? finish : () => setStep(s => s + 1)}>
-              {step === 5 ? "✦ Gerar meu curso" : "Próximo →"}
-            </BtnPrimary>
+        <style>{`
+          @keyframes riverLeave { to { opacity: 0; transform: translateY(16px); } }
+          @keyframes riverEnter { from { opacity: 0; transform: translateY(-16px); } to { opacity: 1; transform: translateY(0); } }
+        `}</style>
+        <div style={{ display: "flex", gap: 20 }}>
+          <RiverProgress step={step} nodes={riverNodes} />
+          <div style={{
+            flex: 1, minWidth: 0, background: NASCENTE.paper, borderRadius: 16, padding: "26px 24px",
+            animation: phase === "leave" ? `riverLeave ${LEAVE_MS}ms ease forwards` : `riverEnter ${ENTER_MS}ms ease`,
+            pointerEvents: phase === "leave" ? "none" : "auto",
+          }}>
+            <h2 style={{ fontFamily: "'Source Serif 4',serif", fontWeight: 600, fontSize: 21, color: NASCENTE.ink, marginBottom: 18 }}>{stepInfo[displayStep].q}</h2>
+            {displayStep === 0 && <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 24 }}>{SECTORS.map(s => <OptionPill key={s.id} label={s.label} active={sector === s.id} onClick={() => setSector(s.id)} />)}</div>}
+            {displayStep === 1 && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>{TEAM_SIZE.map(t => <OptionRow key={t.id} label={t.label} active={teamSize === t.id} onClick={() => setTeamSize(t.id)} />)}</div>}
+            {displayStep === 2 && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>{ROLES.map(r => <OptionRow key={r.id} label={r.label} active={role === r.id} onClick={() => setRole(r.id)} />)}</div>}
+            {displayStep === 3 && <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>{BOTTLENECKS.map(b => <OptionRow key={b.id} label={b.label} active={bottleneck === b.id} onClick={() => setBottleneck(b.id)} />)}</div>}
+            {displayStep === 4 && <>
+              <p style={{ fontSize: 13, color: NASCENTE.inkSoft, marginBottom: 12, lineHeight: 1.6 }}>Essa é a parte que mais importa pra gente montar uma trilha de verdade sua — não genérica. Quanto mais específico, melhor.</p>
+              <textarea rows={5} value={context} onChange={e => setContext(e.target.value)} placeholder={contextPlaceholder} style={{ width: "100%", background: "#fff", border: `1.5px solid ${NASCENTE.line}`, borderRadius: 10, color: NASCENTE.ink, fontFamily: "Inter,sans-serif", fontSize: 14, padding: "12px 14px", outline: "none", resize: "none", marginBottom: 8 }} onFocus={e => e.target.style.borderColor = NASCENTE.current} onBlur={e => e.target.style.borderColor = NASCENTE.line} />
+              <p style={{ fontSize: 11, color: NASCENTE.inkFaint }}>{contextAnswered ? "Ótimo, isso ajuda bastante." : "Escreva pelo menos uma frase com detalhe real."}</p>
+            </>}
+            {displayStep === 5 && <>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8, marginBottom: 24 }}>{LEVELS.map(l => <OptionRow key={l.id} label={l.label} active={level === l.id} onClick={() => setLevel(l.id)} />)}</div>
+              {err && <p style={{ color: "#b3453f", fontSize: 13, marginTop: 8, marginBottom: -4 }}>{err}</p>}
+            </>}
+            <div style={{ display: "flex", gap: 10, marginTop: 20 }}>
+              {displayStep > 0 && <button onClick={() => setStep(s => s - 1)} style={{ padding: "13px 16px", background: "transparent", border: `1.5px solid ${NASCENTE.line}`, borderRadius: 24, color: NASCENTE.inkSoft, fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "Inter,sans-serif" }}>←</button>}
+              <OnboardingButton style={{ flex: 1 }} disabled={displayStep === 0 ? !sector : displayStep === 1 ? !teamSize : displayStep === 2 ? !role : displayStep === 3 ? !bottleneck : displayStep === 4 ? !contextAnswered : displayStep === 5 ? !level : false} onClick={displayStep === 5 ? finish : () => setStep(s => s + 1)}>
+                {displayStep === 5 ? "Gerar meu curso →" : "Próximo →"}
+              </OnboardingButton>
+            </div>
           </div>
         </div>
       </div>
