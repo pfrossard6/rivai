@@ -93,20 +93,20 @@ const LEVELS = [
   { id: "advanced", label: "Entendo APIs e automações" },
 ];
 const ACHIEVEMENTS = [
-  { id: "welcome", icon: "🚀", title: "Decolagem", desc: "Criou sua conta", xp: 50, color: "#6c63ff" },
-  { id: "profile", icon: "🧠", title: "Auto-conhecimento", desc: "Perfil completo", xp: 100, color: "#00d4aa" },
-  { id: "first_study", icon: "📚", title: "Primeiro Estudo", desc: "Iniciou uma sessão", xp: 75, color: "#f59e0b" },
-  { id: "streak_3", icon: "🔥", title: "Em Chamas", desc: "3 dias seguidos", xp: 200, color: "#ef4444" },
-  { id: "streak_7", icon: "💥", title: "Imparável", desc: "7 dias seguidos", xp: 500, color: "#ef4444" },
-  { id: "chat_5", icon: "💬", title: "Curioso", desc: "5 perguntas ao tutor", xp: 100, color: "#6c63ff" },
-  { id: "notes_10", icon: "📓", title: "Anotador", desc: "10 anotações criadas", xp: 100, color: "#00d4aa" },
-  { id: "progress_50", icon: "⭐", title: "Meio Caminho", desc: "50% da trilha concluída", xp: 300, color: "#f59e0b" },
-  { id: "xp_2000", icon: "💎", title: "Diamante", desc: "2000 XP acumulados", xp: 500, color: "#00d4aa" },
+  { id: "welcome", icon: "", title: "Decolagem", desc: "Criou sua conta", xp: 50, color: "#6c63ff" },
+  { id: "profile", icon: "", title: "Auto-conhecimento", desc: "Perfil completo", xp: 100, color: "#00d4aa" },
+  { id: "first_study", icon: "", title: "Primeiro Estudo", desc: "Iniciou uma sessão", xp: 75, color: "#f59e0b" },
+  { id: "streak_3", icon: "", title: "Em Chamas", desc: "3 dias seguidos", xp: 200, color: "#ef4444" },
+  { id: "streak_7", icon: "", title: "Imparável", desc: "7 dias seguidos", xp: 500, color: "#ef4444" },
+  { id: "chat_5", icon: "", title: "Curioso", desc: "5 perguntas ao tutor", xp: 100, color: "#6c63ff" },
+  { id: "notes_10", icon: "", title: "Anotador", desc: "10 anotações criadas", xp: 100, color: "#00d4aa" },
+  { id: "progress_50", icon: "", title: "Meio Caminho", desc: "50% da trilha concluída", xp: 300, color: "#f59e0b" },
+  { id: "xp_2000", icon: "", title: "Diamante", desc: "2000 XP acumulados", xp: 500, color: "#00d4aa" },
 ];
 const DAILY_MISSIONS = [
-  { id: "study_30", icon: "⏱️", title: "Sessão de 30min", desc: "Estude por pelo menos 30 minutos", xp: 50 },
-  { id: "ask_tutor", icon: "💬", title: "Pergunte ao Tutor", desc: "Faça uma pergunta ao tutor", xp: 40 },
-  { id: "take_note", icon: "📓", title: "Faça uma Anotação", desc: "Escreva uma anotação de estudo", xp: 30 },
+  { id: "study_30", icon: "", title: "Sessão de 30min", desc: "Estude por pelo menos 30 minutos", xp: 50 },
+  { id: "ask_tutor", icon: "", title: "Pergunte ao Tutor", desc: "Faça uma pergunta ao tutor", xp: 40 },
+  { id: "take_note", icon: "", title: "Faça uma Anotação", desc: "Escreva uma anotação de estudo", xp: 30 },
 ];
 const HOME_MISSIONS_DEF = [
   { id: "home_study_15", xp: 30 },
@@ -115,10 +115,10 @@ const HOME_MISSIONS_DEF = [
 ];
 const TRAIL_STUDY_KEY = "rivai_trail_study";
 const NAV_ITEMS = [
-  { id: "home", icon: "🏠", label: "Início" },
-  { id: "trail", icon: "📚", label: "Trilhas" },
-  { id: "explore", icon: "🔍", label: "Explorar" },
-  { id: "oficina", icon: "🛠️", label: "Oficina" },
+  { id: "home", label: "Início" },
+  { id: "trail", label: "Trilhas" },
+  { id: "explore", label: "Explorar" },
+  { id: "oficina", label: "Oficina" },
 ];
 const getTodayStr = () => new Date().toDateString();
 const HEATMAP_KEY = "rivai_study_heatmap";
@@ -148,11 +148,11 @@ const saveProfilePhoto = b64 => b64 ? localStorage.setItem("rivai_profile_photo"
 const LESSON_CONTENT_FIXED = {
   "0_0": {
     cards: [
-      { icon: "🧠", title: "O que é Inteligência Artificial?", body: "Inteligência Artificial (IA) é a capacidade de máquinas realizarem tarefas que normalmente exigiriam inteligência humana — como aprender, raciocinar, tomar decisões e entender linguagem natural." },
-      { icon: "⚙️", title: "Como a IA aprende?", body: "A IA aprende a partir de dados. Quanto mais exemplos ela vê, mais precisa fica. Um modelo como o ChatGPT foi treinado com bilhões de textos para aprender a gerar respostas coerentes e úteis." },
-      { icon: "🗂️", title: "Tipos de IA", body: "• IA Generativa: cria texto, imagens, código (ChatGPT, Claude, Midjourney)\n• IA Analítica: analisa dados e faz previsões (recomendações da Netflix)\n• IA de Visão: reconhece imagens e vídeos (Face ID, carros autônomos)\n• IA de Automação: executa tarefas repetitivas (chatbots, RPA)" },
-      { icon: "💡", title: "Você já usa IA", body: "Você usa IA sem perceber todos os dias:\n• Sugestões de músicas no Spotify\n• Filtro de spam no e-mail\n• Rotas inteligentes no Google Maps\n• Corretor ortográfico do celular\n• Detecção de fraude no cartão de crédito" },
-      { icon: "⚡", title: "Seu próximo passo", body: "Agora que você entende o que é IA, o próximo tópico vai te ensinar a conversar com ela de forma eficiente. Isso se chama engenharia de prompts — a habilidade mais valiosa que você pode desenvolver agora." },
+      { icon: "", title: "O que é Inteligência Artificial?", body: "Inteligência Artificial (IA) é a capacidade de máquinas realizarem tarefas que normalmente exigiriam inteligência humana — como aprender, raciocinar, tomar decisões e entender linguagem natural." },
+      { icon: "", title: "Como a IA aprende?", body: "A IA aprende a partir de dados. Quanto mais exemplos ela vê, mais precisa fica. Um modelo como o ChatGPT foi treinado com bilhões de textos para aprender a gerar respostas coerentes e úteis." },
+      { icon: "", title: "Tipos de IA", body: "• IA Generativa: cria texto, imagens, código (ChatGPT, Claude, Midjourney)\n• IA Analítica: analisa dados e faz previsões (recomendações da Netflix)\n• IA de Visão: reconhece imagens e vídeos (Face ID, carros autônomos)\n• IA de Automação: executa tarefas repetitivas (chatbots, RPA)" },
+      { icon: "", title: "Você já usa IA", body: "Você usa IA sem perceber todos os dias:\n• Sugestões de músicas no Spotify\n• Filtro de spam no e-mail\n• Rotas inteligentes no Google Maps\n• Corretor ortográfico do celular\n• Detecção de fraude no cartão de crédito" },
+      { icon: "", title: "Seu próximo passo", body: "Agora que você entende o que é IA, o próximo tópico vai te ensinar a conversar com ela de forma eficiente. Isso se chama engenharia de prompts — a habilidade mais valiosa que você pode desenvolver agora." },
     ]
   }
 };
@@ -176,25 +176,14 @@ const newUser = (email, pw, name) => ({
 });
 
 // ─── Theme ─────────────────────────────────────────────────────────────────
-const THEMES = {
-  dark: {
-    isDark: true,
-    bg: "#121214", surface: "#19191c", card: "#1c1c1f", border: "#2b2b2f",
-    accent: "#6459E0", accentLight: "#8177E8", accentDim: "#6459E01c", accentGlow: "#6459E01c",
-    green: "#22A35E", greenDim: "#22A35E18", amber: "#C77C22", amberDim: "#C77C2218",
-    red: "#D14F4F", redDim: "#D14F4F18",
-    textPrimary: "#EDEDEF", textSecondary: "#A0A0A8", textDim: "#5C5C64",
-    btnText: "#fff", navBg: "#19191cf0",
-  },
-  light: {
-    isDark: false,
-    bg: "#FAFAFA", surface: "#ffffff", card: "#ffffff", border: "#E4E4E7",
-    accent: "#5A4FCF", accentLight: "#7267DB", accentDim: "#5A4FCF10", accentGlow: "#5A4FCF10",
-    green: "#188A4C", greenDim: "#188A4C12", amber: "#B4650F", amberDim: "#B4650F12",
-    red: "#C43D3D", redDim: "#C43D3D12",
-    textPrimary: "#18181B", textSecondary: "#52525B", textDim: "#A1A1AA",
-    btnText: "#fff", navBg: "#FAFAFAF0",
-  },
+// Tema único "Nascente" (ver DESIGN.md). Modo escuro foi removido — sem variante dark.
+const THEME = {
+  bg: "#EAEBEA", surface: "#F4F5F4", card: "#F4F5F4", border: "#D8DBDA",
+  accent: "#3B5B6B", accentLight: "#3B5B6B", accentDim: "#DCE4E7", accentGlow: "#3B5B6B",
+  green: "#188A4C", greenDim: "#188A4C12", amber: "#B4650F", amberDim: "#B4650F12",
+  red: "#C43D3D", redDim: "#C43D3D12",
+  textPrimary: "#16191C", textSecondary: "#565C55", textDim: "#9BA1A3",
+  btnText: "#fff", navBg: "#EAEBEAF0",
 };
 
 // ─── API helpers ───────────────────────────────────────────────────────────
@@ -239,7 +228,7 @@ async function generateCourse(profile) {
 Retorne este JSON exato (substitua os valores):
 {"headline":"frase motivacional curta máx 8 palavras","overview":"2-3 frases específicas para este perfil","phases":[{"number":1,"title":"nome da fase","duration":"3 semanas","color":"violet","focus":"foco principal","days":[{"period":"dia 1-2","title":"título do tópico","description":"descrição concreta e específica para este perfil","tag":"prática"}]}],"first_prompt":"prompt detalhado que o aluno deve usar para começar o dia 1 com o tutor IA"}
 
-Regras: 3 fases (fase1=violet, fase2=emerald, fase3=amber), 3-4 dias por fase, tags: prática/teoria/projeto/ferramenta/análise/automação. O contexto pessoal do aluno precisa aparecer de forma concreta no título ou foco de CADA fase e na descrição de CADA dia — não apenas no overview inicial. Nunca gere títulos ou descrições genéricas que serviriam pra qualquer pessoa; um aluno da saúde e um da logística devem receber fases visivelmente diferentes.`;
+Regras: 3 fases (fase1=violet, fase2=emerald, fase3=amber), 3-4 dias por fase, tags: prática/teoria/projeto/ferramenta/análise/automação. O contexto pessoal do aluno precisa aparecer de forma concreta no título ou foco de CADA fase e na descrição de CADA dia — não apenas no overview inicial. Nunca gere títulos ou descrições genéricas que serviriam pra qualquer pessoa; um aluno da saúde e um da logística devem receber fases visivelmente diferentes. Nunca use emoji em nenhum campo.`;
 
   const raw = await callAPI([{ role: "user", content }], system, 2500);
   return JSON.parse(extractJSON(raw));
@@ -258,7 +247,7 @@ async function generateLessonContent(profile, phase, day) {
 Retorne este JSON exato:
 {"cards":[{"icon":"nome curto do conceito","title":"título do card","body":"explicação real e específica, 3-5 frases, com exemplo concreto ligado ao contexto do aluno"}],"flashcards":[{"front":"pergunta ou termo curto","back":"resposta curta e direta"}],"exercise":{"title":"título do exercício prático","instructions":"instrução de uma tarefa real que o aluno faz agora, usando um prompt ou ferramenta de IA, ligada ao contexto dele"}}
 
-Regras: 3-4 cards de conteúdo real (nada de "use o tutor para aprofundar" — ensine de verdade aqui), 4-5 flashcards de revisão, 1 exercício prático específico para o contexto do aluno. Sempre em português.`;
+Regras: 3-4 cards de conteúdo real (nada de "use o tutor para aprofundar" — ensine de verdade aqui), 4-5 flashcards de revisão, 1 exercício prático específico para o contexto do aluno. Sempre em português. Nunca use emoji em nenhum campo.`;
 
   const raw = await callAPI([{ role: "user", content }], system, 2000);
   return JSON.parse(extractJSON(raw));
@@ -272,7 +261,7 @@ async function askTutor(messages, profile, lessonContext = null) {
     : "";
   const system = `Você é um tutor de IA especializado e personalizado. Estilo: direto, empolgante, didático mas descontraído.
 Perfil: ${profile?.name}, setor: ${profile?.sector}, porte: ${profile?.teamSize}, papel: ${profile?.role}, gargalo: ${profile?.bottleneck}, nível: ${profile?.level}, contexto: ${profile?.context || "não informado"}.${lessonLine}
-Regras: máx 4 parágrafos curtos, use exemplos concretos da área do aluno, seja específico nunca genérico, responda em português.`;
+Regras: máx 4 parágrafos curtos, use exemplos concretos da área do aluno, seja específico nunca genérico, responda em português. Nunca use emoji.`;
   return await callAPI(messages, system, 900);
 }
 
@@ -310,23 +299,10 @@ function pickModuleIcon(title = "", pi = 0) {
   return MODULE_ICON_ORDER[pi % MODULE_ICON_ORDER.length];
 }
 
-// ─── Page backgrounds — real illustrated photos, per page, responsive ─────
-function PageBackground({ T, scene }) {
-  const base = `/bg-${scene}`;
-  const dark = !!T.isDark;
-  return (
-    <div style={{ position: "fixed", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 0 }}>
-      <img src={`${base}-mobile.jpg`} alt="" className="rv-bg-mobile" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-      <img src={`${base}-desktop.jpg`} alt="" className="rv-bg-desktop" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover" }} />
-      <div style={{ position: "absolute", inset: 0, background: T.bg, opacity: dark ? 0.72 : 0.4 }} />
-    </div>
-  );
-}
-
 // ─── Shared UI ─────────────────────────────────────────────────────────────
 function Card({ T, children, style = {}, glow, onClick, ...rest }) {
   return (
-    <div onClick={onClick} {...rest} style={{ background: T.card, border: `1px solid ${glow ? T.accent + "40" : T.border}`, borderRadius: 14, padding: "18px", boxShadow: T.card === "#ffffff" ? "0 1px 3px #0000000a" : "none", cursor: onClick ? "pointer" : "default", ...style }}>
+    <div onClick={onClick} {...rest} style={{ background: T.card, border: `1px solid ${glow ? T.accent + "40" : T.border}`, borderRadius: 14, padding: "18px", boxShadow: "0 1px 3px #0000000a", cursor: onClick ? "pointer" : "default", ...style }}>
       {children}
     </div>
   );
@@ -516,19 +492,19 @@ function MiniProfileMenu({ T, user, onEditPhoto, onOpenProfile, onTutorial, onOp
         </div>
         {/* Actions */}
         <button onClick={() => { onClose(); onEditPhoto(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Source Serif 4',serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
-          🖼️ Editar perfil
+          Editar perfil
         </button>
         <button onClick={() => { onClose(); onTutorial(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Source Serif 4',serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
-          📖 Ver tutorial
+          Ver tutorial
         </button>
         <button onClick={() => { onClose(); onOpenNotes(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Source Serif 4',serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
-          📓 Minhas notas
+          Minhas notas
         </button>
         <button onClick={() => { onClose(); onOpenProfile(); }} style={{ width: "100%", padding: "10px 12px", background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, cursor: "pointer", fontFamily: "'Source Serif 4',serif", fontSize: 13, fontWeight: 700, color: T.textPrimary, textAlign: "left", marginBottom: 6, display: "flex", alignItems: "center", gap: 8 }}>
-          ⚙️ Configurações
+          Configurações
         </button>
         <button onClick={onLogout} style={{ width: "100%", padding: "10px 12px", background: T.redDim, border: `1px solid ${T.red}33`, borderRadius: 10, cursor: "pointer", fontFamily: "'Source Serif 4',serif", fontSize: 13, fontWeight: 700, color: T.red, textAlign: "left", display: "flex", alignItems: "center", gap: 8 }}>
-          🚪 Sair da conta
+          Sair da conta
         </button>
       </div>
     </>
@@ -579,7 +555,6 @@ function ProfilePhotoModal({ T, user, updateUser, addToast, onClose }) {
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: mode === "emoji" ? 14 : 0 }}>
           <button onClick={() => { setMode("photo"); setTimeout(() => fileRef.current?.click(), 60); }} style={{ padding: "13px 16px", background: mode === "photo" ? T.accentDim : T.surface, border: `1.5px solid ${mode === "photo" ? T.accent : T.border}`, borderRadius: 13, cursor: "pointer", fontFamily: "'Source Serif 4',serif", textAlign: "left", display: "flex", alignItems: "center", gap: 12, transition: "all .15s" }}>
-            <span style={{ fontSize: 24 }}>📷</span>
             <div>
               <p style={{ fontSize: 14, fontWeight: 700, color: T.textPrimary }}>Enviar foto</p>
               <p style={{ fontSize: 12, color: T.textSecondary }}>Upload de imagem do dispositivo</p>
@@ -587,14 +562,12 @@ function ProfilePhotoModal({ T, user, updateUser, addToast, onClose }) {
           </button>
           <input ref={fileRef} type="file" accept="image/*" onChange={handlePhotoChange} style={{ display: "none" }} />
           <button onClick={applyInitial} style={{ padding: "13px 16px", background: T.surface, border: `1.5px solid ${T.border}`, borderRadius: 13, cursor: "pointer", fontFamily: "'Source Serif 4',serif", textAlign: "left", display: "flex", alignItems: "center", gap: 12, transition: "all .15s" }}>
-            <span style={{ fontSize: 24 }}>🔤</span>
             <div>
               <p style={{ fontSize: 14, fontWeight: 700, color: T.textPrimary }}>Usar inicial do nome</p>
               <p style={{ fontSize: 12, color: T.textSecondary }}>Exibe a primeira letra do seu nome</p>
             </div>
           </button>
           <button onClick={() => setMode(m => m === "emoji" ? null : "emoji")} style={{ padding: "13px 16px", background: mode === "emoji" ? T.accentDim : T.surface, border: `1.5px solid ${mode === "emoji" ? T.accent : T.border}`, borderRadius: 13, cursor: "pointer", fontFamily: "'Source Serif 4',serif", textAlign: "left", display: "flex", alignItems: "center", gap: 12, transition: "all .15s" }}>
-            <span style={{ fontSize: 24 }}>😀</span>
             <div>
               <p style={{ fontSize: 14, fontWeight: 700, color: T.textPrimary }}>Escolher emoji</p>
               <p style={{ fontSize: 12, color: T.textSecondary }}>Selecione um emoji como avatar</p>
@@ -784,11 +757,8 @@ export default function App() {
   const [authError, setAuthError] = useState("");
   const [toasts, setToasts] = useState([]);
   const [xpPops, setXpPops] = useState([]);
-  const [themeKey, setThemeKey] = useState(() => localStorage.getItem("aprendia_theme") || "dark");
   const [showSplash, setShowSplash] = useState(true);
-  const T = THEMES[themeKey];
-
-  const toggleTheme = () => { const n = themeKey === "dark" ? "light" : "dark"; setThemeKey(n); localStorage.setItem("aprendia_theme", n); };
+  const T = THEME;
 
   const addToast = useCallback((msg, type = "info") => {
     const id = Date.now() + Math.random();
@@ -812,9 +782,9 @@ export default function App() {
       if (achievementId && !newAch.includes(achievementId)) {
         newAch.push(achievementId);
         const a = ACHIEVEMENTS.find(x => x.id === achievementId);
-        if (a) setTimeout(() => addToast(`${a.icon} ${a.title} desbloqueada! +${a.xp} XP`, "achievement"), 400);
+        if (a) setTimeout(() => addToast(`${a.title} desbloqueada! +${a.xp} XP`, "achievement"), 400);
       }
-      if (newXP >= 2000 && !newAch.includes("xp_2000")) { newAch.push("xp_2000"); setTimeout(() => addToast("💎 Diamante desbloqueada!", "achievement"), 700); }
+      if (newXP >= 2000 && !newAch.includes("xp_2000")) { newAch.push("xp_2000"); setTimeout(() => addToast("Diamante desbloqueada!", "achievement"), 700); }
       const updated = { ...prev, xp: newXP, achievements: newAch };
       saveUser(updated);
       return updated;
@@ -843,12 +813,12 @@ export default function App() {
     if (existing) { setAuthError("E-mail já cadastrado."); return; }
     const nu = newUser(email, pw, name);
     await saveUser(nu); saveSession(email); setUser(nu); setScreen("onboarding"); setAuthError("");
-    setTimeout(() => addToast("🚀 Bem-vindo! +50 XP", "achievement"), 600);
+    setTimeout(() => addToast("Bem-vindo! +50 XP", "achievement"), 600);
   }
   function handleProfileSaved(profile, course) {
     const updated = { ...user, profile, course, xp: (user.xp || 0) + 100, achievements: [...(user.achievements || []), "profile"] };
     updateUser(updated); setScreen("dashboard");
-    setTimeout(() => addToast("✨ Curso gerado! +100 XP", "achievement"), 400);
+    setTimeout(() => addToast("Curso gerado! +100 XP", "achievement"), 400);
   }
 
   const GS = `
@@ -874,8 +844,6 @@ export default function App() {
     .rv-bottomnav{display:flex}
     .rv-shell-root{padding-bottom:70px}
     .rv-shell-content{max-width:720px}
-    .rv-bg-mobile{display:block}
-    .rv-bg-desktop{display:none}
     @media (min-width:880px){
       .rv-tutor-dock{display:block}
       .rv-tutor-float-btn{display:none}
@@ -884,8 +852,6 @@ export default function App() {
       .rv-shell-content{margin-left:196px;max-width:1040px}
       .rv-covers-grid{grid-template-columns:repeat(3,1fr) !important}
       .rv-shell-root{padding-bottom:0}
-      .rv-bg-mobile{display:none}
-      .rv-bg-desktop{display:block}
     }
   `;
 
@@ -900,10 +866,10 @@ export default function App() {
         <div style={{ position: "fixed", top: 12, right: 12, zIndex: 9998, display: "flex", flexDirection: "column", gap: 7 }}>
           {toasts.map(t => <div key={t.id} style={{ background: T.card, border: `1px solid ${t.type === "achievement" ? T.accent : T.green}`, borderRadius: 13, padding: "10px 15px", fontSize: 13, fontWeight: 700, color: T.textPrimary, animation: "toastIn .35s ease", boxShadow: `0 4px 20px ${T.accentGlow}`, maxWidth: 270 }}>{t.msg}</div>)}
         </div>
-        {screen === "login" && <AuthScreen T={T} mode="login" onSubmit={handleLogin} onSwitch={() => { setAuthError(""); setScreen("register"); }} error={authError} setError={setAuthError} themeKey={themeKey} toggleTheme={toggleTheme} />}
-        {screen === "register" && <AuthScreen T={T} mode="register" onSubmit={handleRegister} onSwitch={() => { setAuthError(""); setScreen("login"); }} error={authError} setError={setAuthError} themeKey={themeKey} toggleTheme={toggleTheme} />}
+        {screen === "login" && <AuthScreen T={T} mode="login" onSubmit={handleLogin} onSwitch={() => { setAuthError(""); setScreen("register"); }} error={authError} setError={setAuthError} />}
+        {screen === "register" && <AuthScreen T={T} mode="register" onSubmit={handleRegister} onSwitch={() => { setAuthError(""); setScreen("login"); }} error={authError} setError={setAuthError} />}
         {screen === "onboarding" && <OnboardingScreen T={T} user={user} onDone={handleProfileSaved} />}
-        {screen === "dashboard" && <Dashboard T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} onLogout={() => { clearSession(); setUser(null); setScreen("login"); }} onRestart={() => setScreen("onboarding")} themeKey={themeKey} toggleTheme={toggleTheme} />}
+        {screen === "dashboard" && <Dashboard T={T} user={user} updateUser={updateUser} addXP={addXP} addToast={addToast} onLogout={() => { clearSession(); setUser(null); setScreen("login"); }} onRestart={() => setScreen("onboarding")} />}
       </>}
     </>
   );
@@ -929,51 +895,39 @@ function SplashScreen() {
 }
 
 // ─── Auth ──────────────────────────────────────────────────────────────────
-function AuthScreen({ T, mode, onSubmit, onSwitch, error, setError, themeKey, toggleTheme }) {
+function AuthScreen({ T, mode, onSubmit, onSwitch, error, setError }) {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [pw, setPw] = useState("");
   const [emailFocus, setEmailFocus] = useState(false);
   const [pwFocus, setPwFocus] = useState(false);
   const [nameFocus, setNameFocus] = useState(false);
-  const [btnHover, setBtnHover] = useState(false);
   const isLogin = mode === "login";
   function submit() { isLogin ? onSubmit(email, pw) : onSubmit(email, pw, name); }
 
   const fieldStyle = (focused) => ({
-    width: "100%", background: "#0F0F1A", border: `1px solid ${focused ? "#6C4DFF" : "#2D2D3F"}`,
-    borderRadius: 12, color: "#ffffff", fontFamily: "'Source Serif 4', serif", fontSize: 14,
+    width: "100%", background: T.surface, border: `1px solid ${focused ? T.accent : T.border}`,
+    borderRadius: 12, color: T.textPrimary, fontFamily: "'Source Serif 4', serif", fontSize: 14,
     padding: "13px 14px", outline: "none", marginBottom: 12, transition: "border .2s",
-    boxShadow: focused ? "0 0 0 3px rgba(108,77,255,.18)" : "none", boxSizing: "border-box",
+    boxShadow: focused ? `0 0 0 3px ${T.accentDim}` : "none", boxSizing: "border-box",
   });
 
   return (
-    <div style={{ minHeight: "100vh", background: "#0F0F1A", position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center" }}>
-      {/* Radial gradient */}
-      <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)", width: "700px", height: "700px", background: "radial-gradient(ellipse at center, rgba(108,77,255,.18) 0%, transparent 65%)", pointerEvents: "none" }} />
-
-      {/* Theme toggle */}
-      <button onClick={toggleTheme} style={{ position: "absolute", top: 16, right: 16, background: "rgba(255,255,255,.06)", border: "1px solid #2D2D3F", borderRadius: 10, padding: "7px 11px", cursor: "pointer", fontSize: 16, zIndex: 10 }}>{themeKey === "dark" ? "☀️" : "🌙"}</button>
-
-      {/* Logo + waves section */}
+    <div style={{ minHeight: "100vh", background: T.bg, position: "relative", overflow: "hidden", display: "flex", flexDirection: "column", alignItems: "center" }}>
+      {/* Logo */}
       <div style={{ width: "100%", maxWidth: 420, padding: "56px 24px 0", textAlign: "center", position: "relative", zIndex: 1 }}>
-        {/* SVG waves decorativas */}
-        <svg width="100%" height="48" viewBox="0 0 420 48" fill="none" style={{ marginBottom: 8, opacity: .22 }}>
-          <path d="M0 32 Q52 8 105 28 T210 28 T315 28 T420 28 L420 48 L0 48 Z" fill="#6C4DFF" />
-          <path d="M0 38 Q70 18 140 34 T280 34 T420 34 L420 48 L0 48 Z" fill="#8A2BE2" opacity=".6" />
-        </svg>
         <div style={{ fontSize: 48, fontWeight: 900, letterSpacing: "-1px", marginBottom: 10, lineHeight: 1, animation: "fadeUp .5s ease" }}>
-          <span style={{ color: "#ffffff" }}>Riv</span><span style={{ color: "#6C4DFF" }}>AI</span>
+          <span style={{ color: T.textPrimary }}>Riv.</span><span style={{ color: T.accent }}>AI</span>
         </div>
-        <p style={{ fontSize: 16, fontWeight: 700, color: "#6C4DFF", marginBottom: 6, animation: "fadeUp .55s ease" }}>Seu ritmo, amplificado.</p>
-        <p style={{ fontSize: 13, color: "#9CA3AF", marginBottom: 32, animation: "fadeUp .6s ease" }}>O tutor de IA que se adapta a você</p>
+        <p style={{ fontSize: 16, fontWeight: 700, color: T.accent, marginBottom: 6, animation: "fadeUp .55s ease" }}>Seu ritmo, amplificado.</p>
+        <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 32, animation: "fadeUp .6s ease" }}>O tutor de IA que se adapta a você</p>
       </div>
 
       {/* Login card */}
       <div style={{ width: "100%", maxWidth: 420, padding: "0 16px 40px", position: "relative", zIndex: 1, animation: "fadeUp .65s ease" }}>
-        <div style={{ background: "#1B1B24", borderRadius: 16, padding: "28px 24px", boxShadow: "0 8px 40px rgba(0,0,0,.5)" }}>
-          <h2 style={{ fontSize: 18, fontWeight: 800, color: "#ffffff", marginBottom: 4 }}>{isLogin ? "Bem-vindo de volta 👋" : "Criar sua conta 🎯"}</h2>
-          <p style={{ color: "#9CA3AF", fontSize: 13, marginBottom: 20 }}>{isLogin ? "Continue sua jornada" : "Vamos montar seu curso personalizado"}</p>
+        <div style={{ background: T.card, borderRadius: 16, padding: "28px 24px", boxShadow: "0 1px 3px #0000000a" }}>
+          <h2 style={{ fontSize: 18, fontWeight: 800, color: T.textPrimary, marginBottom: 4 }}>{isLogin ? "Bem-vindo de volta" : "Criar sua conta"}</h2>
+          <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 20 }}>{isLogin ? "Continue sua jornada" : "Vamos montar seu curso personalizado"}</p>
 
           {!isLogin && (
             <input
@@ -997,20 +951,18 @@ function AuthScreen({ T, mode, onSubmit, onSwitch, error, setError, themeKey, to
             onKeyDown={e => e.key === "Enter" && submit()}
           />
 
-          {error && <p style={{ color: "#ef4444", fontSize: 13, marginBottom: 14 }}>{error}</p>}
+          {error && <p style={{ color: T.red, fontSize: 13, marginBottom: 14 }}>{error}</p>}
 
           <button
             onClick={submit}
-            onMouseEnter={() => setBtnHover(true)}
-            onMouseLeave={() => setBtnHover(false)}
-            style={{ width: "100%", padding: "14px 20px", background: btnHover ? "#8A2BE2" : "#6C4DFF", color: "#ffffff", border: "none", borderRadius: 12, fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: "'Source Serif 4', serif", transition: "background .2s", boxShadow: "0 4px 20px rgba(108,77,255,.4)" }}
+            style={{ width: "100%", padding: "14px 20px", background: T.textPrimary, color: T.btnText, border: "none", borderRadius: 12, fontSize: 15, fontWeight: 800, cursor: "pointer", fontFamily: "'Source Serif 4', serif" }}
           >
             {isLogin ? "Entrar →" : "Criar conta grátis →"}
           </button>
 
-          <p style={{ textAlign: "center", fontSize: 13, color: "#9CA3AF", marginTop: 18, cursor: "pointer" }} onClick={onSwitch}>
+          <p style={{ textAlign: "center", fontSize: 13, color: T.textSecondary, marginTop: 18, cursor: "pointer" }} onClick={onSwitch}>
             {isLogin ? "Novo por aqui? " : "Já tem conta? "}
-            <span style={{ color: "#6C4DFF", fontWeight: 700 }}>{isLogin ? "Criar conta grátis" : "Entrar"}</span>
+            <span style={{ color: T.accent, fontWeight: 700 }}>{isLogin ? "Criar conta grátis" : "Entrar"}</span>
           </p>
         </div>
       </div>
@@ -1876,7 +1828,7 @@ function ExploreTab({ T }) {
                 <p style={{ fontWeight: 900, fontSize: 17, color: T.textPrimary, marginBottom: 4 }}>{selectedTrail.title}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <span style={{ fontSize: 10, fontWeight: 700, padding: '3px 9px', borderRadius: 20, background: selectedTrail.level === 'Iniciante' ? T.greenDim : T.amberDim, color: selectedTrail.level === 'Iniciante' ? T.green : T.amber, fontFamily: "'JetBrains Mono',monospace" }}>{selectedTrail.level}</span>
-                  <span style={{ fontSize: 11, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>📖 {totalLessons(selectedTrail)} aulas</span>
+                  <span style={{ fontSize: 11, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>{totalLessons(selectedTrail)} aulas</span>
                 </div>
               </div>
             </div>
@@ -1918,7 +1870,6 @@ function ExploreTab({ T }) {
       <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Search bar */}
       <div data-tour="explore-search" style={{ position: "relative", marginBottom: 22 }}>
-        <span style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", fontSize: 15, pointerEvents: "none" }}>🔍</span>
         <input
           placeholder="Buscar trilhas, temas ou aulas..."
           value={query}
@@ -1946,7 +1897,6 @@ function ExploreTab({ T }) {
       <p style={{ fontSize: 11, fontWeight: 800, color: T.textDim, textTransform: "uppercase", letterSpacing: ".1em", marginBottom: 12, fontFamily: "'JetBrains Mono',monospace" }}>Em destaque</p>
       {filtered.length === 0 ? (
         <Card T={T} style={{ textAlign: "center", padding: "32px 20px" }}>
-          <div style={{ fontSize: 38, marginBottom: 10 }}>🔍</div>
           <p style={{ fontWeight: 800, fontSize: 15, color: T.textPrimary, marginBottom: 4 }}>Nenhum resultado</p>
           <p style={{ color: T.textSecondary, fontSize: 13 }}>{activeCategory && !query ? "Ainda não temos trilhas nessa categoria — mais em breve." : "Tente outro termo de busca."}</p>
         </Card>
@@ -1961,7 +1911,7 @@ function ExploreTab({ T }) {
                   <p style={{ fontSize: 13, color: T.textSecondary, marginBottom: 8, lineHeight: 1.5 }}>{trail.desc}</p>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <span style={{ fontSize: 10, fontWeight: 700, padding: "3px 9px", borderRadius: 20, background: trail.level === "Iniciante" ? T.greenDim : T.amberDim, color: trail.level === "Iniciante" ? T.green : T.amber, fontFamily: "'JetBrains Mono',monospace" }}>{trail.level}</span>
-                    <span style={{ fontSize: 11, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>📖 {totalLessons(trail)} aulas</span>
+                    <span style={{ fontSize: 11, color: T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>{totalLessons(trail)} aulas</span>
                   </div>
                 </div>
               </div>
@@ -1980,7 +1930,7 @@ function ExploreTab({ T }) {
 }
 
 // ─── Dashboard ─────────────────────────────────────────────────────────────
-function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, themeKey, toggleTheme }) {
+function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart }) {
   const [tab, setTab] = useState("home");
   const [showProfile, setShowProfile] = useState(false);
   const [showMiniMenu, setShowMiniMenu] = useState(false);
@@ -2004,20 +1954,16 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
     if (!m) return;
     updateUser({ ...cur, completedMissions: [...completed, key] });
     addXP(m.xp);
-    addToast(`${m.icon ? m.icon + " " : "✓ "}Missão concluída! +${m.xp} XP`);
+    addToast(`Missão concluída! +${m.xp} XP`);
   }, [updateUser, addXP, addToast]);
 
   return (
     <div className="rv-shell-root" style={{ minHeight: "100vh", background: T.bg }}>
-      {(tab === "home" || tab === "trail" || tab === "explore") && (
-        <PageBackground T={T} scene={tab === "home" ? "inicio" : tab === "trail" ? "trilhas" : "explorar"} />
-      )}
       {/* Navbar */}
       <div style={{ background: T.navBg, borderBottom: `1px solid ${T.border}`, padding: "10px 16px", display: "flex", alignItems: "center", gap: 10, position: "sticky", top: 0, zIndex: 100, backdropFilter: "blur(16px)" }}>
-        <span style={{ fontSize: 16, fontWeight: 700, color: T.textPrimary, fontFamily: "'Source Serif 4', serif" }}>Riv<span style={{ color: T.accent, fontWeight: 900 }}>.IA</span></span>
+        <span style={{ fontSize: 16, fontWeight: 700, color: T.textPrimary, fontFamily: "'Source Serif 4', serif" }}>Riv.<span style={{ color: T.accent, fontWeight: 900 }}>AI</span></span>
         <div style={{ flex: 1 }} />
         <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <button onClick={toggleTheme} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 9, padding: "5px 9px", cursor: "pointer", fontSize: 14 }}>{themeKey === "dark" ? "☀️" : "🌙"}</button>
           <button data-tour="profile-avatar" onClick={() => setShowMiniMenu(m => !m)} style={{ width: 32, height: 32, borderRadius: 10, background: T.accent, border: "none", display: "flex", alignItems: "center", justifyContent: "center", fontSize: user.settings?.avatarType === "photo" || !user.settings?.avatar ? 13 : 17, fontWeight: 700, color: "#fff", cursor: "pointer", overflow: "hidden" }}>
             {user.settings?.avatarType === "photo" && getProfilePhoto()
               ? <img src={getProfilePhoto()} style={{ width: "100%", height: "100%", objectFit: "cover" }} alt="" />
@@ -2041,30 +1987,26 @@ function Dashboard({ T, user, updateUser, addXP, addToast, onLogout, onRestart, 
 
       {/* Sidebar nav (desktop) */}
       <div className="rv-sidebar" style={{ position: "fixed", top: 0, left: 0, bottom: 0, width: 196, background: T.surface, borderRight: `1px solid ${T.border}`, flexDirection: "column", padding: "18px 10px", zIndex: 90 }}>
-        <p style={{ fontSize: 15, fontWeight: 700, color: T.textPrimary, padding: "0 8px", marginBottom: 22 }}>Riv<span style={{ color: T.accent }}>.IA</span></p>
+        <p style={{ fontSize: 15, fontWeight: 700, color: T.textPrimary, padding: "0 8px", marginBottom: 22 }}>Riv.<span style={{ color: T.accent }}>AI</span></p>
         {NAV_ITEMS.map(item => (
-          <button key={item.id} onClick={() => setTab(item.id)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 10px", borderRadius: 8, background: tab === item.id ? T.accentDim : "transparent", border: "none", cursor: "pointer", textAlign: "left", marginBottom: 2 }}>
-            <span style={{ fontSize: 16, opacity: tab === item.id ? 1 : 0.55 }}>{item.icon}</span>
+          <button key={item.id} onClick={() => setTab(item.id)} style={{ display: "flex", alignItems: "center", padding: "9px 10px", borderRadius: 8, background: tab === item.id ? T.accentDim : "transparent", border: "none", cursor: "pointer", textAlign: "left", marginBottom: 2 }}>
             <span style={{ fontSize: 13, fontWeight: tab === item.id ? 700 : 500, color: tab === item.id ? T.accent : T.textSecondary }}>{item.label}</span>
           </button>
         ))}
         <div style={{ height: 1, background: T.border, margin: "10px 8px" }} />
-        <button onClick={() => setTab("prompts")} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 10px", borderRadius: 8, background: tab === "prompts" ? T.accentDim : "transparent", border: "none", cursor: "pointer", textAlign: "left", marginBottom: 2 }}>
-          <span style={{ fontSize: 16, opacity: tab === "prompts" ? 1 : 0.55 }}>✨</span>
+        <button onClick={() => setTab("prompts")} style={{ display: "flex", alignItems: "center", padding: "9px 10px", borderRadius: 8, background: tab === "prompts" ? T.accentDim : "transparent", border: "none", cursor: "pointer", textAlign: "left", marginBottom: 2 }}>
           <span style={{ fontSize: 13, fontWeight: tab === "prompts" ? 700 : 500, color: tab === "prompts" ? T.accent : T.textSecondary }}>Prompts prontos</span>
         </button>
-        <button onClick={() => setShowProfile(true)} style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 10px", borderRadius: 8, background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}>
-          <span style={{ fontSize: 16, opacity: 0.55 }}>⚙️</span>
+        <button onClick={() => setShowProfile(true)} style={{ display: "flex", alignItems: "center", padding: "9px 10px", borderRadius: 8, background: "transparent", border: "none", cursor: "pointer", textAlign: "left" }}>
           <span style={{ fontSize: 13, fontWeight: 500, color: T.textSecondary }}>Configurações</span>
         </button>
       </div>
 
       {/* Bottom nav (mobile) */}
-      <div className="rv-bottomnav" style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: themeKey === "dark" ? "#1B1B24" : T.navBg, borderTop: `1px solid ${T.border}`, zIndex: 100, backdropFilter: "blur(16px)" }}>
+      <div className="rv-bottomnav" style={{ position: "fixed", bottom: 0, left: 0, right: 0, background: T.navBg, borderTop: `1px solid ${T.border}`, zIndex: 100, backdropFilter: "blur(16px)" }}>
         {NAV_ITEMS.map(item => (
-          <button key={item.id} onClick={() => setTab(item.id)} style={{ flex: 1, padding: "8px 0 9px", background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 2, fontFamily: "'Source Serif 4',serif" }}>
-            <span style={{ fontSize: 18, filter: tab === item.id ? "none" : "grayscale(80%) opacity(.45)", transform: tab === item.id ? "scale(1.16)" : "scale(1)", transition: "all .15s", color: tab === item.id && item.id === "tutor" ? T.accent : undefined }}>{item.icon}</span>
-            <span style={{ fontSize: 9, fontWeight: tab === item.id ? 800 : 500, color: tab === item.id ? (themeKey === "dark" ? "#6C4DFF" : T.accent) : (themeKey === "dark" ? "#9CA3AF" : T.textDim) }}>{item.label}</span>
+          <button key={item.id} onClick={() => setTab(item.id)} style={{ flex: 1, padding: "12px 0", background: "none", border: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", fontFamily: "'Source Serif 4',serif" }}>
+            <span style={{ fontSize: 11, fontWeight: tab === item.id ? 800 : 500, color: tab === item.id ? T.accent : T.textDim }}>{item.label}</span>
           </button>
         ))}
       </div>
@@ -2173,7 +2115,6 @@ function ProfileModal({ T, user, updateUser, onLogout, onRestart, addToast, onCl
         <div style={{ display: "flex", alignItems: "center", gap: 14, marginBottom: 20, padding: "14px", background: T.surface, borderRadius: 14, border: `1px solid ${T.border}` }}>
           <div onClick={() => setShowAvatarPicker(p => !p)} style={{ width: 56, height: 56, borderRadius: 16, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: avatar ? 26 : 22, fontWeight: 900, color: "#fff", flexShrink: 0, cursor: "pointer", position: "relative" }}>
             {avatar || (user.name || "?")[0].toUpperCase()}
-            <div style={{ position: "absolute", bottom: -6, right: -6, width: 20, height: 20, borderRadius: "50%", background: T.accent, border: `2px solid ${T.card}`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>✏️</div>
           </div>
           <div style={{ flex: 1 }}>
             <p style={{ fontWeight: 800, fontSize: 15, color: T.textPrimary }}>{nickname || user.name}</p>
@@ -2208,7 +2149,7 @@ function ProfileModal({ T, user, updateUser, onLogout, onRestart, addToast, onCl
         <input type="range" min={1} max={5} step={1} value={goal} onChange={e => setGoal(Number(e.target.value))} style={{ width: "100%", accentColor: T.accent, background: "transparent", border: "none", padding: 0, cursor: "pointer", marginBottom: 18 }} />
         {/* Stats */}
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 8, marginBottom: 18 }}>
-          {[{ l: "Streak", v: `${user.streak||0}🔥` }, { l: "Conquistas", v: `${(user.achievements||[]).length}/${ACHIEVEMENTS.length}` }, { l: "Notas", v: (user.notes||[]).length }].map(s => (
+          {[{ l: "Streak", v: `${user.streak||0}` }, { l: "Conquistas", v: `${(user.achievements||[]).length}/${ACHIEVEMENTS.length}` }, { l: "Notas", v: (user.notes||[]).length }].map(s => (
             <div key={s.l} style={{ background: T.surface, border: `1px solid ${T.border}`, borderRadius: 10, padding: "10px 8px", textAlign: "center" }}>
               <p style={{ fontSize: 18, fontWeight: 900, color: T.accent, fontFamily: "'JetBrains Mono',monospace" }}>{s.v}</p>
               <p style={{ fontSize: 10, color: T.textDim, marginTop: 2 }}>{s.l}</p>
@@ -2217,11 +2158,11 @@ function ProfileModal({ T, user, updateUser, onLogout, onRestart, addToast, onCl
         </div>
         <StudyHeatmap T={T} />
         <BtnPrimary T={T} onClick={save} style={{ marginBottom: 10 }}>Salvar alterações</BtnPrimary>
-        <button onClick={onRestart} style={{ width: "100%", padding: "12px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 12, color: T.accent, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Source Serif 4',serif", marginBottom: 8 }}>🔄 Gerar novo curso</button>
+        <button onClick={onRestart} style={{ width: "100%", padding: "12px", background: T.accentDim, border: `1px solid ${T.accent}33`, borderRadius: 12, color: T.accent, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Source Serif 4',serif", marginBottom: 8 }}>Gerar novo curso</button>
         <button onClick={onLogout} style={{ width: "100%", padding: "12px", background: T.redDim, border: `1px solid ${T.red}33`, borderRadius: 12, color: T.red, fontSize: 14, fontWeight: 700, cursor: "pointer", fontFamily: "'Source Serif 4',serif" }}>Sair da conta</button>
         {/* PWA hint */}
         <div style={{ marginTop: 14, padding: "12px 14px", background: T.accentDim, border: `1px solid ${T.accent}22`, borderRadius: 12, textAlign: "center" }}>
-          <p style={{ fontSize: 12, fontWeight: 700, color: T.accent, marginBottom: 3 }}>📱 Instalar como app</p>
+          <p style={{ fontSize: 12, fontWeight: 700, color: T.accent, marginBottom: 3 }}>Instalar como app</p>
           <p style={{ fontSize: 11, color: T.textSecondary, lineHeight: 1.5 }}>Android: menu ⋮ → "Adicionar à tela inicial" · iPhone: compartilhar → "Adicionar à Tela de Início"</p>
         </div>
       </div>
@@ -2388,7 +2329,7 @@ function EstudarTab({ T, user, updateUser, addXP, addToast, completeMission }) {
         if (streak >= 3 && !newAch.includes("streak_3")) newAch.push("streak_3");
         if (streak >= 7 && !newAch.includes("streak_7")) newAch.push("streak_7");
         updateUser({ ...user, streak, lastStudy: today, achievements: newAch });
-        addToast(`🔥 Streak: ${streak} dias!`);
+        addToast(`Streak: ${streak} dias!`);
       }
     }
     startedAtRef.current = Date.now();
@@ -2405,7 +2346,7 @@ function EstudarTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
-      <h2 style={{ fontSize: 20, fontWeight: 900, color: T.textPrimary, marginBottom: 3 }}>Sessão de Estudo ⏱️</h2>
+      <h2 style={{ fontSize: 20, fontWeight: 900, color: T.textPrimary, marginBottom: 3 }}>Sessão de Estudo</h2>
       <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 18 }}>Acompanhe seu tempo de estudo diário.</p>
 
       <Card T={T} style={{ marginBottom: 12, textAlign: "center", background: done ? T.greenDim : T.card, border: `1px solid ${done ? T.green + "44" : T.border}` }}>
@@ -2414,7 +2355,7 @@ function EstudarTab({ T, user, updateUser, addXP, addToast, completeMission }) {
         <div style={{ height: 6, background: T.border, borderRadius: 6, marginBottom: 6, overflow: "hidden" }}>
           <div style={{ height: 6, background: done ? `linear-gradient(90deg,${T.green},#00ffcc)` : `linear-gradient(90deg,${T.accent},${T.accentLight||T.green})`, width: pct + "%", borderRadius: 6, transition: "width 1s linear" }} />
         </div>
-        <p style={{ fontSize: 12, color: T.textDim, marginBottom: 12 }}>{done ? "🎉 Meta diária concluída!" : `Meta: ${user.settings?.dailyGoal || 1}h — faltam ${Math.max(0, Math.floor((goalSec - timerSec) / 60))}min`}</p>
+        <p style={{ fontSize: 12, color: T.textDim, marginBottom: 12 }}>{done ? "Meta diária concluída!" : `Meta: ${user.settings?.dailyGoal || 1}h — faltam ${Math.max(0, Math.floor((goalSec - timerSec) / 60))}min`}</p>
         <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
           <BtnPrimary T={T} style={{ width: "auto", padding: "11px 24px" }} onClick={handleStart}>{running ? "⏸ Pausar" : "▶ Estudar agora"}</BtnPrimary>
           {timerSec > 0 && <button onClick={resetTimer} style={{ padding: "11px 14px", background: "transparent", border: `1px solid ${T.border}`, borderRadius: 12, color: T.textSecondary, fontSize: 15, cursor: "pointer", fontFamily: "'Source Serif 4',serif" }}>↺</button>}
@@ -2424,13 +2365,12 @@ function EstudarTab({ T, user, updateUser, addXP, addToast, completeMission }) {
       <Card T={T}>
         <p style={{ fontSize: 12, fontWeight: 800, color: T.textSecondary, marginBottom: 10, textTransform: "uppercase", letterSpacing: ".06em" }}>Missão vinculada</p>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <span style={{ fontSize: 20 }}>⏱️</span>
           <div style={{ flex: 1 }}>
             <p style={{ fontWeight: 700, fontSize: 13, color: study30Done ? T.green : T.textPrimary, textDecoration: study30Done ? "line-through" : "none" }}>Sessão de 30min</p>
             <div style={{ marginTop: 5, height: 4, background: T.border, borderRadius: 4, overflow: "hidden" }}>
               <div style={{ height: 4, background: study30Done ? T.green : T.accent, width: `${(minStudied / 30) * 100}%`, borderRadius: 4, transition: "width 1s linear" }} />
             </div>
-            <p style={{ fontSize: 11, color: T.textDim, marginTop: 3 }}>{study30Done ? "Concluída! 🎉" : `${minStudied}/30 min — ${running ? "cronômetro rodando" : "inicie para progredir"}`}</p>
+            <p style={{ fontSize: 11, color: T.textDim, marginTop: 3 }}>{study30Done ? "Concluída!" : `${minStudied}/30 min — ${running ? "cronômetro rodando" : "inicie para progredir"}`}</p>
           </div>
           <span style={{ fontSize: 11, fontWeight: 800, color: T.amber, fontFamily: "'JetBrains Mono',monospace" }}>+50 XP</span>
           <div style={{ width: 26, height: 26, borderRadius: 7, border: `2px solid ${study30Done ? T.green : T.border}`, background: study30Done ? T.green : "transparent", color: study30Done ? "#fff" : T.textDim, fontSize: 12, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{study30Done ? "✓" : "○"}</div>
@@ -2819,7 +2759,7 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
       newNotes = notes.map(n => n.id === editing ? { ...n, title: note.title, text: note.text } : n);
     } else {
       newNotes = [note, ...notes];
-      addXP(15); addToast("📓 Anotação salva! +15 XP");
+      addXP(15); addToast("Anotação salva! +15 XP");
       completeMission("take_note");
       if (newNotes.length >= 10) addXP(100, "notes_10");
     }
@@ -2836,7 +2776,7 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
     setAgenda(newAgenda);
     localStorage.setItem("rivai_agenda", JSON.stringify(newAgenda));
     setAgendaTitle(""); setAgendaDate(""); setAgendaTime(""); setShowAgendaForm(false);
-    addToast("📅 Compromisso adicionado!");
+    addToast("Compromisso adicionado!");
   }
 
   function deleteAgendaItem(id) {
@@ -2872,7 +2812,7 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
       <div style={{ position: 'relative', zIndex: 1 }}>
       {/* Section tabs */}
       <div style={{ display: "flex", gap: 8, marginBottom: 20, background: T.surface, borderRadius: 12, padding: 4, border: `1px solid ${T.border}` }}>
-        {[{ id: "notes", label: "📓 Anotações" }, { id: "agenda", label: "📅 Agenda" }].map(s => (
+        {[{ id: "notes", label: "Anotações" }, { id: "agenda", label: "Agenda" }].map(s => (
           <button key={s.id} onClick={() => setSection(s.id)} style={{ flex: 1, padding: "9px 0", border: "none", borderRadius: 9, cursor: "pointer", fontFamily: "'Source Serif 4',serif", fontSize: 13, fontWeight: section === s.id ? 800 : 600, background: section === s.id ? `linear-gradient(135deg,${T.accent},${T.accentLight || T.green})` : "transparent", color: section === s.id ? "#fff" : T.textSecondary, transition: "all .18s" }}>
             {s.label}
           </button>
@@ -2888,7 +2828,6 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
           </div>
           {notes.length === 0 ? (
             <Card T={T} style={{ textAlign: "center", padding: "36px 20px" }}>
-              <div style={{ fontSize: 44, marginBottom: 12 }}>📓</div>
               <p style={{ fontWeight: 800, fontSize: 16, color: T.textPrimary, marginBottom: 6 }}>Nenhuma anotação ainda</p>
               <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 18 }}>Anote o que você aprende para fixar melhor o conteúdo.</p>
               <BtnPrimary T={T} style={{ width: "auto", padding: "11px 24px" }} onClick={() => setView("new")}>Criar primeira nota</BtnPrimary>
@@ -2900,8 +2839,8 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 6 }}>
                     <p style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary, flex: 1, marginRight: 10 }}>{note.title}</p>
                     <div style={{ display: "flex", gap: 6, flexShrink: 0 }}>
-                      <button onClick={() => { setEditing(note.id); setText(note.text); setTitle(note.title); }} style={{ background: T.accentDim, border: `1px solid ${T.accent}22`, borderRadius: 7, padding: "4px 9px", cursor: "pointer", color: T.accent, fontSize: 12, fontFamily: "'Source Serif 4',serif" }}>✏️</button>
-                      <button onClick={() => deleteNote(note.id)} style={{ background: T.redDim, border: `1px solid ${T.red}22`, borderRadius: 7, padding: "4px 9px", cursor: "pointer", color: T.red, fontSize: 12, fontFamily: "'Source Serif 4',serif" }}>🗑️</button>
+                      <button onClick={() => { setEditing(note.id); setText(note.text); setTitle(note.title); }} style={{ background: T.accentDim, border: `1px solid ${T.accent}22`, borderRadius: 7, padding: "4px 9px", cursor: "pointer", color: T.accent, fontSize: 12, fontFamily: "'Source Serif 4',serif" }}>Editar</button>
+                      <button onClick={() => deleteNote(note.id)} style={{ background: T.redDim, border: `1px solid ${T.red}22`, borderRadius: 7, padding: "4px 9px", cursor: "pointer", color: T.red, fontSize: 12, fontFamily: "'Source Serif 4',serif" }}>Excluir</button>
                     </div>
                   </div>
                   <p style={{ fontSize: 13, color: T.textSecondary, lineHeight: 1.6, marginBottom: 8, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{note.text}</p>
@@ -2938,7 +2877,6 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
 
           {agenda.length === 0 && !showAgendaForm ? (
             <Card T={T} style={{ textAlign: "center", padding: "36px 20px" }}>
-              <div style={{ fontSize: 44, marginBottom: 12 }}>📅</div>
               <p style={{ fontWeight: 800, fontSize: 16, color: T.textPrimary, marginBottom: 6 }}>Nenhum compromisso ainda</p>
               <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 18 }}>Organize seus horários de estudo para manter a consistência.</p>
               <BtnPrimary T={T} style={{ width: "auto", padding: "11px 24px" }} onClick={() => setShowAgendaForm(true)}>Criar primeiro compromisso</BtnPrimary>
@@ -2951,12 +2889,12 @@ function NotesTab({ T, user, updateUser, addXP, addToast, completeMission }) {
                     <div style={{ flex: 1, marginRight: 10 }}>
                       <p style={{ fontWeight: 800, fontSize: 14, color: T.textPrimary, marginBottom: 4 }}>{item.title}</p>
                       <div style={{ display: "flex", gap: 10, alignItems: "center" }}>
-                        {item.date && <span style={{ fontSize: 11, color: T.accent, fontFamily: "'JetBrains Mono',monospace", fontWeight: 700 }}>📆 {formatAgendaDate(item.date)}</span>}
+                        {item.date && <span style={{ fontSize: 11, color: T.accent, fontFamily: "'JetBrains Mono',monospace", fontWeight: 700 }}>{formatAgendaDate(item.date)}</span>}
                         {item.time && <span style={{ fontSize: 11, color: T.textSecondary, fontFamily: "'JetBrains Mono',monospace" }}>⏰ {item.time}</span>}
                         {!item.date && !item.time && <span style={{ fontSize: 11, color: T.textDim }}>sem data/horário</span>}
                       </div>
                     </div>
-                    <button onClick={() => deleteAgendaItem(item.id)} style={{ background: T.redDim, border: `1px solid ${T.red}22`, borderRadius: 7, padding: "5px 10px", cursor: "pointer", color: T.red, fontSize: 12, fontFamily: "'Source Serif 4',serif", flexShrink: 0 }}>🗑️</button>
+                    <button onClick={() => deleteAgendaItem(item.id)} style={{ background: T.redDim, border: `1px solid ${T.red}22`, borderRadius: 7, padding: "5px 10px", cursor: "pointer", color: T.red, fontSize: 12, fontFamily: "'Source Serif 4',serif", flexShrink: 0 }}>Excluir</button>
                   </div>
                 </Card>
               ))}
@@ -2977,11 +2915,10 @@ function RankTab({ T, user }) {
   }, []);
 
   const myRank = allUsers.findIndex(u => u.email === user.email) + 1;
-  const medals = ["🥇", "🥈", "🥉"];
-
+  
   return (
     <div style={{ animation: "fadeUp .4s ease" }}>
-      <h2 style={{ fontSize: 20, fontWeight: 900, color: T.textPrimary, marginBottom: 4 }}>Ranking 🏆</h2>
+      <h2 style={{ fontSize: 20, fontWeight: 900, color: T.textPrimary, marginBottom: 4 }}>Ranking</h2>
       <p style={{ color: T.textSecondary, fontSize: 13, marginBottom: 18 }}>Entre todos os usuários deste dispositivo</p>
 
       {myRank > 0 && (
@@ -2994,7 +2931,6 @@ function RankTab({ T, user }) {
 
       {allUsers.length <= 1 ? (
         <Card T={T} style={{ textAlign: "center", padding: "32px 20px" }}>
-          <div style={{ fontSize: 44, marginBottom: 12 }}>🏆</div>
           <p style={{ fontWeight: 800, fontSize: 16, color: T.textPrimary, marginBottom: 6 }}>Você é o único aqui!</p>
           <p style={{ color: T.textSecondary, fontSize: 13 }}>Quando outras pessoas criarem contas neste dispositivo, elas aparecerão aqui. Compartilhe o app com amigos!</p>
         </Card>
@@ -3004,11 +2940,11 @@ function RankTab({ T, user }) {
             const isMe = u.email === user.email;
             return (
               <div key={u.email} style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", background: isMe ? T.accentDim : T.card, border: `1px solid ${isMe ? T.accent + "44" : T.border}`, borderRadius: 13, transition: "all .2s" }}>
-                <span style={{ fontSize: i < 3 ? 20 : 14, fontWeight: 900, minWidth: 28, textAlign: "center", color: i < 3 ? undefined : T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>{i < 3 ? medals[i] : `#${i + 1}`}</span>
+                <span style={{ fontSize: i < 3 ? 20 : 14, fontWeight: 900, minWidth: 28, textAlign: "center", color: i < 3 ? undefined : T.textDim, fontFamily: "'JetBrains Mono',monospace" }}>{`#${i + 1}`}</span>
                 <div style={{ width: 34, height: 34, borderRadius: 10, background: `linear-gradient(135deg,${T.accent},${T.accentLight||T.green})`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 900, color: "#fff", flexShrink: 0 }}>{(u.name || "?")[0].toUpperCase()}</div>
                 <div style={{ flex: 1 }}>
                   <p style={{ fontWeight: 700, fontSize: 14, color: isMe ? T.accent : T.textPrimary }}>{u.name}{isMe ? " (você)" : ""}</p>
-                  <p style={{ fontSize: 11, color: T.textDim }}>🔥 {u.streak || 0} dias · {(u.achievements || []).length} conquistas</p>
+                  <p style={{ fontSize: 11, color: T.textDim }}>{u.streak || 0} dias · {(u.achievements || []).length} conquistas</p>
                 </div>
                 <span style={{ fontSize: 13, fontWeight: 900, color: T.amber, fontFamily: "'JetBrains Mono',monospace" }}>{u.xp || 0} XP</span>
               </div>
