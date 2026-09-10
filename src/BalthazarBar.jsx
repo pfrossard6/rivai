@@ -46,6 +46,7 @@ export default function BalthazarBar({ state, setState }) {
   }
 
   /** Executa uma tool_use vinda da API, roteando pro módulo dono dela. */
+  // eslint-disable-next-line no-unused-vars
   function runTool(toolName, toolInput) {
     const handler = getToolHandler(toolName);
     if (!handler) return `Não sei executar "${toolName}".`;
