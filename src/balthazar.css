@@ -154,3 +154,33 @@
   .app-row { flex-direction: column; }
   .main-header, .main-body, .balthazar-input-row { padding-left: 18px; padding-right: 18px; }
 }
+
+.balthazar-mic {
+  font-family: 'Source Serif 4', serif;
+  font-size: 14px;
+  padding: 10px 12px;
+  background: none;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  color: var(--ink-soft);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color .15s ease, border-color .15s ease, background .15s ease;
+}
+.balthazar-mic:hover { color: var(--ink); border-color: var(--accent); }
+.balthazar-mic.on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  animation: bz-pulse 1.4s ease-in-out infinite;
+}
+.balthazar-mic:disabled { opacity: .4; cursor: not-allowed; }
+
+@keyframes bz-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: .6; }
+}
+
+.balthazar-input-row input:disabled { opacity: .6; }
+
+.msg .body.pensando { color: var(--ink-soft); font-style: italic; }
