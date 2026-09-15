@@ -2,12 +2,25 @@
  * Proxy do Balthazar → API da Anthropic.
  *
  * Existe para a chave nunca sair do servidor. O front manda system,
- * messages e tools; esta função só repassa e devolve a resposta crua.
+ * messages e tools; esta função acrescenta a pesquisa na internet
+ * e devolve a resposta crua.
  *
- * IMPORTANTE: o nome da variável de ambiente abaixo (ANTHROPIC_API_KEY)
- * precisa bater com a que já está configurada na Vercel. Se o projeto
- * usar outro nome, ajuste aqui.
+ * Pesquisa: limitada a 3 buscas por pergunta para controlar custo.
+ * Cada busca é cobrada à parte, além do texto.
  */
+
+const PESQUISA = {
+  type: 'web_search_20250305',
+  name: 'web_search',
+  max_uses: 3,
+  user_location: {
+    type: 'approximate',
+    city: 'Vitória',
+    region: 'Espírito Santo',
+    country: 'BR',
+    timezone: 'America/Sao_Paulo',
+  },
+};
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
@@ -26,6 +39,8 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'messages é obrigatório' });
     }
 
+    const todas = [...(Array.isArray(tools) ? tools : []), PESQUISA];
+
     const upstream = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -38,7 +53,7 @@ export default async function handler(req, res) {
         max_tokens: 1200,
         system,
         messages,
-        tools: tools && tools.length ? tools : undefined,
+        tools: todas,
       }),
     });
 

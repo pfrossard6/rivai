@@ -9,6 +9,9 @@ import InvestmentsView from './InvestmentsView.jsx';
  * dentro da mensagem, com a barra do limite.
  */
 
+const INVESTIMENTOS =
+  'INVESTIMENTOS: a aba ainda não mostra cotações. Se o Pedro perguntar sobre mercado ou cotações, pesquise na internet e responda com os números atuais, deixando claro que não é recomendação de investimento.';
+
 function money(n) {
   return 'R$ ' + n.toFixed(2).replace('.', ',');
 }
@@ -136,7 +139,7 @@ const financeModule = {
   systemPromptFragment: (state) => {
     const cats = state.finance.categories;
     if (!cats.length) {
-      return 'FINANÇAS: nenhuma categoria de limite cadastrada ainda. Se o Pedro mencionar um gasto, ofereça criar a categoria com create_category.\n\nINVESTIMENTOS: cotações ainda não conectadas. Se ele perguntar sobre mercado, responda com conhecimento geral e deixe claro que não é recomendação financeira formal.';
+      return `FINANÇAS: nenhuma categoria de limite cadastrada ainda. Se o Pedro mencionar um gasto, ofereça criar a categoria com create_category.\n\n${INVESTIMENTOS}`;
     }
     const lines = cats
       .map((c) => {
@@ -144,7 +147,7 @@ const financeModule = {
         return `- ${c.name}: limite ${money(c.limit)}, gasto ${money(spent)}, restam ${money(c.limit - spent)}`;
       })
       .join('\n');
-    return `FINANÇAS — categorias e limites atuais:\n${lines}\n\nAo registrar um gasto, escolha a categoria existente mais próxima. Se nenhuma servir, pergunte antes de criar uma nova.\n\nINVESTIMENTOS: cotações ainda não conectadas. Se ele perguntar sobre mercado, responda com conhecimento geral e deixe claro que não é recomendação financeira formal.`;
+    return `FINANÇAS — categorias e limites atuais:\n${lines}\n\nAo registrar um gasto, escolha a categoria existente mais próxima. Se nenhuma servir, pergunte antes de criar uma nova.\n\n${INVESTIMENTOS}`;
   },
 };
 

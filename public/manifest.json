@@ -1,6 +1,8 @@
 {
-  "short_name": "RivAI",
-  "name": "RivAI — Seu ritmo, amplificado.",
+  "short_name": "Riv.AI",
+  "name": "Riv.AI — Balthazar",
+  "description": "O Balthazar, seu assessor pessoal.",
+  "lang": "pt-BR",
   "icons": [
     {
       "src": "favicon.ico",
@@ -20,6 +22,6 @@
   ],
   "start_url": ".",
   "display": "standalone",
-  "theme_color": "#000000",
-  "background_color": "#ffffff"
+  "theme_color": "#FBFAF7",
+  "background_color": "#F2F1ED"
 }

@@ -7,10 +7,24 @@ import { getAllTools, getToolHandler, buildSystemPrompt } from './modules/regist
  * mode="bar"   barra fixa no rodapé (desktop)
  * mode="sheet" tela cheia sobre o painel (celular)
  *
- * Voz: clique para ouvir, clique de novo para enviar. Continua ouvindo
- * nas pausas; o texto é remontado do zero a cada sessão para nunca
- * emendar com a fala anterior.
+ * Ouvir: clique para ouvir, clique de novo para enviar. Continua ouvindo
+ * nas pausas; o texto é remontado do zero a cada sessão.
+ *
+ * Falar: quando a pergunta vem por voz, a resposta é lida em voz alta
+ * (ElevenLabs via /api/voz; se falhar, usa a voz do aparelho).
+ * Pergunta digitada recebe só texto — economiza custo.
+ *
+ * Custo: só as últimas perguntas vão para a API, para o histórico
+ * (que inclui resultados de pesquisa) não crescer sem limite.
  */
+
+const VOICE_PREF_KEY = 'rivai:voz';
+const MAX_TURNOS = 6;
+const MAX_RODADAS = 6;
+const SILENCIO =
+  'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+const NOTA_VOZ =
+  '\n\nESTA MENSAGEM VEIO POR VOZ e a resposta será lida em voz alta: responda em no máximo duas frases curtas, sem listas, sem negrito e sem links.';
 
 function Mark({ size = 15 }) {
   return (
@@ -31,6 +45,54 @@ function richText(text) {
   return parts.map((p, i) => (i % 2 === 1 ? <strong key={i}>{p}</strong> : p));
 }
 
+/**
+ * Junta os blocos de texto da resposta. Quando há uma pesquisa no meio,
+ * separa em trechos (ex.: "Vou verificar." / resposta final).
+ */
+function trechosDeTexto(blocks) {
+  const partes = [];
+  let atual = '';
+  blocks.forEach((b) => {
+    if (b.type === 'text') {
+      atual += b.text;
+    } else if (atual.trim()) {
+      partes.push(atual.trim());
+      atual = '';
+    }
+  });
+  if (atual.trim()) partes.push(atual.trim());
+  return partes;
+}
+
+/** Tira marcações que não fazem sentido faladas. */
+function paraFala(text) {
+  return String(text || '')
+    .replace(/\*\*(.+?)\*\*/g, '$1')
+    .replace(/https?:\/\/\S+/g, '')
+    .replace(/[#*_`>]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 600);
+}
+
+/** Mantém só as últimas perguntas, começando sempre numa pergunta de texto. */
+function aparar(hist) {
+  const inicios = [];
+  hist.forEach((m, i) => {
+    if (m.role === 'user' && typeof m.content === 'string') inicios.push(i);
+  });
+  if (inicios.length <= MAX_TURNOS) return hist;
+  return hist.slice(inicios[inicios.length - MAX_TURNOS]);
+}
+
+function lerPreferenciaVoz() {
+  try {
+    return window.localStorage.getItem(VOICE_PREF_KEY) !== 'off';
+  } catch (e) {
+    return true;
+  }
+}
+
 export default function BalthazarBar({ state, setState, mode = 'bar', onClose }) {
   const sheet = mode === 'sheet';
 
@@ -39,6 +101,8 @@ export default function BalthazarBar({ state, setState, mode = 'bar', onClose })
   const [input, setInput] = useState('');
   const [busy, setBusy] = useState(false);
   const [listening, setListening] = useState(false);
+  const [voiceOn, setVoiceOn] = useState(lerPreferenciaVoz);
+  const [speaking, setSpeaking] = useState(false);
 
   const history = useRef([]);
   const recognition = useRef(null);
@@ -46,6 +110,9 @@ export default function BalthazarBar({ state, setState, mode = 'bar', onClose })
   const interim = useRef('');  // trecho parcial em andamento
   const scroller = useRef(null);
   const stateRef = useRef(state);
+  const voiceRef = useRef(voiceOn);
+  const audio = useRef(null);
+  const audioUrl = useRef(null);
 
   useEffect(() => { stateRef.current = state; }, [state]);
   useEffect(() => {
@@ -56,10 +123,96 @@ export default function BalthazarBar({ state, setState, mode = 'bar', onClose })
     typeof window !== 'undefined' &&
     (window.SpeechRecognition || window.webkitSpeechRecognition);
 
-  /* ---------------- voz ---------------- */
+  /* ---------------- falar ---------------- */
+
+  function garantirAudio() {
+    if (!audio.current) audio.current = new Audio();
+    return audio.current;
+  }
+
+  /** Precisa rodar dentro de um toque: libera o som no iPhone. */
+  function liberarSom() {
+    const a = garantirAudio();
+    if (a.dataset.liberado) return;
+    a.src = SILENCIO;
+    const p = a.play();
+    if (p && p.catch) p.catch(() => { /* sem som, tudo bem */ });
+    a.dataset.liberado = '1';
+  }
+
+  function pararFala() {
+    if (audio.current) audio.current.pause();
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+    if (audioUrl.current) {
+      URL.revokeObjectURL(audioUrl.current);
+      audioUrl.current = null;
+    }
+    setSpeaking(false);
+  }
+
+  function falarPeloAparelho(texto) {
+    const synth = window.speechSynthesis;
+    if (!synth) {
+      setSpeaking(false);
+      return;
+    }
+    const u = new SpeechSynthesisUtterance(texto);
+    u.lang = 'pt-BR';
+    const voz = synth.getVoices().find((v) => (v.lang || '').toLowerCase().startsWith('pt'));
+    if (voz) u.voice = voz;
+    u.onend = () => setSpeaking(false);
+    u.onerror = () => setSpeaking(false);
+    synth.speak(u);
+  }
+
+  async function falar(textoBruto) {
+    const texto = paraFala(textoBruto);
+    if (!texto) return;
+    pararFala();
+    setSpeaking(true);
+    try {
+      const res = await fetch('/api/voz', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: texto }),
+      });
+      if (!res.ok) throw new Error('voz ' + res.status);
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      audioUrl.current = url;
+      const a = garantirAudio();
+      a.onended = () => pararFala();
+      a.src = url;
+      await a.play();
+    } catch (err) {
+      console.warn('Voz do Balthazar indisponível, usando a do aparelho:', err);
+      falarPeloAparelho(texto);
+    }
+  }
+
+  function alternarVoz() {
+    const novo = !voiceOn;
+    setVoiceOn(novo);
+    voiceRef.current = novo;
+    try {
+      window.localStorage.setItem(VOICE_PREF_KEY, novo ? 'on' : 'off');
+    } catch (e) { /* navegador sem armazenamento */ }
+    if (novo) liberarSom();
+    else pararFala();
+  }
+
+  function fechar() {
+    pararFala();
+    if (onClose) onClose();
+  }
+
+  /* ---------------- ouvir ---------------- */
 
   function startListening() {
     if (!voiceSupported || listening || busy) return;
+
+    pararFala();
+    liberarSom();
 
     // encerra qualquer sessão anterior antes de abrir outra
     if (recognition.current) {
@@ -126,12 +279,12 @@ export default function BalthazarBar({ state, setState, mode = 'bar', onClose })
     }
   }
 
-  async function callApi() {
+  async function callApi(extra) {
     const res = await fetch('/api/balthazar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        system: buildSystemPrompt(stateRef.current),
+        system: buildSystemPrompt(stateRef.current) + (extra || ''),
         messages: history.current,
         tools: getAllTools(),
       }),
@@ -149,20 +302,42 @@ export default function BalthazarBar({ state, setState, mode = 'bar', onClose })
     setInput('');
     setOpen(true);
     setMessages((m) => [...m, { role: 'user', text, at: new Date(), byVoice }]);
+
+    const antes = history.current.slice();
     history.current.push({ role: 'user', content: text });
+    history.current = aparar(history.current);
     setBusy(true);
+
+    let ultimaFala = '';
 
     try {
       let rounds = 0;
-      while (rounds < 4) {
+      let pausado = false;
+
+      while (rounds < MAX_RODADAS) {
         rounds += 1;
-        const data = await callApi();
+        const data = await callApi(byVoice ? NOTA_VOZ : '');
         const blocks = data.content || [];
 
-        const said = blocks.filter((b) => b.type === 'text').map((b) => b.text).join('\n').trim();
-        if (said) setMessages((m) => [...m, { role: 'balthazar', text: said, at: new Date() }]);
+        const trechos = trechosDeTexto(blocks);
+        if (trechos.length) {
+          ultimaFala = trechos[trechos.length - 1];
+          setMessages((m) => [
+            ...m,
+            { role: 'balthazar', text: trechos.join('\n\n'), at: new Date() },
+          ]);
+        }
 
-        history.current.push({ role: 'assistant', content: blocks });
+        // pesquisa longa: a API pausa e a resposta continua na próxima rodada
+        const ultimo = history.current[history.current.length - 1];
+        if (pausado && ultimo && ultimo.role === 'assistant') {
+          ultimo.content = [...ultimo.content, ...blocks];
+        } else {
+          history.current.push({ role: 'assistant', content: blocks });
+        }
+
+        pausado = data.stop_reason === 'pause_turn';
+        if (pausado) continue;
 
         const toolUses = blocks.filter((b) => b.type === 'tool_use');
         if (!toolUses.length) break;
@@ -172,11 +347,14 @@ export default function BalthazarBar({ state, setState, mode = 'bar', onClose })
           const out = runTool(b);
           results.push({ type: 'tool_result', tool_use_id: b.id, content: String(out.text || '') });
           setMessages((m) => [...m, { role: 'balthazar', text: out.text, receipt: out.receipt, at: new Date() }]);
+          if (out.text) ultimaFala = out.text;
         }
         history.current.push({ role: 'user', content: results });
       }
     } catch (err) {
       console.error(err);
+      history.current = antes;
+      ultimaFala = '';
       setMessages((m) => [
         ...m,
         { role: 'balthazar', text: 'Não consegui responder agora. Tenta de novo daqui a pouco.', at: new Date() },
@@ -184,6 +362,8 @@ export default function BalthazarBar({ state, setState, mode = 'bar', onClose })
     } finally {
       setBusy(false);
     }
+
+    if (byVoice && voiceRef.current && ultimaFala) falar(ultimaFala);
   }
 
   /* ---------------- pedaços ---------------- */
@@ -233,7 +413,9 @@ export default function BalthazarBar({ state, setState, mode = 'bar', onClose })
         )}
 
         {sheet && messages.length === 0 && !busy && (
-          <p className="bz-empty">Fala comigo. "gastei 38 no almoço", "consulta amanhã 9h" — eu acho o lugar certo.</p>
+          <p className="bz-empty">
+            Fala comigo. "gastei 38 no almoço", "consulta amanhã 9h", "como está o dólar hoje?" — eu acho o lugar certo.
+          </p>
         )}
       </div>
     </div>
@@ -264,6 +446,22 @@ export default function BalthazarBar({ state, setState, mode = 'bar', onClose })
     </div>
   );
 
+  const voiceToggle = (
+    <button
+      className={'bz-voice' + (voiceOn ? ' on' : '')}
+      type="button"
+      onClick={alternarVoz}
+      title={voiceOn ? 'Respostas faladas ligadas' : 'Respostas faladas desligadas'}
+    >
+      {voiceOn ? 'com voz' : 'sem voz'}
+    </button>
+  );
+
+  let status = 'sempre por perto';
+  if (listening) status = 'ouvindo…';
+  else if (busy) status = 'pensando…';
+  else if (speaking) status = 'falando…';
+
   /* ---------------- celular: tela cheia ---------------- */
 
   if (sheet) {
@@ -273,9 +471,12 @@ export default function BalthazarBar({ state, setState, mode = 'bar', onClose })
           <span className="bz-ring"><Mark size={15} /></span>
           <div>
             <div className="nm">Balthazar</div>
-            <div className="st">{listening ? 'ouvindo…' : 'sempre por perto'}</div>
+            <div className="st">{status}</div>
           </div>
-          <button className="bz-x" type="button" onClick={onClose} aria-label="Fechar">✕</button>
+          <div className="bz-sheet-actions">
+            {voiceToggle}
+            <button className="bz-x" type="button" onClick={fechar} aria-label="Fechar">✕</button>
+          </div>
         </header>
 
         {transcript}
@@ -298,6 +499,7 @@ export default function BalthazarBar({ state, setState, mode = 'bar', onClose })
             Balthazar
           </button>
           {composer}
+          {voiceToggle}
         </div>
       </div>
     </div>

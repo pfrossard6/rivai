@@ -9,7 +9,12 @@ import './balthazar.css';
  * Desktop: sidebar à esquerda + barra do Balthazar embaixo.
  * Celular: barra de abas embaixo com o Balthazar no centro; a conversa
  *          abre em tela cheia por cima do painel.
+ *
+ * Dados: guardados no próprio navegador (temporário, até a Fase 3
+ * com Supabase). Cada módulo é salvo e restaurado pelo seu id.
  */
+
+const STORAGE_KEY = 'rivai:estado:v1';
 
 /** Ícone simples por módulo, só para a barra de abas do celular. */
 const ICONS = {
@@ -19,6 +24,24 @@ const ICONS = {
   personal: '◇',
   travel: '✈',
 };
+
+/** Estado inicial de cada módulo, sobreposto pelo que estiver salvo. */
+function carregarEstado() {
+  const base = buildInitialState();
+  try {
+    const bruto = window.localStorage.getItem(STORAGE_KEY);
+    if (!bruto) return base;
+    const salvo = JSON.parse(bruto);
+    Object.keys(base).forEach((id) => {
+      if (salvo && salvo[id] && typeof salvo[id] === 'object') {
+        base[id] = { ...base[id], ...salvo[id] };
+      }
+    });
+    return base;
+  } catch (e) {
+    return base;
+  }
+}
 
 function useIsMobile() {
   const [is, setIs] = useState(
@@ -35,29 +58,10 @@ function useIsMobile() {
   return is;
 }
 
-/** Marca do Balthazar — pedra na água. */
-function Mark({ size = 15, onDeep = false }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 48 48" aria-hidden="true">
-      <circle
-        cx="24" cy="24" r="8" fill="none"
-        stroke={onDeep ? '#E8A970' : 'var(--bz-ember)'}
-        strokeWidth="3.2"
-      />
-      <circle
-        cx="24" cy="24" r="17" fill="none"
-        stroke={onDeep ? '#8FC2D1' : 'var(--accent)'}
-        strokeWidth="2.2"
-        opacity={onDeep ? '.75' : '.55'}
-      />
-    </svg>
-  );
-}
-
 export default function BalthazarApp() {
   const [activeId, setActiveId] = useState(MODULES[0]?.id);
   const [subViewId, setSubViewId] = useState(null);
-  const [state, setState] = useState(buildInitialState);
+  const [state, setState] = useState(carregarEstado);
   const [chatOpen, setChatOpen] = useState(false);
 
   const isMobile = useIsMobile();
@@ -73,7 +77,14 @@ export default function BalthazarApp() {
     setChatOpen(false);
   }
 
-  /* ---- abertura pelo atalho: ?voz=1 abre direto o modo de fala ---- */
+  /* ---- guarda os dados a cada mudança ---- */
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    } catch (e) { /* navegador sem armazenamento */ }
+  }, [state]);
+
+  /* ---- abertura pelo atalho: ?voz=1 abre direto a conversa ---- */
   useEffect(() => {
     const p = new URLSearchParams(window.location.search);
     if (p.get('voz') === '1' || p.get('chat') === '1') setChatOpen(true);
@@ -89,6 +100,7 @@ export default function BalthazarApp() {
             </p>
             <p className="tagline">o rumo certo, sem ruído</p>
 
+            <p className="nav-label">Áreas</p>
             <nav>
               {MODULES.map((m) => (
                 <div
@@ -176,7 +188,7 @@ export default function BalthazarApp() {
             >
               <span className="rg" />
               <span className="rg b" />
-              <Mark size={19} onDeep />
+              <span className="bz-stone" />
             </button>
           </div>
 
