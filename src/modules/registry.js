@@ -1,6 +1,15 @@
 import finance from './finance/index.js';
 import agenda from './agenda/index.js';
 
+/**
+ * Registro de módulos. O shell só conversa com estas funções.
+ *
+ * Um módulo pode declarar, além de view/subViews, tools e handlers:
+ *   header(state)   → { meta, lead }   linha de apoio no topo do painel
+ *   navBadge(state) → texto curto       selo ao lado do nome na lista de áreas
+ *   hud(state)      → [cartões]         cartões mostrados no modo voz
+ */
+
 const ALL_MODULES = [finance, agenda];
 
 export const MODULES = ALL_MODULES.filter((m) => m.enabled);
@@ -26,6 +35,18 @@ export function getAllTools() {
 export function getToolHandler(toolName) {
   const owner = MODULES.find((m) => m.tools?.some((t) => t.name === toolName));
   return owner ? owner.handlers[toolName] : null;
+}
+
+export function getHeader(module, state) {
+  return (module && module.header && module.header(state)) || {};
+}
+
+export function getNavBadge(module, state) {
+  return module && module.navBadge ? module.navBadge(state) : null;
+}
+
+export function getHudCards(state) {
+  return MODULES.flatMap((m) => (m.hud ? m.hud(state) || [] : []));
 }
 
 export function buildSystemPrompt(state) {
