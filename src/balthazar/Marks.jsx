@@ -13,20 +13,22 @@ export function Mark({ size = 15, onDeep = false }) {
         cx="24" cy="24" r="17" fill="none"
         stroke={onDeep ? '#8FC2D1' : '#1F4B5C'}
         strokeWidth="2.2"
-        opacity={onDeep ? '.6' : '.5'}
+        opacity={onDeep ? '.75' : '.5'}
       />
     </svg>
   );
 }
 
-/** Pedra com ondas se abrindo. `rings` = quantas ondas. */
+/** Balthazar em fundo profundo, com ondas se abrindo. `rings` = quantas ondas. */
 export function Stone({ className = '', rings = 3 }) {
   return (
     <span className={'stone-wrap ' + className} aria-hidden="true">
       {Array.from({ length: rings }).map((_, i) => (
         <span key={i} className="ring" style={{ animationDelay: `${(i * 3) / rings}s` }} />
       ))}
-      <span className="stone" />
+      <span className="stone">
+        <Mark size={20} onDeep />
+      </span>
     </span>
   );
 }

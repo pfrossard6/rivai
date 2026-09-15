@@ -193,9 +193,11 @@
 }
 .stone-wrap .stone {
   width: 48%; height: 48%; border-radius: 50%; position: relative; z-index: 2;
-  background: radial-gradient(circle at 36% 32%, var(--ember-lt), var(--ember) 60%, #8C4A22);
-  box-shadow: 0 0 16px rgba(194,112,58,.4);
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 38% 30%, #2C5566, #16323E 65%, var(--deep));
+  box-shadow: 0 3px 12px rgba(22,25,28,.3);
 }
+.stone-wrap .stone svg { width: 46%; height: 46%; }
 @keyframes rip {
   0% { transform: scale(.34); opacity: .75; }
   100% { transform: scale(1.55); opacity: 0; }
@@ -207,7 +209,7 @@
   background: none; border: none; cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-.orb:hover .stone { box-shadow: 0 0 24px rgba(194,112,58,.6); }
+.orb:hover .stone { box-shadow: 0 3px 20px rgba(22,25,28,.45); }
 .orb:active .stone { transform: scale(.94); }
 
 /* ================= aviso ================= */
@@ -266,13 +268,14 @@
 .vm-core:disabled { cursor: default; }
 .vm-core .ring { border-color: var(--cur-lt); animation-duration: 3.2s; }
 .vm-core .stone {
-  width: 44px; height: 44px;
+  width: 48px; height: 48px;
+  border: 1px solid rgba(143,194,209,.28);
   animation: pulse 3.2s ease-in-out infinite;
 }
 .vm-core.on .stone { animation-duration: 1.4s; }
 @keyframes pulse {
-  0%,100% { transform: scale(1); box-shadow: 0 0 22px rgba(194,112,58,.5); }
-  50% { transform: scale(1.07); box-shadow: 0 0 38px rgba(194,112,58,.75); }
+  0%,100% { transform: scale(1); box-shadow: 0 0 20px rgba(143,194,209,.18); }
+  50% { transform: scale(1.07); box-shadow: 0 0 36px rgba(143,194,209,.34); }
 }
 
 .said {
@@ -343,7 +346,7 @@
   color: var(--ember-lt); font-size: 13px;
   padding: 11px 24px; border-radius: 999px; cursor: pointer;
 }
-.vm-mic i { width: 7px; height: 7px; border-radius: 50%; background: var(--ember); animation: pulse 1.4s ease-in-out infinite; }
+.vm-mic i { width: 7px; height: 7px; border-radius: 50%; background: var(--ember); animation: blink 1.4s ease-in-out infinite; }
 .vm-mic:disabled { opacity: .45; cursor: default; }
 .vm-row { display: flex; align-items: center; gap: 10px; width: 100%; max-width: 520px; justify-content: center; }
 .vm-type {
@@ -381,14 +384,18 @@
 @keyframes riversIn { to { opacity: .45; } }
 .sp-core { position: relative; width: 170px; height: 170px; display: flex; align-items: center; justify-content: center; }
 .sp-stone {
-  width: 0; height: 0; border-radius: 50%; z-index: 3;
-  background: radial-gradient(circle at 36% 32%, var(--ember-lt), var(--ember) 60%, #8C4A22);
+  width: 0; height: 0; border-radius: 50%; z-index: 3; overflow: hidden;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(circle at 38% 30%, #2C5566, #16323E 65%, var(--deep));
+  border: 1px solid rgba(143,194,209,.3);
   animation: drop .75s cubic-bezier(.3,1.4,.5,1) forwards;
 }
+.sp-stone svg { width: 46%; height: 46%; opacity: 0; animation: fadeIn .5s ease .55s forwards; }
+@keyframes fadeIn { to { opacity: 1; } }
 @keyframes drop {
   0% { width: 0; height: 0; }
-  70% { width: 54px; height: 54px; }
-  100% { width: 46px; height: 46px; box-shadow: 0 0 34px rgba(194,112,58,.65); }
+  70% { width: 60px; height: 60px; }
+  100% { width: 52px; height: 52px; box-shadow: 0 0 34px rgba(143,194,209,.3); }
 }
 .sp-core .rg { position: absolute; width: 110px; height: 110px; border-radius: 50%; border: 1px solid var(--cur-lt); opacity: 0; }
 .sp-core .rg.a { animation: ripSp 2.6s cubic-bezier(.2,.6,.4,1) .55s infinite; }
@@ -571,18 +578,20 @@
     display: flex; align-items: center; justify-content: center;
     -webkit-tap-highlight-color: transparent;
   }
-  .bz-stone {
+  /* opção 04 · fundo profundo: azul do rio com a pedra em âmbar */
+  .bz-deep {
     position: relative; z-index: 2;
     width: 52px; height: 52px; border-radius: 50%;
-    background: radial-gradient(circle at 36% 32%, var(--ember-lt), var(--ember) 60%, #8C4A22);
-    box-shadow: 0 3px 12px rgba(194,112,58,.4);
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(circle at 38% 30%, #2C5566, #16323E 65%, var(--deep));
+    box-shadow: 0 3px 12px rgba(22,25,28,.3);
     transition: transform .2s ease, box-shadow .2s ease;
   }
-  .bz-btn:active .bz-stone { transform: scale(.94); }
-  .bz-btn.on .bz-stone { box-shadow: 0 3px 20px rgba(194,112,58,.65); }
+  .bz-btn:active .bz-deep { transform: scale(.94); }
+  .bz-btn.on .bz-deep { box-shadow: 0 3px 18px rgba(22,25,28,.45); }
   .bz-btn .rg {
     position: absolute; width: 52px; height: 52px; border-radius: 50%;
-    border: 1px solid var(--ember); opacity: 0;
+    border: 1px solid var(--cur); opacity: 0;
     animation: bzRip 3s cubic-bezier(.2,.6,.4,1) infinite;
   }
   .bz-btn .rg.b { animation-delay: 1.5s; }
@@ -595,7 +604,7 @@
   .vm-mobile .hud-card .v { font-size: 15px; }
   .vm-mobile .vm-center { gap: 18px; padding: 150px 22px 150px; }
   .vm-mobile .vm-core { width: 120px; height: 120px; }
-  .vm-mobile .vm-core .stone { width: 38px; height: 38px; }
+  .vm-mobile .vm-core .stone { width: 42px; height: 42px; }
   .vm-mobile .said { font-size: 17px; line-height: 1.45; max-width: 260px; }
   .vm-mobile .reply { font-size: 13px; max-width: 280px; -webkit-line-clamp: 3; }
   .vm-mobile .meta { font-size: 10px; letter-spacing: .12em; }

@@ -3,7 +3,7 @@ import {
   MODULES, buildInitialState, getViews, getHeader, getNavBadge, getHudCards,
 } from './modules/registry.js';
 import useBalthazar, { textoLimpo } from './balthazar/useBalthazar.js';
-import { Stone } from './balthazar/Marks.jsx';
+import { Stone, Mark } from './balthazar/Marks.jsx';
 import VoiceMode from './balthazar/VoiceMode.jsx';
 import ChatSheet from './balthazar/ChatSheet.jsx';
 import Splash from './balthazar/Splash.jsx';
@@ -15,8 +15,8 @@ import './balthazar.css';
  *
  * Desktop: áreas à esquerda, painel à direita, pedra no canto inferior
  *          direito. A pedra abre o modo voz (tela escura) já ouvindo.
- * Celular: barra de abas com a pedra no centro. A pedra abre a conversa;
- *          o microfone da conversa abre o modo voz.
+ * Celular: barra de abas com a pedra no centro. A pedra abre o modo voz
+ *          já ouvindo; "digitar", dentro dele, abre a conversa escrita.
  *
  * Abertura: uma vez por sessão. Tutorial: na primeira vez (ou ?tutorial=1).
  * Dados: guardados no navegador até a Fase 3 (Supabase).
@@ -311,14 +311,16 @@ export default function BalthazarApp() {
           <div className="bz-tab">
             <button
               type="button"
-              className={'bz-btn' + (chatOpen ? ' on' : '')}
-              onClick={() => setChatOpen((o) => !o)}
+              className={'bz-btn' + (voiceOpen ? ' on' : '')}
+              onClick={abrirVoz}
               aria-label="Balthazar"
               data-tour="orb"
             >
               <span className="rg" />
               <span className="rg b" />
-              <span className="bz-stone" />
+              <span className="bz-deep">
+                <Mark size={21} onDeep />
+              </span>
             </button>
           </div>
 

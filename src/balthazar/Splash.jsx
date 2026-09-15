@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Rivers } from './Marks.jsx';
+import { Rivers, Mark } from './Marks.jsx';
 
 /**
  * Abertura animada: a pedra cai, as ondas se abrem, aparece o nome.
@@ -25,7 +25,9 @@ export default function Splash({ onDone }) {
         <span className="rg a" />
         <span className="rg b" />
         <span className="rg c" />
-        <span className="sp-stone" />
+        <span className="sp-stone">
+          <Mark size={24} onDeep />
+        </span>
       </div>
       <p className="sp-name">
         Riv<span className="d">.</span>AI
