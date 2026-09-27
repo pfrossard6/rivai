@@ -752,3 +752,68 @@
   .in-numeros .v { font-size: 15px; }
   .in-dia .tra { height: 38px; }
 }
+
+/* =============================================================
+   ENTRADA — e-mail e senha
+   ============================================================= */
+
+.sessao {
+  position: fixed; inset: 0;
+  background: #0A1620; color: #E8E9E6;
+  font-family: 'Source Serif 4', serif;
+  display: flex; align-items: center; justify-content: center;
+  padding: 28px; overflow: hidden;
+}
+.sessao .rivers { opacity: .4; }
+.sessao.carregando { background: #0A1620; }
+
+.ss-caixa {
+  position: relative; z-index: 2;
+  width: 100%; max-width: 330px;
+  display: flex; flex-direction: column; align-items: stretch;
+}
+.ss-marca { display: flex; justify-content: center; }
+.ss-nome {
+  text-align: center; font-size: 21px; font-weight: 600;
+  margin: 18px 0 0; letter-spacing: .01em;
+}
+.ss-nome .d { color: #E4CFA3; }
+.ss-tag {
+  text-align: center; font-size: 11.5px; letter-spacing: .12em;
+  color: #6E808B; margin: 7px 0 30px;
+}
+
+.ss-campo { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; }
+.ss-campo span {
+  font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase; color: #6E808B;
+}
+.ss-campo input {
+  font-family: inherit; font-size: 16px; color: #E8E9E6;
+  background: rgba(19,32,42,.7); border: 1px solid rgba(228,207,163,.22);
+  border-radius: 10px; padding: 12px 14px; outline: none;
+}
+.ss-campo input:focus { border-color: rgba(228,207,163,.6); }
+.ss-campo input::placeholder { color: #55646D; }
+
+.ss-entrar {
+  font-family: inherit; font-size: 15px; font-weight: 600;
+  color: #0A1620; background: #E4CFA3; border: none;
+  border-radius: 10px; padding: 14px 18px; cursor: pointer; margin-top: 6px;
+}
+.ss-entrar:hover { background: #F2E4C6; }
+.ss-entrar:disabled { opacity: .55; cursor: default; }
+
+.ss-troca {
+  font-family: inherit; font-size: 12.5px; color: #93A3AC;
+  background: none; border: none; cursor: pointer; margin-top: 16px; padding: 8px;
+}
+.ss-troca:hover { color: #E4CFA3; }
+
+.ss-erro { font-size: 13px; color: #E8A88A; margin: 0 0 12px; line-height: 1.5; }
+.ss-aviso { font-size: 13px; color: #A9C6B4; margin: 0 0 12px; line-height: 1.5; }
+
+.m-sair {
+  font-family: inherit; font-size: 11px; color: var(--ink-soft);
+  background: none; border: none; cursor: pointer; padding: 4px 0 4px 12px;
+  text-decoration: underline; text-underline-offset: 2px;
+}

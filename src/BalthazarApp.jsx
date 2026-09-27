@@ -8,6 +8,8 @@ import VoiceMode from './balthazar/VoiceMode.jsx';
 import ChatSheet from './balthazar/ChatSheet.jsx';
 import Splash from './balthazar/Splash.jsx';
 import Tour from './balthazar/Tour.jsx';
+import { supabase, temNuvem } from './supabase.js';
+import { lerEstado, gravarEstado } from './nuvem.js';
 import './balthazar.css';
 
 /**
@@ -86,7 +88,7 @@ function useIsMobile() {
   return is;
 }
 
-export default function BalthazarApp() {
+export default function BalthazarApp({ sessao }) {
   const [activeId, setActiveId] = useState(MODULES[0]?.id);
   const [subViewId, setSubViewId] = useState(null);
   const [state, setState] = useState(carregarEstado);
@@ -95,6 +97,7 @@ export default function BalthazarApp() {
   const [splash, setSplash] = useState(() => !lerFlag('sessionStorage', SPLASH_KEY));
   const [tour, setTour] = useState(false);
   const [toast, setToast] = useState(null);
+  const [nuvemPronta, setNuvemPronta] = useState(!temNuvem);
 
   const isMobile = useIsMobile();
   const api = useBalthazar(state, setState);
@@ -106,12 +109,44 @@ export default function BalthazarApp() {
   const header = getHeader(active, state);
   const mes = new Date().toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 
-  /* ---- dados: guarda a cada mudança ---- */
+  const userId = sessao?.user?.id || null;
+
+  /* ---- nuvem: lê o que está guardado; se for a primeira vez, sobe o local ---- */
+  useEffect(() => {
+    let vivo = true;
+    if (!temNuvem || !userId) {
+      setNuvemPronta(true);
+      return undefined;
+    }
+    (async () => {
+      const daNuvem = await lerEstado(userId);
+      if (!vivo) return;
+      if (daNuvem) {
+        const base = buildInitialState();
+        Object.keys(base).forEach((id) => {
+          if (daNuvem[id] && typeof daNuvem[id] === 'object') base[id] = { ...base[id], ...daNuvem[id] };
+        });
+        setState(base);
+      } else {
+        await gravarEstado(userId, carregarEstado());
+      }
+      if (vivo) setNuvemPronta(true);
+    })();
+    return () => {
+      vivo = false;
+    };
+  }, [userId]);
+
+  /* ---- dados: navegador na hora, nuvem logo atrás ---- */
   useEffect(() => {
     try {
       window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
     } catch (e) { /* navegador sem armazenamento */ }
-  }, [state]);
+
+    if (!temNuvem || !userId || !nuvemPronta) return undefined;
+    const t = setTimeout(() => { gravarEstado(userId, state); }, 800);
+    return () => clearTimeout(t);
+  }, [state, userId, nuvemPronta]);
 
   /* ---- atalho: ?voz=1 abre o modo voz, ?chat=1 abre a conversa ---- */
   useEffect(() => {
@@ -236,6 +271,11 @@ export default function BalthazarApp() {
               <button className="link" type="button" onClick={() => setTour(true)}>
                 rever tutorial
               </button>
+              {temNuvem && sessao && (
+                <button className="link" type="button" onClick={() => supabase.auth.signOut()}>
+                  sair
+                </button>
+              )}
             </div>
           </aside>
         )}
@@ -248,6 +288,11 @@ export default function BalthazarApp() {
                 Riv<span className="dot">.</span>AI
               </span>
               <span className="m-month">{mes.split(' ')[0]}</span>
+              {temNuvem && sessao && (
+                <button className="m-sair" type="button" onClick={() => supabase.auth.signOut()}>
+                  sair
+                </button>
+              )}
             </div>
           )}
 
