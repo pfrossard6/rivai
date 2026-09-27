@@ -97,13 +97,13 @@ export default function VoiceMode({ api, cards, mobile, onClose, onOpenChat }) {
       {/* ---- centro ---- */}
       <div className="vm-center">
         <button
-          className={'vm-core' + (listening ? ' on' : '')}
+          className={'vm-core' + (listening ? ' on ouvindo' : '') + (speaking ? ' respondendo' : '')}
           type="button"
           onClick={api.toggleListening}
           disabled={busy || !api.voiceSupported}
           aria-label={listening ? 'Enviar' : 'Falar'}
         >
-          <Stone rings={3} />
+          <Stone rings={3} onDeep />
         </button>
 
         <p className="said">{fala}</p>

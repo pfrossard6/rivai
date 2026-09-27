@@ -19,8 +19,8 @@
   --warn: #A8541F;
   --warn-soft: #F6E7DA;
   --good: #3F6B4C;
-  --ember: #C2703A;
-  --ember-lt: #E8A970;
+  --ember: #B08A4A;
+  --ember-lt: #E4CFA3;
   --cur: #4E8394;
   --cur-lt: #8FC2D1;
   --mist: #E8E9E6;
@@ -619,4 +619,75 @@
     animation-iteration-count: 1 !important;
     transition-duration: .01ms !important;
   }
+}
+
+/* =============================================================
+   MONÓCULO — a marca, seus estados e onde ela aparece
+   ============================================================= */
+
+.mn { display: block; overflow: visible; }
+.mn-corrente { transform-origin: 148px 52px; animation: mnRepouso 9s ease-in-out infinite; }
+.mn-compacto .mn-corrente { transform-origin: 35px 14px; }
+.mn-miolo { opacity: .18; animation: mnRespira 6s ease-in-out infinite; }
+.mn-faixa { animation: mnVarre 8s ease-in-out infinite; }
+
+@keyframes mnRepouso { 0%, 100% { transform: rotate(-.6deg); } 50% { transform: rotate(.6deg); } }
+@keyframes mnBalanca { 0%, 100% { transform: rotate(-2.6deg); } 50% { transform: rotate(2.6deg); } }
+@keyframes mnRespira { 0%, 100% { opacity: .13; } 50% { opacity: .26; } }
+@keyframes mnEscuta  { 0%, 100% { opacity: .20; } 50% { opacity: .62; } }
+@keyframes mnAceso   { 0%, 100% { opacity: .74; } 50% { opacity: .92; } }
+@keyframes mnVarre {
+  0% { transform: translateX(-70px); opacity: 0; }
+  18% { opacity: .85; }
+  52% { opacity: .5; }
+  100% { transform: translateX(70px); opacity: 0; }
+}
+
+.ouvindo .mn-miolo { animation: mnEscuta 3.4s ease-in-out infinite; }
+.ouvindo .mn-faixa { animation: mnVarre 5.5s ease-in-out infinite; }
+.respondendo .mn-miolo { animation: mnAceso 2.2s ease-in-out infinite; }
+.respondendo .mn-corrente { animation: mnBalanca 1.9s ease-in-out infinite; }
+.respondendo .mn-faixa { animation: mnVarre 3.2s ease-in-out infinite; }
+
+.stone-wrap .stone {
+  width: auto; height: auto; background: none; box-shadow: none; border: none;
+  animation: none; transition: transform .2s ease;
+}
+.stone-wrap .stone svg { width: auto; height: auto; }
+.stone-wrap .ring { border-color: rgba(181,143,76,.45); }
+
+.orb { width: 96px; height: 96px; right: 20px; bottom: 20px; }
+.orb:hover .stone { transform: scale(1.04); box-shadow: none; }
+.orb:active .stone { transform: scale(.95); }
+
+.ring-badge { background: rgba(176,138,74,.12); }
+
+.vm-core { width: 190px; height: 190px; }
+.vm-core .stone { width: auto; height: auto; border: none; animation: none; }
+.vm-core .ring { border-color: rgba(228,207,163,.4); }
+
+.sp-stone {
+  width: auto; height: auto; background: none; border: none; overflow: visible;
+  animation: mnMonta 1s cubic-bezier(.26,1.12,.4,1) both;
+}
+.sp-stone svg { width: auto; height: auto; opacity: 1; animation: none; }
+.sp-core { width: 210px; height: 210px; }
+.sp-core .rg { width: 150px; height: 150px; border-color: rgba(228,207,163,.34); }
+@keyframes mnMonta {
+  0% { transform: translateY(-70px) rotate(-12deg); opacity: 0; }
+  40% { opacity: 1; }
+  100% { transform: none; opacity: 1; }
+}
+.sp-name .d { color: var(--ember-lt); }
+
+@media (max-width: 760px) {
+  .tabbar { height: calc(76px + env(safe-area-inset-bottom, 0px)); padding-top: 10px; }
+  .bz-tab { flex: 0 0 76px; }
+  .bz-btn { top: -30px; width: 74px; height: 74px; }
+  .bz-deep { width: 68px; height: 68px; background: none; box-shadow: none; }
+  .bz-btn .rg { width: 62px; height: 62px; border-color: rgba(176,138,74,.5); }
+  .is-mobile .main-body { padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)); }
+  .chat-sheet { bottom: calc(76px + env(safe-area-inset-bottom, 0px)); }
+  .toast { bottom: calc(94px + env(safe-area-inset-bottom, 0px)); }
+  .vm-mobile .vm-core { width: 168px; height: 168px; }
 }

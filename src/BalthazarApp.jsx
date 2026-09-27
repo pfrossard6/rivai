@@ -194,7 +194,14 @@ export default function BalthazarApp() {
   );
 
   return (
-    <div className={'balthazar-app' + (isMobile ? ' is-mobile' : '')}>
+    <div
+      className={
+        'balthazar-app' +
+        (isMobile ? ' is-mobile' : '') +
+        (api.listening ? ' ouvindo' : '') +
+        (api.speaking ? ' respondendo' : '')
+      }
+    >
       <div className="app-row">
         {/* ================= áreas (desktop) ================= */}
         {!isMobile && (
@@ -319,7 +326,7 @@ export default function BalthazarApp() {
               <span className="rg" />
               <span className="rg b" />
               <span className="bz-deep">
-                <Mark size={21} onDeep />
+                <Mark size={46} />
               </span>
             </button>
           </div>

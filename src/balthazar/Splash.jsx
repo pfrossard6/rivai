@@ -26,7 +26,7 @@ export default function Splash({ onDone }) {
         <span className="rg b" />
         <span className="rg c" />
         <span className="sp-stone">
-          <Mark size={24} onDeep />
+          <Mark size={150} onDeep />
         </span>
       </div>
       <p className="sp-name">
