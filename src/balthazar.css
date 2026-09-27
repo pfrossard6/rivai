@@ -691,3 +691,64 @@
   .toast { bottom: calc(94px + env(safe-area-inset-bottom, 0px)); }
   .vm-mobile .vm-core { width: 168px; height: 168px; }
 }
+
+/* =============================================================
+   INÍCIO — o dia em cima, a semana embaixo
+   ============================================================= */
+
+.inicio .in-ola {
+  font-size: 29px; font-weight: 600; letter-spacing: -.02em;
+  margin: 2px 0 12px; line-height: 1.15;
+}
+.inicio .in-recado {
+  font-size: 17px; line-height: 1.6; color: var(--ink-2);
+  margin: 0 0 22px; max-width: 540px;
+}
+.inicio .in-recado strong { color: var(--ink); font-weight: 600; }
+
+.in-numeros {
+  display: flex; border: 1px solid var(--rule); border-radius: 9px;
+  overflow: hidden; background: var(--card); max-width: 540px;
+}
+.in-numeros > div { flex: 1; padding: 11px 13px; border-right: 1px solid var(--rule); min-width: 0; }
+.in-numeros > div:last-child { border-right: none; }
+.in-numeros .k {
+  font-size: 9.5px; text-transform: uppercase; letter-spacing: .1em;
+  color: var(--ink-soft); margin-bottom: 5px;
+}
+.in-numeros .v { font-size: 16px; font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.in-semana { display: flex; gap: 8px; align-items: flex-end; max-width: 540px; }
+.in-dia { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.in-dia .pt { width: 4px; height: 4px; border-radius: 50%; background: var(--ember); }
+.in-dia .pt.vazio { background: transparent; }
+.in-dia .tra {
+  width: 100%; height: 44px; background: var(--rule-soft);
+  border-radius: 3px; position: relative; overflow: hidden;
+}
+.in-dia .pre {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  background: var(--accent); border-radius: 3px; transition: height .4s ease;
+}
+.in-dia .d { font-size: 10px; color: var(--ink-soft); letter-spacing: .04em; }
+.in-dia.hoje .d { color: var(--ink); font-weight: 600; }
+.in-dia.hoje .pre { background: var(--ink); }
+.in-legenda { font-size: 11px; color: var(--ink-soft); margin: 9px 0 0; }
+
+.in-curso { max-width: 540px; }
+.in-item {
+  display: flex; gap: 12px; align-items: flex-start;
+  border-left: 2px solid var(--ember); padding: 2px 0 2px 12px; margin-bottom: 11px;
+}
+.in-item:last-child { margin-bottom: 0; }
+.in-item > div { flex: 1; min-width: 0; }
+.in-item .t { font-size: 14px; font-weight: 600; }
+.in-item .s { font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; }
+.in-item .q { font-size: 11.5px; color: var(--ink-soft); white-space: nowrap; }
+
+@media (max-width: 760px) {
+  .inicio .in-ola { font-size: 26px; }
+  .inicio .in-recado { font-size: 15.5px; margin-bottom: 18px; }
+  .in-numeros .v { font-size: 15px; }
+  .in-dia .tra { height: 38px; }
+}

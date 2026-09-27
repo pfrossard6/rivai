@@ -1,3 +1,4 @@
+import inicio from './inicio/index.js';
 import finance from './finance/index.js';
 import agenda from './agenda/index.js';
 
@@ -10,7 +11,7 @@ import agenda from './agenda/index.js';
  *   hud(state)      → [cartões]         cartões mostrados no modo voz
  */
 
-const ALL_MODULES = [finance, agenda];
+const ALL_MODULES = [inicio, finance, agenda];
 
 export const MODULES = ALL_MODULES.filter((m) => m.enabled);
 

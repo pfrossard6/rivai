@@ -27,6 +27,7 @@ const TOUR_KEY = 'rivai:tutorial:v1';
 const SPLASH_KEY = 'rivai:abertura';
 
 const ICONS = {
+  inicio: '◐',
   finance: '◫',
   agenda: '▤',
   email: '✉',
@@ -252,7 +253,7 @@ export default function BalthazarApp() {
 
           <header className="main-header">
             <div className="hd-row">
-              <h2>{active?.label}</h2>
+              {!active?.hideTitle && <h2>{active?.label}</h2>}
               {header.meta && !isMobile && <span className="hd-meta">{header.meta}</span>}
             </div>
             {header.lead && <p className="hd-lead">{header.lead}</p>}
